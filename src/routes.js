@@ -2,8 +2,8 @@
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
-import Vehicles from './pages/Vehicles';
-import Login from './pages/Login';
+import Vehicles from './pages/vehicles/Vehicles';
+import Login from './pages/auth/Login';
 import History from './pages/History';
 
 // Route bảo vệ

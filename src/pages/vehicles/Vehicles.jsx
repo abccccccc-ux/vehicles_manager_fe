@@ -1,6 +1,6 @@
 import React from 'react';
-import DashboardLayout from '../layouts/DashboardLayout';
-import VehicleTable from '../components/VehicleTable';
+import DashboardLayout from '../../layouts/DashboardLayout';
+import VehicleTable from '../../components/VehicleTable';
 
 const Vehicles = () => (
   <DashboardLayout>

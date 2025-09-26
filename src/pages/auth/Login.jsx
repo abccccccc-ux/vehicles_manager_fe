@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
-import DashboardLayout from '../layouts/DashboardLayout';
+import DashboardLayout from '../../layouts/DashboardLayout';
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../store/authSlice';
-import { login as loginApi } from '../api/authApi';
+import { loginSuccess } from '../../store/authSlice';
+import { login as loginApi } from '../../api/authApi';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -21,6 +21,9 @@ const Login = () => {
     try {
       const res = await loginApi(username, password);
       if (res.success) {
+        // Lưu token vào localStorage
+        localStorage.setItem('accessToken', res.data.tokens.accessToken);
+        localStorage.setItem('refreshToken', res.data.tokens.refreshToken);
         dispatch(loginSuccess(res.data));
         navigate('/dashboard');
       } else {

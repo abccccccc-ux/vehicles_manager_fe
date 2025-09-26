@@ -7,4 +7,18 @@ const axiosClient = axios.create({
   },
 });
 
+// Interceptor để tự động thêm accessToken vào header (trừ login)
+axiosClient.interceptors.request.use(
+  (config) => {
+    if (!config.url.includes('/auth/login')) {
+      const accessToken = localStorage.getItem('accessToken');
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 export default axiosClient;

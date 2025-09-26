@@ -1,9 +1,17 @@
 import axiosClient from './axiosClient';
 
+
 export const login = async (username, password) => {
-  const response = await axiosClient.post('http://localhost:8000/api/auth/login', {
+  const response = await axiosClient.post('/auth/login', {
     username,
     password,
+  });
+  return response.data;
+};
+
+export const refreshToken = async (refreshToken) => {
+  const response = await axiosClient.post('/auth/refresh-token', {
+    refreshToken,
   });
   return response.data;
 };
