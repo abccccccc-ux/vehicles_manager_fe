@@ -1,3 +1,5 @@
+import axiosClient from './axiosClient';
+
 // Lấy thông tin xe theo biển số
 export const getVehicleByLicensePlate = async (licensePlate) => {
   const response = await axiosClient.get(`/vehicles/license-plate/${licensePlate}`);
@@ -12,9 +14,14 @@ export const getVehicleByLicensePlate = async (licensePlate) => {
   return response.data;
 };
 
-import axiosClient from './axiosClient';
-
 export const getVehicles = async () => {
   const response = await axiosClient.get('/vehicles');
   return response.data;
 };
+
+export const createVehicle = async (body) => {
+  const response = await axiosClient.post('/vehicles', body);
+  return response.data;
+};
+
+export default { getVehicleByLicensePlate, getVehicles, createVehicle };

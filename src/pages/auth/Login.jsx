@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../store/authSlice';
@@ -23,6 +22,7 @@ const Login = () => {
         // Lưu token vào localStorage
         localStorage.setItem('accessToken', res.data.tokens.accessToken);
         localStorage.setItem('refreshToken', res.data.tokens.refreshToken);
+        localStorage.setItem('userId', res.data.user._id); // Lưu _id người dùng
         dispatch(loginSuccess(res.data));
         navigate('/dashboard');
       } else {

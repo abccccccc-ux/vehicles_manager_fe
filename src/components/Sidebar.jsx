@@ -6,6 +6,8 @@ import {
   DashboardOutlined,
   CarOutlined,
   HistoryOutlined,
+  PlusCircleOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 
 const Sidebar = ({ collapsed }) => {
@@ -33,6 +35,18 @@ const Sidebar = ({ collapsed }) => {
         icon: <HistoryOutlined />,
         label: <Link to="/history">Lịch sử ra/vào</Link>,
       },
+      {
+        key: 'settings',
+        icon: <SettingOutlined />,
+        label: 'Cài đặt',
+        children: [
+          {
+            key: 'register-vehicle',
+            icon: <PlusCircleOutlined />,
+            label: <Link to={'/register-vehicle'}>Thêm phương tiện cá nhân</Link>
+          }
+        ]
+      }
     ]);
   }
 
