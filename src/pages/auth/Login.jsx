@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import DashboardLayout from '../../layouts/DashboardLayout';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../store/authSlice';
 import { login as loginApi } from '../../api/authApi';
@@ -36,7 +35,7 @@ const Login = () => {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <div className="max-w-sm mx-auto mt-10 p-6 bg-white rounded shadow">
         <h2 className="text-xl font-bold mb-4">Đăng nhập</h2>
         <form onSubmit={handleSubmit}>
@@ -65,7 +64,7 @@ const Login = () => {
           </button>
         </form>
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 

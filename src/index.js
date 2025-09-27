@@ -6,6 +6,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import vehicleReducer from './store/vehicleSlice';
 import authReducer from './store/authSlice';
 import App from './App';
+import './global.css';
 
 const store = configureStore({
   reducer: {
