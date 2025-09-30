@@ -15,3 +15,13 @@ export const refreshToken = async (refreshToken) => {
   });
   return response.data;
 };
+
+// Đổi mật khẩu
+export const changePassword = async ({ currentPassword, newPassword }) => {
+  const response = await axiosClient.put('/auth/change-password', {
+    currentPassword,
+    newPassword,
+  });
+  return response.data;
+};
+
