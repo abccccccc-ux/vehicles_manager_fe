@@ -23,6 +23,7 @@ const Login = () => {
         localStorage.setItem('accessToken', res.data.tokens.accessToken);
         localStorage.setItem('refreshToken', res.data.tokens.refreshToken);
         localStorage.setItem('userId', res.data.user._id); // Lưu _id người dùng
+          localStorage.setItem('role', res.data.user.role); // Lưu role người dùng
         dispatch(loginSuccess(res.data));
         navigate('/dashboard');
       } else {

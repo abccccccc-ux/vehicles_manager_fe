@@ -6,11 +6,21 @@ import Vehicles from './pages/vehicles/Vehicles';
 import Login from './pages/auth/Login';
 import History from './pages/History';
 import RegisterVehicle from './pages/settings/RegisterVehicle';
+import Users from './pages/users/Users';
 
 // Route bảo vệ
 const PrivateRoute = ({ children }) => {
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
   return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
+// Route chỉ cho admin
+const AdminRoute = ({ children }) => {
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const user = useSelector(state => state.auth.user);
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!user || user.role !== 'super_admin') return <Navigate to="/" replace />;
+  return children;
 };
 
 const routes = [
@@ -20,6 +30,7 @@ const routes = [
   { path: '/vehicles', element: <PrivateRoute><Vehicles /></PrivateRoute> },
   { path: '/history', element: <PrivateRoute><History /></PrivateRoute> },
   { path: '/register-vehicle', element: <PrivateRoute><RegisterVehicle /></PrivateRoute> },  
+  { path: '/users', element: <AdminRoute><Users /></AdminRoute> },
 ];
 
 export default routes;

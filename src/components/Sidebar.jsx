@@ -8,6 +8,7 @@ import {
   HistoryOutlined,
   PlusCircleOutlined,
   SettingOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 
 const Sidebar = ({ collapsed }) => {
@@ -34,6 +35,11 @@ const Sidebar = ({ collapsed }) => {
         key: 'history',
         icon: <HistoryOutlined />,
         label: <Link to="/history">Lịch sử ra/vào</Link>,
+      },
+      {
+        key: 'users',
+        icon: <UserOutlined />,
+        label: <Link to="/users">Người dùng</Link>,
       },
       {
         key: 'settings',
