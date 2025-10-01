@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { configureStore } from '@reduxjs/toolkit';
 import vehicleReducer from './store/vehicleSlice';
 import authReducer from './store/authSlice';
+import departmentReducer from './store/departmentSlice';
 import App from './App';
 import './global.css';
 
@@ -12,6 +13,7 @@ const store = configureStore({
   reducer: {
     vehicle: vehicleReducer,
     auth: authReducer,
+    departments: departmentReducer,
   },
 });
 

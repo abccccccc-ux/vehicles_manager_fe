@@ -10,6 +10,7 @@ import {
   SettingOutlined,
   UserOutlined,
   LockOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 
 const Sidebar = () => {
@@ -61,6 +62,11 @@ const Sidebar = () => {
         key: "users",
         icon: <UserOutlined />,
         label: <Link to="/users">Người dùng</Link>,
+      },
+      {
+        key: "departments",
+        icon: <TeamOutlined />,
+        label: <Link to="/departments">Phòng ban</Link>,
       },
     ]);
   }

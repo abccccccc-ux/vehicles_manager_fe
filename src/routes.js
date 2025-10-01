@@ -8,6 +8,7 @@ import History from './pages/History';
 import RegisterVehicle from './pages/settings/RegisterVehicle';
 import Users from './pages/users/Users';
 import ChangePassword from './pages/settings/ChangePassword';
+import Departments from './pages/departments/Departments';
 
 // Route bảo vệ
 const PrivateRoute = ({ children }) => {
@@ -32,7 +33,8 @@ const routes = [
   { path: '/history', element: <PrivateRoute><History /></PrivateRoute> },
   { path: '/register-vehicle', element: <PrivateRoute><RegisterVehicle /></PrivateRoute> },  
   { path: '/users', element: <AdminRoute><Users /></AdminRoute> },
-  { path: '/change-password', element: <PrivateRoute><ChangePassword /></PrivateRoute>}
+  { path: '/change-password', element: <PrivateRoute><ChangePassword /></PrivateRoute>},
+  { path: '/departments', element: <PrivateRoute><Departments/></PrivateRoute>}
 ];
 
 export default routes;
