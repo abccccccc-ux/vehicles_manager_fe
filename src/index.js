@@ -6,6 +6,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import vehicleReducer from './store/vehicleSlice';
 import authReducer from './store/authSlice';
 import departmentReducer from './store/departmentSlice';
+import userReducer from './store/userSlice';
 import App from './App';
 import './global.css';
 
@@ -14,6 +15,7 @@ const store = configureStore({
     vehicle: vehicleReducer,
     auth: authReducer,
     departments: departmentReducer,
+    users: userReducer,
   },
 });
 

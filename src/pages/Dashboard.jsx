@@ -1,7 +1,7 @@
 import React from 'react';
 import MainLayout from '../layouts/MainLayout';
 import VideoPlayer from '../components/VideoPlayer';
-import VehicleTable from '../components/VehicleTable';
+import VehicleTable from './vehicles/VehicleTable';
 import ChartStats from '../components/ChartStats';
 
 const Dashboard = () => (

@@ -1,6 +1,6 @@
 import React from 'react';
 import MainLayout from '../../layouts/MainLayout';
-import VehicleTable from '../../components/VehicleTable';
+import VehicleTable from './VehicleTable';
 
 const Vehicles = () => (
   <MainLayout>

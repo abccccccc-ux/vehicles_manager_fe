@@ -7,6 +7,10 @@ const userApi = {
   createUser: (data) => {
     return axiosClient.post('/users', data);
   },
+
+  getUserById: (userId) => {
+    return axiosClient.get(`/users/${userId}`);
+  },
 };
 
 export default userApi;

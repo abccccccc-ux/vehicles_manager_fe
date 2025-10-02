@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Table, Tag, Spin } from 'antd';
 import CreateUserDialog from './CreateUserDialog';
+import UserDetailsDialog from './UserDetailsDialog';
 import userApi from '../../api/userApi';
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
@@ -61,6 +62,8 @@ const Users = () => {
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [showUserDetails, setShowUserDetails] = useState(false);
 
   const currentUser = useSelector((state) => state.auth.user);
 
@@ -109,6 +112,12 @@ const Users = () => {
               showSizeChanger: false,
             }}
             rowClassName={() => 'hover:bg-gray-50 cursor-pointer'}
+            onRow={(record) => ({
+              onClick: () => {
+                setSelectedUserId(record._id);
+                setShowUserDetails(true);
+              },
+            })}
           />
         )}
       </div>
@@ -119,6 +128,11 @@ const Users = () => {
           setShowDialog(false);
           fetchUsers();
         }}
+      />
+      <UserDetailsDialog
+        visible={showUserDetails}
+        userId={selectedUserId}
+        onClose={() => setShowUserDetails(false)}
       />
     </MainLayout>
   );

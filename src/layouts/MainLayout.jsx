@@ -10,7 +10,7 @@ const MainLayout = ({ children }) => {
     <Layout style={{ minHeight: '100vh', background: '#f3f4f6' }}>
       {/* Sidebar nằm bên trái */}
       <Sider
-        width={200}
+        width={265}
         theme="light"
         style={{ background: '#fff' }}
       >

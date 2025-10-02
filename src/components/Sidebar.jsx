@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Menu } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -18,14 +18,36 @@ const Sidebar = () => {
   const location = useLocation();
   const role = user?.role;
 
-  // Luôn mở submenu settings mặc định
-  const [openKeys, setOpenKeys] = useState(["settings"]);
-
-  let items = [
+  // Danh sách items
+  const allItems = [
     {
       key: "dashboard",
       icon: <DashboardOutlined />,
       label: <Link to="/dashboard">Dashboard</Link>,
+    },
+    {
+      key: "vehicles",
+      icon: <CarOutlined />,
+      label: <Link to="/vehicles">Danh sách xe</Link>,
+      role: "super_admin",
+    },
+    {
+      key: "history",
+      icon: <HistoryOutlined />,
+      label: <Link to="/history">Lịch sử ra/vào</Link>,
+      role: "super_admin",
+    },
+    {
+      key: "users",
+      icon: <UserOutlined />,
+      label: <Link to="/users">Người dùng</Link>,
+      role: "super_admin",
+    },
+    {
+      key: "departments",
+      icon: <TeamOutlined />,
+      label: <Link to="/departments">Phòng ban</Link>,
+      role: "super_admin",
     },
     {
       key: "settings",
@@ -35,45 +57,57 @@ const Sidebar = () => {
         {
           key: "register-vehicle",
           icon: <PlusCircleOutlined />,
-          label: <Link to={"/register-vehicle"}>Thêm phương tiện cá nhân</Link>,
+          label: <Link to="/register-vehicle">Thêm phương tiện cá nhân</Link>,
         },
         {
           key: "change-password",
           icon: <LockOutlined />,
-          label: <Link to={"/change-password"}>Đổi mật khẩu</Link>,
+          label: <Link to="/change-password">Đổi mật khẩu</Link>,
         },
       ],
     },
   ];
 
-  if (role === "super_admin") {
-    items = items.concat([
-      {
-        key: "vehicles",
-        icon: <CarOutlined />,
-        label: <Link to="/vehicles">Danh sách xe</Link>,
-      },
-      {
-        key: "history",
-        icon: <HistoryOutlined />,
-        label: <Link to="/history">Lịch sử ra/vào</Link>,
-      },
-      {
-        key: "users",
-        icon: <UserOutlined />,
-        label: <Link to="/users">Người dùng</Link>,
-      },
-      {
-        key: "departments",
-        icon: <TeamOutlined />,
-        label: <Link to="/departments">Phòng ban</Link>,
-      },
-    ]);
-  }
+  // Lọc menu theo role
+  const filterByRole = (item) => {
+    if (!item.role) return true;
+    return item.role === role;
+  };
 
-  // Xử lý mở/đóng submenu
+  const processItems = (items) =>
+    items
+      .filter(filterByRole)
+      .map((item) =>
+        item.children
+          ? { ...item, children: processItems(item.children) }
+          : item
+      );
+
+  const items = processItems(allItems);
+
+  // Ban đầu đóng hết submenu
+  const [openKeys, setOpenKeys] = useState([]);
+
+  // Xử lý mở submenu theo route hiện tại
+  useEffect(() => {
+    if (
+      location.pathname.startsWith("/register-vehicle") ||
+      location.pathname.startsWith("/change-password")
+    ) {
+      setOpenKeys(["settings"]);
+    } else {
+      setOpenKeys([]);
+    }
+  }, [location.pathname]);
+
+  // Khi người dùng click mở/đóng submenu
   const onOpenChange = (keys) => {
-    setOpenKeys(keys);
+    const latestOpenKey = keys.find((key) => !openKeys.includes(key));
+    if (latestOpenKey) {
+      setOpenKeys([latestOpenKey]);
+    } else {
+      setOpenKeys([]);
+    }
   };
 
   return (

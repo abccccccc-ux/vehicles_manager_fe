@@ -1,8 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import { Table } from 'antd';
-import { getVehicles, getVehicleByLicensePlate } from '../api/vehicleApi';
+import { useDispatch, useSelector } from 'react-redux';
+import { getVehicles, getVehicleByLicensePlate } from '../../api/vehicleApi';
 import VehicleDetailsDialog from './VehicleDetailsDialog';
+import { setVehicles, setLoading, setSelectedVehicle, setDetailLoading } from '../../store/vehicleSlice';
 
 const columns = [
   { title: 'Biển số', dataIndex: 'licensePlate', key: 'licensePlate' },
@@ -14,48 +15,52 @@ const columns = [
   { title: 'Trạng thái', dataIndex: 'isActive', key: 'isActive', render: (active) => active ? 'Hoạt động' : 'Ngừng' },
 ];
 
+
 const VehicleTable = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const dispatch = useDispatch();
+  const { list, loading, selectedVehicle, detailLoading } = useSelector(state => state.vehicle);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogLoading, setDialogLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      dispatch(setLoading(true));
       try {
         const res = await getVehicles();
         if (res.success) {
-          setData(res.data.map(item => ({ ...item, key: item._id })));
+          dispatch(setVehicles(res.data.map(item => ({ ...item, key: item._id }))));
         }
       } catch (err) {
         // handle error
       }
-      setLoading(false);
+      dispatch(setLoading(false));
     };
     fetchData();
-  }, []);
+  }, [dispatch]);
 
   const handleRowClick = async (record) => {
-    setDialogLoading(true);
+    dispatch(setDetailLoading(true));
     try {
       const res = await getVehicleByLicensePlate(record.licensePlate);
       if (res.success) {
-        setSelectedVehicle(res.data);
+        dispatch(setSelectedVehicle(res.data));
         setDialogOpen(true);
       }
     } catch (err) {
       // handle error
     }
-    setDialogLoading(false);
+    dispatch(setDetailLoading(false));
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    dispatch(setSelectedVehicle(null));
   };
 
   return (
     <>
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={list}
         loading={loading}
         pagination={false}
         onRow={record => ({
@@ -65,9 +70,9 @@ const VehicleTable = () => {
       />
       <VehicleDetailsDialog
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={handleCloseDialog}
         vehicle={selectedVehicle}
-        loading={dialogLoading}
+        loading={detailLoading}
       />
     </>
   );
