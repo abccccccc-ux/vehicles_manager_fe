@@ -20,6 +20,15 @@ export const fetchUserById = createAsyncThunk('users/fetchUserById', async (user
 	}
 });
 
+export const deleteUser = createAsyncThunk('users/deleteUser', async (userId, { rejectWithValue }) => {
+	try {
+		const response = await userApi.deleteUser(userId);
+		return { userId, response };
+	} catch (err) {
+		return rejectWithValue(err.response?.data || err.message);
+	}
+});
+
 const initialState = {
 	users: [],
 	userDetails: null,
@@ -68,6 +77,23 @@ const userSlice = createSlice({
 			.addCase(fetchUserById.rejected, (state, action) => {
 				state.userDetailsLoading = false;
 				state.userDetailsError = action.payload;
+			})
+
+			// Delete user
+			.addCase(deleteUser.pending, (state) => {
+				state.loading = true;
+				state.error = null;
+			})
+			.addCase(deleteUser.fulfilled, (state, action) => {
+				state.loading = false;
+				// remove the deleted user from users list if present (assuming users is an array of objects with _id)
+				if (state.users && Array.isArray(state.users)) {
+					state.users = state.users.filter((u) => u._id !== action.payload.userId);
+				}
+			})
+			.addCase(deleteUser.rejected, (state, action) => {
+				state.loading = false;
+				state.error = action.payload;
 			});
 	},
 });

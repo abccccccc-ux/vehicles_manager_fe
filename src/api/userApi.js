@@ -11,6 +11,9 @@ const userApi = {
   getUserById: (userId) => {
     return axiosClient.get(`/users/${userId}`);
   },
+  deleteUser: (userId) => {
+    return axiosClient.delete(`/users/${userId}`);
+  },
 };
 
 export default userApi;

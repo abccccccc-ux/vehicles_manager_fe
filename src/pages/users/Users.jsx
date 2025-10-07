@@ -1,69 +1,115 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Table, Tag, Spin } from 'antd';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import showDeleteConfirm from '../../components/DeleteConfirm';
 import CreateUserDialog from './CreateUserDialog';
 import UserDetailsDialog from './UserDetailsDialog';
 import userApi from '../../api/userApi';
+import { useDispatch } from 'react-redux';
+import { deleteUser } from '../../store/userSlice';
+import AlertMessage from '../../components/AlertMessage';
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import MainLayout from '../../layouts/MainLayout';
 
-const columns = [
-  {
-    title: 'Username',
-    dataIndex: 'username',
-    key: 'username',
-    className: 'font-semibold',
-  },
-  {
-    title: 'Họ tên',
-    dataIndex: 'name',
-    key: 'name',
-  },
-  {
-    title: 'SĐT',
-    dataIndex: 'phone',
-    key: 'phone',
-  },
-  {
-    title: 'Role',
-    dataIndex: 'role',
-    key: 'role',
-    render: (role) => {
-      let color = 'blue';
-      if (role === 'super_admin') color = 'purple';
-      return (
-        <Tag color={color} className="capitalize">
-          {role}
-        </Tag>
-      );
-    },
-  },
-  {
-    title: 'Active',
-    dataIndex: 'isActive',
-    key: 'isActive',
-    render: (active) =>
-      active ? (
-        <Tag color="green">Active</Tag>
-      ) : (
-        <Tag color="red">Inactive</Tag>
-      ),
-  },
-  {
-    title: 'Ngày tạo',
-    dataIndex: 'createdAt',
-    key: 'createdAt',
-    render: (date) => new Date(date).toLocaleString('vi-VN'),
-  },
-];
+// ...columns will be defined inside the Users component so we can access dispatch/setAlert
 
 const Users = () => {
+  const columns = [
+    {
+      title: 'Username',
+      dataIndex: 'username',
+      key: 'username',
+      className: 'font-semibold',
+    },
+    {
+      title: 'Họ tên',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'SĐT',
+      dataIndex: 'phone',
+      key: 'phone',
+    },
+    {
+      title: 'Role',
+      dataIndex: 'role',
+      key: 'role',
+      render: (role) => {
+        let color = 'blue';
+        if (role === 'super_admin') color = 'purple';
+        return (
+          <Tag color={color} className="capitalize">
+            {role}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: 'Active',
+      dataIndex: 'isActive',
+      key: 'isActive',
+      render: (active) =>
+        active ? (
+          <Tag color="green">Active</Tag>
+        ) : (
+          <Tag color="red">Inactive</Tag>
+        ),
+    },
+    {
+      title: 'Hành động',
+      key: 'actions',
+      width: 140,
+      render: (_, record) => (
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Button
+            type="text"
+            icon={<EditOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              // edit handler will be added later
+            }}
+          />
+          <Button
+            type="text"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              // open confirm modal and pass username in the message
+              showDeleteConfirm({
+                message: `Bạn có xác nhận xóa ${record.username}?`,
+                onOk: async () => {
+                  try {
+                    const res = await dispatch(deleteUser(record._id));
+                    // check for rejected action
+                    if (res.error) {
+                      setAlert({ type: 'error', message: res.error.message || 'Xóa thất bại' });
+                    } else {
+                      setAlert({ type: 'success', message: 'Đã xóa người dùng thành công' });
+                      // refresh list
+                      fetchUsers();
+                    }
+                  } catch (err) {
+                    setAlert({ type: 'error', message: err.message || 'Xóa thất bại' });
+                  }
+                },
+              });
+            }}
+          />
+        </div>
+      ),
+    },
+  ];
   const [users, setUsers] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
+  const [alert, setAlert] = useState(null);
+  const dispatch = useDispatch();
 
   const currentUser = useSelector((state) => state.auth.user);
 
@@ -121,6 +167,7 @@ const Users = () => {
           />
         )}
       </div>
+      {alert && <AlertMessage type={alert.type} message={alert.message} />}
       <CreateUserDialog
         visible={showDialog}
         onClose={() => setShowDialog(false)}
