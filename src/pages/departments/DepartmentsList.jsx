@@ -7,6 +7,7 @@ import SearchFilter from '../../components/Search/SearchFilter';
 import showDeleteConfirm from '../../components/DeleteConfirm';
 import { deleteDepartment } from '../../store/departmentSlice';
 import AlertMessage from '../../components/AlertMessage';
+import DepartmentDetailDialog from './DepartmentDetailDialog';
 import {
   fetchDepartments,
   setSearch,
@@ -30,6 +31,8 @@ const DepartmentsList = () => {
 
   const [deletingId, setDeletingId] = useState(null);
   const [alert, setAlert] = useState(null);
+  const [selectedDeptId, setSelectedDeptId] = useState(null);
+  const [showDetail, setShowDetail] = useState(false);
 
   // fetch data khi thay đổi search, filter, hoặc pagination
   useEffect(() => {
@@ -159,6 +162,17 @@ const DepartmentsList = () => {
         pagination={pagination}
         onChange={handleTableChange}
         bordered
+        onRow={(record) => ({
+          onClick: () => {
+            setSelectedDeptId(record._id);
+            setShowDetail(true);
+          },
+        })}
+      />
+      <DepartmentDetailDialog
+        visible={showDetail}
+        departmentId={selectedDeptId}
+        onClose={() => setShowDetail(false)}
       />
     </Card>
   );

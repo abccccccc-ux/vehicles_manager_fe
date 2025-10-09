@@ -1,6 +1,18 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import departmentApi from '../api/departmentApi';
 
+export const fetchDepartmentById = createAsyncThunk(
+  'departments/fetchDepartmentById',
+  async (departmentId, { rejectWithValue }) => {
+    try {
+      const { data } = await departmentApi.getDepartmentById(departmentId);
+      return data.data.department;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Lỗi khi lấy thông tin phòng ban');
+    }
+  }
+);
+
 export const fetchDepartments = createAsyncThunk(
   'departments/fetchDepartments',
   async (params, { rejectWithValue }) => {
@@ -34,6 +46,9 @@ const departmentSlice = createSlice({
     list: [],
     loading: false,
     error: null,
+      currentDepartment: null,
+      currentDepartmentLoading: false,
+      currentDepartmentError: null,
     pagination: {
       current: 1,
       pageSize: 10,
@@ -83,6 +98,20 @@ const departmentSlice = createSlice({
           state.error = action.payload;
           state.currentRequestId = undefined;
         }
+      });
+    builder
+      .addCase(fetchDepartmentById.pending, (state) => {
+        state.currentDepartmentLoading = true;
+        state.currentDepartmentError = null;
+        state.currentDepartment = null;
+      })
+      .addCase(fetchDepartmentById.fulfilled, (state, action) => {
+        state.currentDepartmentLoading = false;
+        state.currentDepartment = action.payload;
+      })
+      .addCase(fetchDepartmentById.rejected, (state, action) => {
+        state.currentDepartmentLoading = false;
+        state.currentDepartmentError = action.payload;
       });
     builder
       .addCase(deleteDepartment.pending, (state) => {
