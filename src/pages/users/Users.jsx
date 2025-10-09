@@ -75,14 +75,20 @@ const Users = () => {
             type="text"
             danger
             icon={<DeleteOutlined />}
+            loading={deletingId === record._id}
+            disabled={!record.isActive}
+            title={!record.isActive ? 'Người dùng không hoạt động - không thể xóa' : ''}
             onClick={(e) => {
               e.stopPropagation();
+              if (!record.isActive) return;
               // open confirm modal and pass username in the message
               showDeleteConfirm({
                 message: `Bạn có xác nhận xóa ${record.username}?`,
                 onOk: async () => {
                   try {
+                    setDeletingId(record._id);
                     const res = await dispatch(deleteUser(record._id));
+                    setDeletingId(null);
                     // check for rejected action
                     if (res.error) {
                       setAlert({ type: 'error', message: res.error.message || 'Xóa thất bại' });
@@ -92,6 +98,7 @@ const Users = () => {
                       fetchUsers();
                     }
                   } catch (err) {
+                    setDeletingId(null);
                     setAlert({ type: 'error', message: err.message || 'Xóa thất bại' });
                   }
                 },
@@ -109,6 +116,7 @@ const Users = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
   const [alert, setAlert] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
   const dispatch = useDispatch();
 
   const currentUser = useSelector((state) => state.auth.user);

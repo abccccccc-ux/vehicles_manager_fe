@@ -16,6 +16,18 @@ export const fetchDepartments = createAsyncThunk(
   }
 );
 
+export const deleteDepartment = createAsyncThunk(
+  'departments/deleteDepartment',
+  async (departmentId, { rejectWithValue }) => {
+    try {
+      const { data } = await departmentApi.deleteDepartment(departmentId);
+      return { departmentId, message: data.message };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Lỗi khi xóa phòng ban');
+    }
+  }
+);
+
 const departmentSlice = createSlice({
   name: 'departments',
   initialState: {
@@ -71,6 +83,20 @@ const departmentSlice = createSlice({
           state.error = action.payload;
           state.currentRequestId = undefined;
         }
+      });
+    builder
+      .addCase(deleteDepartment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteDepartment.fulfilled, (state, action) => {
+        state.loading = false;
+        // remove deleted department from list
+        state.list = state.list.filter((d) => d._id !== action.payload.departmentId);
+      })
+      .addCase(deleteDepartment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

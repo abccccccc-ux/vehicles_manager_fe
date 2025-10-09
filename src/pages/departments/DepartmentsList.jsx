@@ -1,8 +1,12 @@
-import React, { useEffect } from 'react';
-import { Card, Table, Tag, Row, Col, message } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Card, Table, Tag, Row, Col, Button } from 'antd';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchInput from '../../components/Search/SearchInput';
 import SearchFilter from '../../components/Search/SearchFilter';
+import showDeleteConfirm from '../../components/DeleteConfirm';
+import { deleteDepartment } from '../../store/departmentSlice';
+import AlertMessage from '../../components/AlertMessage';
 import {
   fetchDepartments,
   setSearch,
@@ -24,6 +28,9 @@ const DepartmentsList = () => {
     (state) => state.departments
   );
 
+  const [deletingId, setDeletingId] = useState(null);
+  const [alert, setAlert] = useState(null);
+
   // fetch data khi thay đổi search, filter, hoặc pagination
   useEffect(() => {
     dispatch(
@@ -37,7 +44,7 @@ const DepartmentsList = () => {
   }, [dispatch, search, status, pagination.current, pagination.pageSize]);
 
   useEffect(() => {
-    if (error) message.error(error);
+    if (error) setAlert({ type: 'error', message: error });
   }, [error]);
 
   const handleTableChange = (pag) => {
@@ -74,10 +81,53 @@ const DepartmentsList = () => {
       render: statusTag,
     },
     {
-      title: 'Ngày tạo',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (text) => new Date(text).toLocaleString('vi-VN'),
+      title: 'Hành động',
+      key: 'actions',
+      render: (text, record) => (
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Button
+            icon={<EditOutlined />}
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              // edit handler will be implemented later
+            }}
+          />
+          <Button
+            icon={<DeleteOutlined />}
+            danger
+            size="small"
+            loading={deletingId === record._id}
+            disabled={!record.isActive}
+            title={!record.isActive ? 'Phòng ban không hoạt động - không thể xóa' : ''}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!record.isActive) return;
+              const confirmMessage = `Bạn có xác nhận xóa ${record.name}?`;
+              showDeleteConfirm({
+                message: confirmMessage,
+                onOk: async () => {
+                  try {
+                    setDeletingId(record._id);
+                    const res = await dispatch(deleteDepartment(record._id));
+                    setDeletingId(null);
+                    if (res.error) {
+                      setAlert({ type: 'error', message: res.error.message || 'Xóa thất bại' });
+                    } else {
+                      setAlert({ type: 'success', message: res.payload?.message || 'Đã xóa phòng ban' });
+                      // re-fetch current page
+                      dispatch(fetchDepartments({ search, status, page: pagination.current, limit: pagination.pageSize }));
+                    }
+                  } catch (err) {
+                    setDeletingId(null);
+                    setAlert({ type: 'error', message: err.message || 'Xóa thất bại' });
+                  }
+                },
+              });
+            }}
+          />
+        </div>
+      ),
     },
   ];
 
@@ -100,6 +150,7 @@ const DepartmentsList = () => {
           />
         </Col>
       </Row>
+  {alert && <AlertMessage type={alert.type} message={alert.message} />}
       <Table
         rowKey="_id"
         columns={columns}
