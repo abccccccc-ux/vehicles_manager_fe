@@ -10,6 +10,7 @@ import Users from './pages/users/Users';
 import ChangePassword from './pages/settings/ChangePassword';
 import Departments from './pages/departments/Departments';
 import UpdateUserInfo from './pages/settings/UpdateUserInfo';
+import WorkingHours from './pages/working-hours/WorkingHours';
 
 // Route bảo vệ
 const PrivateRoute = ({ children }) => {
@@ -37,6 +38,7 @@ const routes = [
   { path: '/change-password', element: <PrivateRoute><ChangePassword /></PrivateRoute>},
   { path: '/departments', element: <PrivateRoute><Departments/></PrivateRoute>},
   { path: '/update-user-info', element: <PrivateRoute><UpdateUserInfo/></PrivateRoute>},
+  { path: '/working-hours', element: <PrivateRoute><WorkingHours/></PrivateRoute>},
 ];
 
 export default routes;

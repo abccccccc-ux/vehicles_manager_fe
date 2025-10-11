@@ -7,6 +7,7 @@ import vehicleReducer from './store/vehicleSlice';
 import authReducer from './store/authSlice';
 import departmentReducer from './store/departmentSlice';
 import userReducer from './store/userSlice';
+import workingHoursReducer from './store/workingHoursSlice';
 import App from './App';
 import './global.css';
 
@@ -16,6 +17,7 @@ const store = configureStore({
     auth: authReducer,
     departments: departmentReducer,
     users: userReducer,
+    workingHours: workingHoursReducer,
   },
 });
 
