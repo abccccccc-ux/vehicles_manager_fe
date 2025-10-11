@@ -55,7 +55,7 @@ const departmentSlice = createSlice({
       total: 0,
     },
     search: '',
-    status: undefined,
+    isActive: undefined,
     currentRequestId: undefined, // để kiểm soát race condition
   },
   reducers: {
@@ -63,8 +63,8 @@ const departmentSlice = createSlice({
       state.search = action.payload;
       state.pagination.current = 1; // reset về trang 1 khi search
     },
-    setStatus(state, action) {
-      state.status = action.payload;
+    setIsActive(state, action) {
+      state.isActive = action.payload;
       state.pagination.current = 1; // reset về trang 1 khi filter
     },
     setPagination(state, action) {
@@ -130,5 +130,5 @@ const departmentSlice = createSlice({
   },
 });
 
-export const { setSearch, setStatus, setPagination } = departmentSlice.actions;
+export const { setSearch, setIsActive, setPagination } = departmentSlice.actions;
 export default departmentSlice.reducer;

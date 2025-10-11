@@ -11,13 +11,13 @@ import DepartmentDetailDialog from './DepartmentDetailDialog';
 import {
   fetchDepartments,
   setSearch,
-  setStatus,
   setPagination,
+  setIsActive,
 } from '../../store/departmentSlice';
 
 const statusOptions = [
-  { label: 'Hoạt động', value: 'active' },
-  { label: 'Ngừng hoạt động', value: 'unactive' },
+  { label: 'Hoạt động', value: true },
+  { label: 'Ngừng hoạt động', value: false },
 ];
 
 const statusTag = (isActive) =>
@@ -25,7 +25,7 @@ const statusTag = (isActive) =>
 
 const DepartmentsList = () => {
   const dispatch = useDispatch();
-  const { list: departments, loading, error, search, status, pagination } = useSelector(
+  const { list: departments, loading, error, search, isActive, pagination } = useSelector(
     (state) => state.departments
   );
 
@@ -39,12 +39,12 @@ const DepartmentsList = () => {
     dispatch(
       fetchDepartments({
         search,
-        status,
+        isActive,
         page: pagination.current,
         limit: pagination.pageSize,
       })
     );
-  }, [dispatch, search, status, pagination.current, pagination.pageSize]);
+  }, [dispatch, search, isActive, pagination.current, pagination.pageSize]);
 
   useEffect(() => {
     if (error) setAlert({ type: 'error', message: error });
@@ -119,7 +119,7 @@ const DepartmentsList = () => {
                     } else {
                       setAlert({ type: 'success', message: res.payload?.message || 'Đã xóa phòng ban' });
                       // re-fetch current page
-                      dispatch(fetchDepartments({ search, status, page: pagination.current, limit: pagination.pageSize }));
+                      dispatch(fetchDepartments({ search, isActive, page: pagination.current, limit: pagination.pageSize }));
                     }
                   } catch (err) {
                     setDeletingId(null);
@@ -146,14 +146,14 @@ const DepartmentsList = () => {
         </Col>
         <Col xs={24} sm={12} md={8} lg={6}>
           <SearchFilter
-            value={status}
-            onChange={(val) => dispatch(setStatus(val))}
+            value={isActive}
+            onChange={(val) => dispatch(setIsActive(val))}
             options={statusOptions}
             placeholder="Trạng thái"
           />
         </Col>
       </Row>
-  {alert && <AlertMessage type={alert.type} message={alert.message} />}
+      {alert && <AlertMessage type={alert.type} message={alert.message} />}
       <Table
         rowKey="_id"
         columns={columns}

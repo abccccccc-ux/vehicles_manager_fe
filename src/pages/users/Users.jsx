@@ -159,6 +159,7 @@ const Users = () => {
           <Table
             columns={columns}
             dataSource={users}
+            bordered
             pagination={{
               current: pagination.currentPage,
               pageSize: pagination.itemsPerPage,

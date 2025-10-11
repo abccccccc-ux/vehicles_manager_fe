@@ -1,0 +1,3 @@
+const WorkingHours = () => {
+    return <></>
+}

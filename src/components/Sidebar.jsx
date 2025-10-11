@@ -11,6 +11,8 @@ import {
   UserOutlined,
   LockOutlined,
   TeamOutlined,
+  InfoCircleOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 
 const Sidebar = () => {
@@ -50,6 +52,12 @@ const Sidebar = () => {
       role: "super_admin",
     },
     {
+      key: "working-hours",
+      icon: <ClockCircleOutlined />,
+      label: <Link to="/working-hours">Giờ làm việc</Link>,
+      role: "super_admin"
+    },
+    {
       key: "settings",
       icon: <SettingOutlined />,
       label: "Cài đặt",
@@ -63,6 +71,11 @@ const Sidebar = () => {
           key: "change-password",
           icon: <LockOutlined />,
           label: <Link to="/change-password">Đổi mật khẩu</Link>,
+        },
+        {
+          key: "update-info",
+          icon: <InfoCircleOutlined />,
+          label: <Link to="/update-user-info">Sửa thông tin cá nhân</Link>,
         },
       ],
     },
