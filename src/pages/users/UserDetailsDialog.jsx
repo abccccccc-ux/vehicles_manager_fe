@@ -33,11 +33,11 @@ const UserDetailsDialog = ({ visible, userId, onClose }) => {
                         <Alert type="error" message={userDetailsError} />
                     ) : userDetails ? (
                         <Descriptions bordered column={1} size="middle">
-                            <Descriptions.Item label="Username">{userDetails.data.data?.user?.username}</Descriptions.Item>
-                            <Descriptions.Item label="Họ tên">{userDetails.data.data?.user?.name}</Descriptions.Item>
-                            <Descriptions.Item label="SĐT">{userDetails.data.data?.user?.phone}</Descriptions.Item>
-                            <Descriptions.Item label="Role">{userDetails.data.data?.user?.role}</Descriptions.Item>
-                            <Descriptions.Item label="Active">{userDetails.data.data?.user?.isActive ? 'Active' : 'Inactive'}</Descriptions.Item>
+                            <Descriptions.Item label="Username">{userDetails.username}</Descriptions.Item>
+                            <Descriptions.Item label="Họ tên">{userDetails.name}</Descriptions.Item>
+                            <Descriptions.Item label="SĐT">{userDetails.phone}</Descriptions.Item>
+                            <Descriptions.Item label="Role">{userDetails.role}</Descriptions.Item>
+                            <Descriptions.Item label="Active">{userDetails.isActive ? 'Active' : 'Inactive'}</Descriptions.Item>
                         </Descriptions>
                     ) : null}
         </Modal>

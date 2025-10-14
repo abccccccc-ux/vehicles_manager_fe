@@ -29,6 +29,17 @@ export const deleteUser = createAsyncThunk('users/deleteUser', async (userId, { 
 	}
 });
 
+export const editUser = createAsyncThunk('users/editUser', async ({ employeeId, data }, { rejectWithValue }) => {
+	try {
+		// payload expected by backend: { name, role, phone, department, employeeId }
+		const payload = { ...data, employeeId };
+		const response = await userApi.editUser(payload);
+		return response;
+	} catch (err) {
+		return rejectWithValue(err.response?.data || err.message);
+	}
+});
+
 const initialState = {
 	users: [],
 	userDetails: null,
@@ -72,7 +83,12 @@ const userSlice = createSlice({
 			})
 			.addCase(fetchUserById.fulfilled, (state, action) => {
 				state.userDetailsLoading = false;
-				state.userDetails = action.payload;
+				// Normalize: store the user object itself (not the full axios response)
+				if (action.payload?.data?.success && action.payload.data.data?.user) {
+					state.userDetails = action.payload.data.data.user;
+				} else {
+					state.userDetails = action.payload;
+				}
 			})
 			.addCase(fetchUserById.rejected, (state, action) => {
 				state.userDetailsLoading = false;
@@ -92,6 +108,22 @@ const userSlice = createSlice({
 				}
 			})
 			.addCase(deleteUser.rejected, (state, action) => {
+				state.loading = false;
+				state.error = action.payload;
+			})
+			// Edit user
+			.addCase(editUser.pending, (state) => {
+				state.loading = true;
+				state.error = null;
+			})
+			.addCase(editUser.fulfilled, (state, action) => {
+				state.loading = false;
+				// Update userDetails if present
+				if (action.payload?.data?.success && action.payload.data.data?.user) {
+					state.userDetails = action.payload.data.data.user;
+				}
+			})
+			.addCase(editUser.rejected, (state, action) => {
 				state.loading = false;
 				state.error = action.payload;
 			});

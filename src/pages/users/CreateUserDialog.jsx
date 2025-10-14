@@ -1,101 +1,185 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, Select, Button } from 'antd';
 import userApi from '../../api/userApi';
+import departmentApi from '../../api/departmentApi';
 import AlertMessage from '../../components/AlertMessage';
 
 const { Option } = Select;
 
 const CreateUserDialog = ({ visible, onClose, onSuccess }) => {
-	const [form] = Form.useForm();
-	const [loading, setLoading] = useState(false);
-	const [alert, setAlert] = useState(null);
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState(null);
+  const [departments, setDepartments] = useState([]);
+  const [departmentsLoading, setDepartmentsLoading] = useState(false);
 
-	const handleSubmit = async (values) => {
-		try {
-			setLoading(true);
-			setAlert(null);
-			const res = await userApi.createUser(values);
-			if (res.data.success) {
-				setAlert({ type: 'success', message: res.data.message });
-				form.resetFields();
-				if (onSuccess) onSuccess();
-			} else {
-				setAlert({ type: 'error', message: res.data.message || 'Tạo user thất bại' });
-			}
-		} catch (error) {
-			setAlert({ type: 'error', message: error?.response?.data?.errors[0].message || 'Có lỗi xảy ra' });
-		}
-		setLoading(false);
-	};
+  // 🔹 Load danh sách phòng ban khi mở modal
+  useEffect(() => {
+    if (!visible) return;
 
-	const handleCancel = () => {
-		setAlert(null);
-		form.resetFields();
-		onClose();
-	};
+    const fetchDepartments = async () => {
+      setDepartmentsLoading(true);
+      try {
+        const res = await departmentApi.getDepartments();
+        if (res?.data?.success && Array.isArray(res.data.data)) {
+          // Chuẩn hoá: đảm bảo mỗi phòng có trường `id` (dùng dep.id làm value)
+          setDepartments(
+            res.data.data.map((d) => ({ ...d, id: d.id ?? d._id }))
+          );
+        } else {
+          setDepartments([]);
+        }
+      } catch (error) {
+        console.error('Fetch departments failed:', error);
+        setDepartments([]);
+      } finally {
+        setDepartmentsLoading(false);
+      }
+    };
 
-	return (
-		<Modal
-			title="Thêm mới người dùng"
-			open={visible}
-			onCancel={handleCancel}
-			footer={null}
-			destroyOnClose
-		>
-			{alert && <AlertMessage type={alert.type} message={alert.message} />}
-			<Form form={form} layout="vertical" onFinish={handleSubmit}>
-				<Form.Item
-					name="username"
-					label="Username"
-					rules={[{ required: true, message: 'Vui lòng nhập username' }]}
-				>
-					<Input />
-				</Form.Item>
+    fetchDepartments();
+  }, [visible]);
 
-				<Form.Item
-					name="name"
-					label="Họ tên"
-					rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}
-				>
-					<Input />
-				</Form.Item>
+  // 🔹 Submit form
+  const handleSubmit = async (values) => {
+    try {
+      setLoading(true);
+      setAlert(null);
 
-				<Form.Item
-					name="password"
-					label="Mật khẩu"
-					rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
-				>
-					<Input.Password />
-				</Form.Item>
+      console.log('form values:', values); // debug: kiểm tra values.department
 
-				<Form.Item
-					name="role"
-					label="Vai trò"
-					rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}
-				>
-					<Select>
-						<Option value="user">User</Option>
-						<Option value="admin">Admin</Option>
-						<Option value="super_admin">Super Admin</Option>
-					</Select>
-				</Form.Item>
+      const payload = {
+        ...values,
+        department: values.department, 
+      };
 
-				<Form.Item
-					name="phone"
-					label="SĐT"
-					rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
-				>
-					<Input />
-				</Form.Item>
+      const res = await userApi.createUser(payload);
 
-				<Form.Item>
-					<Button type="primary" htmlType="submit" loading={loading} block>
-						Thêm mới
-					</Button>
-				</Form.Item>
-			</Form>
-		</Modal>
-	);
+      if (res?.data?.success) {
+        setAlert({ type: 'success', message: res.data.message || 'Tạo người dùng thành công' });
+        form.resetFields();
+        if (onSuccess) onSuccess();
+      } else {
+        setAlert({ type: 'error', message: res?.data?.message || 'Tạo người dùng thất bại' });
+      }
+    } catch (error) {
+      const msg =
+        error?.response?.data?.errors?.[0]?.message ||
+        error?.response?.data?.message ||
+        'Có lỗi xảy ra khi tạo người dùng';
+      setAlert({ type: 'error', message: msg });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔹 Đóng modal
+  const handleCancel = () => {
+    setAlert(null);
+    form.resetFields();
+    onClose();
+  };
+
+  return (
+    <Modal
+      title="Thêm mới người dùng"
+      open={visible}
+      onCancel={handleCancel}
+      footer={null}
+      destroyOnClose
+    >
+      {alert && <AlertMessage type={alert.type} message={alert.message} />}
+
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        autoComplete="off"
+      >
+        <Form.Item
+          name="username"
+          label="Tên đăng nhập"
+          rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập' }]}
+        >
+          <Input placeholder="Nhập tên đăng nhập" />
+        </Form.Item>
+
+        <Form.Item
+          name="name"
+          label="Họ tên"
+          rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}
+        >
+          <Input placeholder="Nhập họ tên đầy đủ" />
+        </Form.Item>
+
+        <Form.Item
+          name="password"
+          label="Mật khẩu"
+          rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+        >
+          <Input.Password placeholder="Nhập mật khẩu" />
+        </Form.Item>
+
+        <Form.Item
+          name="role"
+          label="Vai trò"
+          rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}
+        >
+          <Select placeholder="Chọn vai trò" allowClear>
+            <Option value="user">User</Option>
+            <Option value="admin">Admin</Option>
+            <Option value="super_admin">Super Admin</Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item
+          name="phone"
+          label="Số điện thoại"
+          rules={[
+            { required: true, message: 'Vui lòng nhập số điện thoại' },
+            {
+              pattern: /^[0-9]{9,11}$/,
+              message: 'Số điện thoại không hợp lệ',
+            },
+          ]}
+        >
+          <Input placeholder="Nhập số điện thoại" />
+        </Form.Item>
+
+        <Form.Item
+          name="department"
+          label="Phòng ban"
+          rules={[{ required: true, message: 'Vui lòng chọn phòng ban' }]}
+        >
+          <Select
+            loading={departmentsLoading}
+            placeholder="Chọn phòng ban"
+            allowClear
+            showSearch
+            optionFilterProp="children"
+          >
+            {departments.map((dep) => (
+              <Option key={dep.id ?? dep._id} value={dep.id ?? dep._id}>
+                {dep.name}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            block
+            disabled={loading}
+          >
+            {loading ? 'Đang thêm...' : 'Thêm mới'}
+          </Button>
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
 };
 
 export default CreateUserDialog;

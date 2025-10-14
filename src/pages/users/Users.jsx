@@ -3,6 +3,7 @@ import { Button, Table, Tag, Spin } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import showDeleteConfirm from '../../components/DeleteConfirm';
 import CreateUserDialog from './CreateUserDialog';
+import EditUserDialog from './EditUserDialog';
 import UserDetailsDialog from './UserDetailsDialog';
 import userApi from '../../api/userApi';
 import { useDispatch } from 'react-redux';
@@ -68,7 +69,8 @@ const Users = () => {
             icon={<EditOutlined />}
             onClick={(e) => {
               e.stopPropagation();
-              // edit handler will be added later
+              setSelectedUserId(record._id);
+              setShowEditDialog(true);
             }}
           />
           <Button
@@ -114,6 +116,7 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [showUserDetails, setShowUserDetails] = useState(false);
   const [alert, setAlert] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
@@ -182,6 +185,15 @@ const Users = () => {
         onClose={() => setShowDialog(false)}
         onSuccess={() => {
           setShowDialog(false);
+          fetchUsers();
+        }}
+      />
+      <EditUserDialog
+        visible={showEditDialog}
+        userId={selectedUserId}
+        onClose={() => setShowEditDialog(false)}
+        onSuccess={() => {
+          setShowEditDialog(false);
           fetchUsers();
         }}
       />
