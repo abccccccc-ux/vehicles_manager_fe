@@ -5,12 +5,11 @@ import Dashboard from './pages/Dashboard';
 import Vehicles from './pages/vehicles/Vehicles';
 import Login from './pages/auth/Login';
 import History from './pages/History';
-import RegisterVehicle from './pages/settings/RegisterVehicle';
 import Users from './pages/users/Users';
 import ChangePassword from './pages/settings/ChangePassword';
 import Departments from './pages/departments/Departments';
-import UpdateUserInfo from './pages/settings/UpdateUserInfo';
 import WorkingHours from './pages/working-hours/WorkingHours';
+import PersonalVehiclesList from './pages/personal-vehicles/PersonalVehiclesList';
 
 // Route bảo vệ
 const PrivateRoute = ({ children }) => {
@@ -33,12 +32,11 @@ const routes = [
   { path: '/dashboard', element: <PrivateRoute><Dashboard /></PrivateRoute> },
   { path: '/vehicles', element: <PrivateRoute><Vehicles /></PrivateRoute> },
   { path: '/history', element: <PrivateRoute><History /></PrivateRoute> },
-  { path: '/register-vehicle', element: <PrivateRoute><RegisterVehicle /></PrivateRoute> },  
   { path: '/users', element: <AdminRoute><Users /></AdminRoute> },
   { path: '/change-password', element: <PrivateRoute><ChangePassword /></PrivateRoute>},
   { path: '/departments', element: <PrivateRoute><Departments/></PrivateRoute>},
-  { path: '/update-user-info', element: <PrivateRoute><UpdateUserInfo/></PrivateRoute>},
   { path: '/working-hours', element: <PrivateRoute><WorkingHours/></PrivateRoute>},
+  { path: '/personal-vehicles', element: <PrivateRoute><PersonalVehiclesList/></PrivateRoute>},
 ];
 
 export default routes;

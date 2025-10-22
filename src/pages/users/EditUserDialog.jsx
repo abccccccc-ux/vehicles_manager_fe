@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Select, Button, Spin, notification } from 'antd';
+import { Modal, Form, Input, Select, Button, Spin, notification, Switch } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import departmentApi from '../../api/departmentApi';
 import userApi from '../../api/userApi';
@@ -52,13 +52,15 @@ const EditUserDialog = ({ visible, onClose, userId, onSuccess }) => {
         const res = await userApi.getUserById(userId);
         if (res?.data?.success && res.data.data?.user) {
           const u = res.data.data.user;
-          // prefill form - handle department object
+          // prefill form - handle department id or object
           form.setFieldsValue({
             username: u.username,
             name: u.name,
             role: u.role,
             phone: u.phone,
             department: u.department?._id || u.department,
+            employeeId: u.employeeId,
+            isActive: typeof u.isActive === 'boolean' ? u.isActive : true,
           });
         }
       } catch (err) {
@@ -87,16 +89,18 @@ const EditUserDialog = ({ visible, onClose, userId, onSuccess }) => {
     setSubmitting(true);
     setAlert(null);
     try {
-      // prepare payload
-      const payloadData = {
-        name: values.name,
-        role: values.role,
-        phone: values.phone,
-        department: values.department,
-      };
+// prepare payload
+const payloadData = {
+  name: values.name,
+  role: values.role,
+  phone: values.phone,
+  employeeId: values.employeeId,
+  department: values.department,
+  isActive: !!values.isActive,
+};
 
-      const actionRes = await dispatch(editUser({ employeeId: userId, data: payloadData }));
-      if (editUser.fulfilled.match(actionRes)) {
+const actionRes = await dispatch(editUser({ userId, data: payloadData }));
+if (editUser.fulfilled.match(actionRes)) {
         const successMsg = actionRes.payload?.data?.message || 'Cập nhật thành công';
         notification.success({ message: 'Thành công', description: successMsg });
         if (onSuccess) onSuccess();
@@ -170,6 +174,16 @@ const EditUserDialog = ({ visible, onClose, userId, onSuccess }) => {
           </Form.Item>
 
           <Form.Item
+            label="Mã nhân viên"
+            name="employeeId"
+            rules={[
+              { required: true, message: 'Vui lòng nhập mã nhân viên' },
+            ]}
+          >
+            <Input placeholder="Mã nhân viên" />
+          </Form.Item>
+
+          <Form.Item
             label="Phòng ban"
             name="department"
             rules={[{ required: true, message: 'Vui lòng chọn phòng ban' }]}
@@ -187,6 +201,10 @@ const EditUserDialog = ({ visible, onClose, userId, onSuccess }) => {
                 </Option>
               ))}
             </Select>
+          </Form.Item>
+
+          <Form.Item label="Kích hoạt" name="isActive" valuePropName="checked">
+            <Switch />
           </Form.Item>
 
           <Form.Item>

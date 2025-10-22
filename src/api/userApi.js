@@ -11,8 +11,9 @@ const userApi = {
   getUserById: (userId) => {
     return axiosClient.get(`/users/${userId}`);
   },
-  editUser: (payload) => {
-    return axiosClient.put('/auth/profile', payload);
+  // editUser should accept (userId, data) and call PUT /users/:userId
+  editUser: (userId, data) => {
+    return axiosClient.put(`/users/${userId}`, data);
   },
   deleteUser: (userId) => {
     return axiosClient.delete(`/users/${userId}`);

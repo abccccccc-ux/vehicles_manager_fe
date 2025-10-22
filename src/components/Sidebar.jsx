@@ -13,6 +13,8 @@ import {
   TeamOutlined,
   InfoCircleOutlined,
   ClockCircleOutlined,
+  UnlockOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
 
 const Sidebar = () => {
@@ -55,7 +57,25 @@ const Sidebar = () => {
       key: "working-hours",
       icon: <ClockCircleOutlined />,
       label: <Link to="/working-hours">Giờ làm việc</Link>,
-      role: "super_admin"
+      role: "super_admin",
+    },
+    {
+      key: "personal-vehicles",
+      icon: <CarOutlined />,
+      label: "Phương tiện cá nhân",
+      label: <Link to="/personal-vehicles">Phương tiện cá nhân</Link>,
+    },
+    {
+      key: "personal-vehicles",
+      icon: <CarOutlined />,
+      label: "Phương tiện cá nhân",
+      children: [
+        {
+          key: "register-vehicle",
+          icon: <PlusCircleOutlined />,
+          label: <Link to="/register-vehicle">Thêm phương tiện cá nhân</Link>,
+        },
+      ],
     },
     {
       key: "settings",
@@ -63,20 +83,15 @@ const Sidebar = () => {
       label: "Cài đặt",
       children: [
         {
-          key: "register-vehicle",
-          icon: <PlusCircleOutlined />,
-          label: <Link to="/register-vehicle">Thêm phương tiện cá nhân</Link>,
-        },
-        {
           key: "change-password",
           icon: <LockOutlined />,
           label: <Link to="/change-password">Đổi mật khẩu</Link>,
         },
         {
-          key: "update-info",
-          icon: <InfoCircleOutlined />,
-          label: <Link to="/update-user-info">Sửa thông tin cá nhân</Link>,
-        },
+          key: "log-out",
+          icon: <LogoutOutlined />,
+          label: "Đăng xuất",
+        }
       ],
     },
   ];
@@ -103,6 +118,7 @@ const Sidebar = () => {
 
   // Xử lý mở submenu theo route hiện tại
   useEffect(() => {
+    //Thêm các route của item con vào đây
     if (
       location.pathname.startsWith("/register-vehicle") ||
       location.pathname.startsWith("/change-password")

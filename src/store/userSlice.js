@@ -29,11 +29,10 @@ export const deleteUser = createAsyncThunk('users/deleteUser', async (userId, { 
 	}
 });
 
-export const editUser = createAsyncThunk('users/editUser', async ({ employeeId, data }, { rejectWithValue }) => {
+export const editUser = createAsyncThunk('users/editUser', async ({ userId, data }, { rejectWithValue }) => {
 	try {
-		// payload expected by backend: { name, role, phone, department, employeeId }
-		const payload = { ...data, employeeId };
-		const response = await userApi.editUser(payload);
+		// call api.editUser(userId, data)
+		const response = await userApi.editUser(userId, data);
 		return response;
 	} catch (err) {
 		return rejectWithValue(err.response?.data || err.message);
@@ -118,9 +117,14 @@ const userSlice = createSlice({
 			})
 			.addCase(editUser.fulfilled, (state, action) => {
 				state.loading = false;
-				// Update userDetails if present
+				// Update userDetails and users list based on API response shape
 				if (action.payload?.data?.success && action.payload.data.data?.user) {
-					state.userDetails = action.payload.data.data.user;
+					const updated = action.payload.data.data.user;
+					state.userDetails = updated;
+					// update users array if present (by matching _id)
+					if (Array.isArray(state.users)) {
+						state.users = state.users.map((u) => (u._id === updated._id ? { ...u, ...updated } : u));
+					}
 				}
 			})
 			.addCase(editUser.rejected, (state, action) => {
