@@ -66,18 +66,6 @@ const Sidebar = () => {
       label: <Link to="/personal-vehicles">Phương tiện cá nhân</Link>,
     },
     {
-      key: "personal-vehicles",
-      icon: <CarOutlined />,
-      label: "Phương tiện cá nhân",
-      children: [
-        {
-          key: "register-vehicle",
-          icon: <PlusCircleOutlined />,
-          label: <Link to="/register-vehicle">Thêm phương tiện cá nhân</Link>,
-        },
-      ],
-    },
-    {
       key: "settings",
       icon: <SettingOutlined />,
       label: "Cài đặt",
