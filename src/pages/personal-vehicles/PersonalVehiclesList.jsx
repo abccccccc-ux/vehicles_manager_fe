@@ -80,11 +80,8 @@ const PersonalVehiclesList = () => {
     return (
         <MainLayout>
             <Card title="Xe cá nhân của tôi">
-                <Row gutter={[16, 16]} style={{ marginBottom: 16 }} justify="space-between" align="middle">
-                    <Col xs={24} sm={16} md={12} lg={8}>
-                        <SearchInput value={search} onChange={handleSearch} placeholder="Tìm biển số, tên xe..." />
-                    </Col>
-                    <Col xs={24} sm={8} md={12} lg={8} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Row gutter={[16, 16]} style={{ marginBottom: 16 }} justify="end" align="middle">
+                    <Col xs={24} sm={8} md={12} lg={8} style={{ display: 'flex', justifyContent: 'right' }}>
                         <Space wrap>
                             <Button onClick={openRegister} type="primary">Thêm phương tiện</Button>
                             <Button icon={<ReloadOutlined />} onClick={() => load(pagination.current, pagination.pageSize, search)}>
