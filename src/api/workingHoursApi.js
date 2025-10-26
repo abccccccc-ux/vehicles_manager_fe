@@ -6,4 +6,10 @@ export const getWorkingHours = async (params) => {
   return response.data; // { success, message, data, pagination }
 };
 
-export default { getWorkingHours };
+// Tạo mới cấu hình giờ làm việc
+export const createWorkingHours = async (payload) => {
+  const response = await axiosClient.post('/working-hours', payload);
+  return response.data; // { success, message, data }
+};
+
+export default { getWorkingHours, createWorkingHours };

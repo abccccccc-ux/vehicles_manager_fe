@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
-import { Card, Table, Tag, Row, Col, Empty, notification } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Card, Table, Tag, Row, Col, Empty, notification, Button } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchFilter from '../../components/Search/SearchFilter';
-// inline AlertMessage replaced by antd notification (bottomRight)
+import AlertMessage from '../../components/AlertMessage';
 import { fetchWorkingHours, setIsActive, setPagination } from '../../store/workingHoursSlice';
+import CreateWorkingHoursDialog from './CreateWorkingHoursDialog';
 
 const statusOptions = [
   { label: 'Hoạt động', value: true },
@@ -24,6 +26,7 @@ const columns = [
 ];
 
 const WorkingHoursList = () => {
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const dispatch = useDispatch();
   const { list = [], loading, error, isActive, pagination } = useSelector((state) => state.workingHours || {});
 
@@ -37,16 +40,21 @@ const WorkingHoursList = () => {
     );
   }, [dispatch, isActive, pagination?.current, pagination?.pageSize]);
 
-  useEffect(() => {
-    if (error) notification.error({ message: 'Lỗi', description: error, placement: 'bottomRight' });
-  }, [error]);
-
   const handleTableChange = (pag) => {
     dispatch(setPagination({ current: pag.current, pageSize: pag.pageSize }));
   };
 
   return (
-    <Card title="Danh sách giờ làm việc">
+    <Card
+      title="Danh sách giờ làm việc"
+      extra={
+        <div>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowCreateDialog(true)}>
+            Thêm ca làm việc
+          </Button>
+        </div>
+      }
+    >
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} sm={12} md={8} lg={6}>
           <SearchFilter
@@ -58,7 +66,16 @@ const WorkingHoursList = () => {
         </Col>
       </Row>
 
-      {error && <AlertMessage type="error" message={error} />}
+      {error && (
+        <AlertMessage
+          type="error"
+          message={
+            typeof error === 'string'
+              ? error
+              : error?.message || (error?.response?.data?.message ?? JSON.stringify(error))
+          }
+        />
+      )}
 
       {list && list.length > 0 ? (
         <Table
@@ -73,6 +90,20 @@ const WorkingHoursList = () => {
       ) : (
         <Empty description={loading ? 'Đang tải...' : 'Không có cấu hình giờ làm việc'} />
       )}
+      <CreateWorkingHoursDialog
+        visible={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
+        onSuccess={() => {
+          setShowCreateDialog(false);
+          dispatch(
+            fetchWorkingHours({
+              isActive,
+              page: pagination?.current,
+              limit: pagination?.pageSize,
+            })
+          );
+        }}
+      />
     </Card>
   );
 };

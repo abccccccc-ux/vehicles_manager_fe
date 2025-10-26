@@ -14,6 +14,19 @@ export const fetchWorkingHours = createAsyncThunk(
   }
 );
 
+// Tạo mới giờ làm việc
+export const createWorkingHours = createAsyncThunk(
+  'workingHours/createWorkingHours',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await workingHoursApi.createWorkingHours(payload);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message || 'Lỗi khi tạo giờ làm việc');
+    }
+  }
+);
+
 const initialState = {
   list: [],
   loading: false,
@@ -62,6 +75,30 @@ const workingHoursSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       });
+      // createWorkingHours
+      builder
+        .addCase(createWorkingHours.pending, (state) => {
+          state.creating = true;
+        })
+        .addCase(createWorkingHours.fulfilled, (state, action) => {
+          state.creating = false;
+          if (action.payload && action.payload.success) {
+            const w = action.payload.data?.workingHours;
+            if (w) {
+              const item = { ...w, key: w._id };
+              // thêm vào đầu danh sách
+              state.list = [item, ...(state.list || [])];
+              // cập nhật tổng nếu có
+              state.pagination.total = (state.pagination.total || 0) + 1;
+            }
+          } else {
+            state.error = action.payload?.message || 'Tạo giờ làm việc thất bại';
+          }
+        })
+        .addCase(createWorkingHours.rejected, (state, action) => {
+          state.creating = false;
+          state.error = action.payload || action.error?.message;
+        });
   },
 });
 

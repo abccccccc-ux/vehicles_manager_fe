@@ -12,12 +12,10 @@ import SearchFilter from '../../components/Search/SearchFilter';
 import useDebounce from '../../hooks/useDebounce';
 import { useDispatch } from 'react-redux';
 import { deleteUser } from '../../store/userSlice';
-// inline AlertMessage replaced by antd notification (bottomRight)
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import MainLayout from '../../layouts/MainLayout';
 
-// ...columns will be defined inside the Users component so we can access dispatch/setAlert
 
 const Users = () => {
   const columns = [

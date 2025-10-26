@@ -2,3 +2,14 @@ body {
   margin: 0 !important;
   padding: 0;
 }
+
+/* Ensure antd notifications are visible and not hidden behind modals or other containers */
+
+/* Specific placement tweaks for bottom-right notifications */
+.ant-notification {
+  z-index: 15000 !important;
+}
+.ant-notification-bottomRight {
+  right: 24px;
+  bottom: 24px;
+}
