@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { Card, Table, Tag, Row, Col, Empty } from 'antd';
+import { Card, Table, Tag, Row, Col, Empty, notification } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchFilter from '../../components/Search/SearchFilter';
-import AlertMessage from '../../components/AlertMessage';
+// inline AlertMessage replaced by antd notification (bottomRight)
 import { fetchWorkingHours, setIsActive, setPagination } from '../../store/workingHoursSlice';
 
 const statusOptions = [
@@ -38,7 +38,7 @@ const WorkingHoursList = () => {
   }, [dispatch, isActive, pagination?.current, pagination?.pageSize]);
 
   useEffect(() => {
-    // if needed, handle error alerts
+    if (error) notification.error({ message: 'Lỗi', description: error, placement: 'bottomRight' });
   }, [error]);
 
   const handleTableChange = (pag) => {

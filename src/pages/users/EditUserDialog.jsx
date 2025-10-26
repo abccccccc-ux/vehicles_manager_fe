@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import departmentApi from '../../api/departmentApi';
 import userApi from '../../api/userApi';
 import { editUser, fetchUserById, clearUserDetails } from '../../store/userSlice';
-import AlertMessage from '../../components/AlertMessage';
 
 const { Option } = Select;
 
@@ -16,7 +15,6 @@ const EditUserDialog = ({ visible, onClose, userId, onSuccess }) => {
   const [departments, setDepartments] = useState([]);
   const [loadingDeps, setLoadingDeps] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [alert, setAlert] = useState(null);
 
   // Load departments when modal opens
   useEffect(() => {
@@ -75,19 +73,16 @@ const EditUserDialog = ({ visible, onClose, userId, onSuccess }) => {
     return () => {
       dispatch(clearUserDetails());
       form.resetFields();
-      setAlert(null);
     };
   }, [visible, userId]);
 
   const handleCancel = () => {
     form.resetFields();
-    setAlert(null);
     onClose();
   };
 
   const onFinish = async (values) => {
     setSubmitting(true);
-    setAlert(null);
     try {
 // prepare payload
 const payloadData = {
@@ -99,23 +94,22 @@ const payloadData = {
   isActive: !!values.isActive,
 };
 
-const actionRes = await dispatch(editUser({ userId, data: payloadData }));
-if (editUser.fulfilled.match(actionRes)) {
+      const actionRes = await dispatch(editUser({ userId, data: payloadData }));
+      if (editUser.fulfilled.match(actionRes)) {
         const successMsg = actionRes.payload?.data?.message || 'Cập nhật thành công';
-        notification.success({ message: 'Thành công', description: successMsg });
+        notification.success({ message: 'Thành công', description: successMsg, placement: 'bottomRight' });
         if (onSuccess) onSuccess();
         onClose();
       } else {
         const err = actionRes.payload || actionRes.error;
         const message = err?.message || err?.data?.message || 'Cập nhật thất bại';
-        setAlert({ type: 'error', message });
-        notification.error({ message: 'Lỗi', description: message });
+        // show single notification at bottom-right
+        notification.error({ message: 'Lỗi', description: message, placement: 'bottomRight' });
       }
     } catch (err) {
       console.error(err);
       const message = err?.message || 'Có lỗi xảy ra';
-      setAlert({ type: 'error', message });
-      notification.error({ message: 'Lỗi', description: message });
+      notification.error({ message: 'Lỗi', description: message, placement: 'bottomRight' });
     } finally {
       setSubmitting(false);
     }
@@ -129,7 +123,7 @@ if (editUser.fulfilled.match(actionRes)) {
       footer={null}
       destroyOnClose
     >
-      {alert && <AlertMessage type={alert.type} message={alert.message} />}
+      {/* Notifications use antd's notification with placement bottomRight; inline alert removed */}
 
       <Spin spinning={userDetailsLoading || loadingDeps}>
         <Form

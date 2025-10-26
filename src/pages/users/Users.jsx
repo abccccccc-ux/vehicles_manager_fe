@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Table, Tag, Spin } from 'antd';
+import { notification } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import showDeleteConfirm from '../../components/DeleteConfirm';
 import CreateUserDialog from './CreateUserDialog';
 import EditUserDialog from './EditUserDialog';
 import UserDetailsDialog from './UserDetailsDialog';
 import userApi from '../../api/userApi';
+import SearchInput from '../../components/Search/SearchInput';
+import SearchFilter from '../../components/Search/SearchFilter';
+import useDebounce from '../../hooks/useDebounce';
 import { useDispatch } from 'react-redux';
 import { deleteUser } from '../../store/userSlice';
-import AlertMessage from '../../components/AlertMessage';
+// inline AlertMessage replaced by antd notification (bottomRight)
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import MainLayout from '../../layouts/MainLayout';
@@ -93,15 +97,15 @@ const Users = () => {
                     setDeletingId(null);
                     // check for rejected action
                     if (res.error) {
-                      setAlert({ type: 'error', message: res.error.message || 'Xóa thất bại' });
+                      notification.error({ message: 'Lỗi', description: res.error.message || 'Xóa thất bại', placement: 'bottomRight' });
                     } else {
-                      setAlert({ type: 'success', message: 'Đã xóa người dùng thành công' });
+                      notification.success({ message: 'Thành công', description: 'Đã xóa người dùng thành công', placement: 'bottomRight' });
                       // refresh list
                       fetchUsers();
                     }
                   } catch (err) {
                     setDeletingId(null);
-                    setAlert({ type: 'error', message: err.message || 'Xóa thất bại' });
+                    notification.error({ message: 'Lỗi', description: err.message || 'Xóa thất bại', placement: 'bottomRight' });
                   }
                 },
               });
@@ -114,6 +118,12 @@ const Users = () => {
   const [users, setUsers] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 450);
+  const [role, setRole] = useState(undefined);
+  const [isActive, setIsActive] = useState(undefined);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
   const [showDialog, setShowDialog] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -127,7 +137,15 @@ const Users = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await userApi.getUsers({ page: 1, limit: 10 });
+      const params = {
+        page,
+        limit,
+        search: debouncedSearch || undefined,
+        role: role || undefined,
+        // send isActive only when explicitly true/false
+        isActive: typeof isActive === 'boolean' ? isActive : undefined,
+      };
+      const res = await userApi.getUsers(params);
       setUsers(res.data.data.map((u) => ({ ...u, key: u._id })));
       setPagination(res.data.pagination);
     } catch (error) {
@@ -136,9 +154,11 @@ const Users = () => {
     setLoading(false);
   };
 
+  // initial fetch + when filters/page change
   useEffect(() => {
     fetchUsers();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, role, isActive, page]);
 
   // Điều hướng không đủ quyền (đặt sau khi đã gọi Hook xong)
   if (!currentUser || currentUser.role !== 'super_admin') {
@@ -148,10 +168,45 @@ const Users = () => {
   return (
     <MainLayout>
       <h2 className="text-xl font-bold mb-4">Danh sách người dùng</h2>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', margin: 24 }}>
-        <Button type="primary" onClick={() => setShowDialog(true)}>
-          Thêm mới người dùng
-        </Button>
+      <div style={{ display: 'flex', gap: 12, justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Tìm kiếm theo username, tên hoặc số điện thoại"
+            style={{ width: 320 }}
+          />
+          <SearchFilter
+            value={role}
+            onChange={(v) => setRole(v)}
+            placeholder="Chọn role"
+            style={{ width: 180 }}
+            options={[
+              { label: 'User', value: 'user' },
+              { label: 'Admin', value: 'admin' },
+              { label: 'Super Admin', value: 'super_admin' },
+            ]}
+          />
+          <SearchFilter
+            value={isActive}
+            onChange={(v) => {
+              // Select passes booleans when options' value is boolean
+              // when cleared it becomes undefined
+              setIsActive(typeof v === 'string' ? (v === 'true') : v);
+            }}
+            placeholder="Trạng thái"
+            style={{ width: 140 }}
+            options={[
+              { label: 'Active', value: true },
+              { label: 'Inactive', value: false },
+            ]}
+          />
+        </div>
+        <div>
+          <Button type="primary" onClick={() => setShowDialog(true)}>
+            Thêm mới người dùng
+          </Button>
+        </div>
       </div>
       <div style={{ margin: 16 }} className="bg-white rounded-xl shadow-sm p-4">
         {loading ? (
@@ -164,9 +219,9 @@ const Users = () => {
             dataSource={users}
             bordered
             pagination={{
-              current: pagination.currentPage,
-              pageSize: pagination.itemsPerPage,
-              total: pagination.totalItems,
+              current: pagination.currentPage || page,
+              pageSize: pagination.itemsPerPage || limit,
+              total: pagination.totalItems || 0,
               showSizeChanger: false,
             }}
             rowClassName={() => 'hover:bg-gray-50 cursor-pointer'}
@@ -176,6 +231,9 @@ const Users = () => {
                 setShowUserDetails(true);
               },
             })}
+            onChange={(pagination) => {
+              if (pagination && pagination.current) setPage(pagination.current);
+            }}
           />
         )}
       </div>

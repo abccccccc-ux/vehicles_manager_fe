@@ -1,30 +1,28 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Spin } from 'antd';
-import AlertMessage from '../../components/AlertMessage';
+import { Form, Input, Button, Spin, notification } from 'antd';
+// inline AlertMessage replaced by antd notification (bottomRight)
 import { changePassword } from '../../api/authApi';
 import MainLayout from '../../layouts/MainLayout';
 
 const ChangePassword = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-    const [alert, setAlert] = useState({ type: '', message: '' });
 
     const onFinish = async (values) => {
-        setLoading(true);
-        setAlert({ type: '', message: '' });
+    setLoading(true);
         try {
             const response = await changePassword({
                 currentPassword: values.currentPassword,
                 newPassword: values.newPassword,
             });
             if (response.success) {
-                setAlert({ type: 'success', message: response.message });
+                            notification.success({ message: 'Thành công', description: response.message, placement: 'bottomRight' });
                 form.resetFields();
             } else {
-                setAlert({ type: 'error', message: response.message || 'Đổi mật khẩu thất bại' });
+                            notification.error({ message: 'Lỗi', description: response.message || 'Đổi mật khẩu thất bại', placement: 'bottomRight' });
             }
         } catch (error) {
-            setAlert({ type: 'error', message: error?.response?.data?.message || 'Có lỗi xảy ra' });
+                notification.error({ message: 'Lỗi', description: error?.response?.data?.message || 'Có lỗi xảy ra', placement: 'bottomRight' });
         } finally {
             setLoading(false);
         }
@@ -34,7 +32,7 @@ const ChangePassword = () => {
         <MainLayout>
             <div style={{ maxWidth: 500, margin: '0 auto', padding: 24, background: '#fff', borderRadius: 8 }}>
                 <h2 style={{ textAlign: 'center' }}>Đổi mật khẩu</h2>
-                {alert.message && <AlertMessage type={alert.type} message={alert.message} />}
+                {/* Notifications use antd notification (bottomRight) */}
                 <Form
                     form={form}
                     layout="vertical"

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Button, Select, Spin } from 'antd';
-import AlertMessage from '../../components/AlertMessage';
+import { Modal, Form, Input, Button, Select, Spin, notification } from 'antd';
+// inline AlertMessage replaced by antd notification (bottomRight)
 import vehicleApi from '../../api/vehicleApi';
 
 const { Option } = Select;
@@ -9,24 +9,23 @@ const { Option } = Select;
 const RegisterVehicleDialog = ({ visible, onClose, onSuccess }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState({ type: '', message: '' });
 
   const onFinish = async (values) => {
     setLoading(true);
-    setAlert({ type: '', message: '' });
+    // using notification instead of inline alert
     try {
       const owner = localStorage.getItem('userId');
       const body = { ...values, owner };
       const response = await vehicleApi.createVehicle(body);
       if (response.success) {
-        setAlert({ type: 'success', message: response.message });
+        notification.success({ message: 'Thành công', description: response.message, placement: 'bottomRight' });
         form.resetFields();
         if (onSuccess) onSuccess(response);
       } else {
-        setAlert({ type: 'error', message: response.message || 'Đăng kí thất bại' });
+        notification.error({ message: 'Lỗi', description: response.message || 'Đăng kí thất bại', placement: 'bottomRight' });
       }
     } catch (error) {
-      setAlert({ type: 'error', message: error?.response?.data?.message || 'Có lỗi xảy ra' });
+      notification.error({ message: 'Lỗi', description: error?.response?.data?.message || 'Có lỗi xảy ra', placement: 'bottomRight' });
     } finally {
       setLoading(false);
     }
@@ -34,13 +33,12 @@ const RegisterVehicleDialog = ({ visible, onClose, onSuccess }) => {
 
   const handleCancel = () => {
     form.resetFields();
-    setAlert({ type: '', message: '' });
     onClose && onClose();
   };
 
   return (
     <Modal visible={visible} title="Đăng kí phương tiện cá nhân" onCancel={handleCancel} footer={null} destroyOnClose>
-      {alert.message && <AlertMessage type={alert.type} message={alert.message} />}
+  {/* Notifications use antd notification (bottomRight) */}
 
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item label="Biển số xe" name="licensePlate" rules={[{ required: true, message: 'Vui lòng nhập biển số xe' }]}>

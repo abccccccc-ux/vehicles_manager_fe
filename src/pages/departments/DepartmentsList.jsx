@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Tag, Row, Col, Button } from 'antd';
+import { Card, Table, Tag, Row, Col, Button, notification } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchInput from '../../components/Search/SearchInput';
 import SearchFilter from '../../components/Search/SearchFilter';
 import showDeleteConfirm from '../../components/DeleteConfirm';
 import { deleteDepartment } from '../../store/departmentSlice';
-import AlertMessage from '../../components/AlertMessage';
+// inline AlertMessage replaced by antd notification (bottomRight)
 import DepartmentDetailDialog from './DepartmentDetailDialog';
+import useRebounce from '../../hooks/useRebounce';
 import {
   fetchDepartments,
   setSearch,
@@ -30,9 +31,16 @@ const DepartmentsList = () => {
   );
 
   const [deletingId, setDeletingId] = useState(null);
-  const [alert, setAlert] = useState(null);
   const [selectedDeptId, setSelectedDeptId] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
+  const [localSearch, setLocalSearch] = useState(search || '');
+
+  // debounced dispatcher for search to avoid rapid requests while typing
+  const debouncedDispatchSearch = useRebounce((val) => {
+    // reset to first page when searching
+    dispatch(setPagination({ current: 1, pageSize: pagination.pageSize }));
+    dispatch(setSearch(val));
+  }, 400);
 
   // fetch data khi thay đổi search, filter, hoặc pagination
   useEffect(() => {
@@ -47,8 +55,13 @@ const DepartmentsList = () => {
   }, [dispatch, search, isActive, pagination.current, pagination.pageSize]);
 
   useEffect(() => {
-    if (error) setAlert({ type: 'error', message: error });
+    if (error) notification.error({ message: 'Lỗi', description: error, placement: 'bottomRight' });
   }, [error]);
+
+  // keep localSearch in sync if search is updated elsewhere
+  useEffect(() => {
+    setLocalSearch(search || '');
+  }, [search]);
 
   const handleTableChange = (pag) => {
     dispatch(setPagination({ current: pag.current, pageSize: pag.pageSize }));
@@ -115,15 +128,15 @@ const DepartmentsList = () => {
                     const res = await dispatch(deleteDepartment(record._id));
                     setDeletingId(null);
                     if (res.error) {
-                      setAlert({ type: 'error', message: res.error.message || 'Xóa thất bại' });
+                      notification.error({ message: 'Lỗi', description: res.error.message || 'Xóa thất bại', placement: 'bottomRight' });
                     } else {
-                      setAlert({ type: 'success', message: res.payload?.message || 'Đã xóa phòng ban' });
+                      notification.success({ message: 'Thành công', description: res.payload?.message || 'Đã xóa phòng ban', placement: 'bottomRight' });
                       // re-fetch current page
                       dispatch(fetchDepartments({ search, isActive, page: pagination.current, limit: pagination.pageSize }));
                     }
                   } catch (err) {
                     setDeletingId(null);
-                    setAlert({ type: 'error', message: err.message || 'Xóa thất bại' });
+                    notification.error({ message: 'Lỗi', description: err.message || 'Xóa thất bại', placement: 'bottomRight' });
                   }
                 },
               });
@@ -139,8 +152,11 @@ const DepartmentsList = () => {
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} sm={12} md={8} lg={6}>
           <SearchInput
-            value={search}
-            onChange={(val) => dispatch(setSearch(val))}
+            value={localSearch}
+            onChange={(val) => {
+              setLocalSearch(val);
+              debouncedDispatchSearch(val);
+            }}
             placeholder="Tìm kiếm tên, mã phòng ban..."
           />
         </Col>
@@ -153,7 +169,6 @@ const DepartmentsList = () => {
           />
         </Col>
       </Row>
-      {alert && <AlertMessage type={alert.type} message={alert.message} />}
       <Table
         rowKey="_id"
         columns={columns}

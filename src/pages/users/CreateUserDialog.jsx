@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, Button } from 'antd';
+import { Modal, Form, Input, Select, Button, notification } from 'antd';
 import userApi from '../../api/userApi';
 import departmentApi from '../../api/departmentApi';
-import AlertMessage from '../../components/AlertMessage';
+// inline AlertMessage replaced by antd notification (bottomRight)
 
 const { Option } = Select;
 
 const CreateUserDialog = ({ visible, onClose, onSuccess }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState(null);
   const [departments, setDepartments] = useState([]);
   const [departmentsLoading, setDepartmentsLoading] = useState(false);
 
@@ -44,7 +43,7 @@ const CreateUserDialog = ({ visible, onClose, onSuccess }) => {
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
-      setAlert(null);
+      // using notification instead of inline alert
 
       console.log('form values:', values); // debug: kiểm tra values.department
 
@@ -56,18 +55,18 @@ const CreateUserDialog = ({ visible, onClose, onSuccess }) => {
       const res = await userApi.createUser(payload);
 
       if (res?.data?.success) {
-        setAlert({ type: 'success', message: res.data.message || 'Tạo người dùng thành công' });
+        notification.success({ message: 'Thành công', description: res.data.message || 'Tạo người dùng thành công', placement: 'bottomRight' });
         form.resetFields();
         if (onSuccess) onSuccess();
       } else {
-        setAlert({ type: 'error', message: res?.data?.message || 'Tạo người dùng thất bại' });
+        notification.error({ message: 'Lỗi', description: res?.data?.message || 'Tạo người dùng thất bại', placement: 'bottomRight' });
       }
     } catch (error) {
       const msg =
         error?.response?.data?.errors?.[0]?.message ||
         error?.response?.data?.message ||
         'Có lỗi xảy ra khi tạo người dùng';
-      setAlert({ type: 'error', message: msg });
+      notification.error({ message: 'Lỗi', description: msg, placement: 'bottomRight' });
     } finally {
       setLoading(false);
     }
@@ -75,7 +74,6 @@ const CreateUserDialog = ({ visible, onClose, onSuccess }) => {
 
   // 🔹 Đóng modal
   const handleCancel = () => {
-    setAlert(null);
     form.resetFields();
     onClose();
   };
@@ -88,7 +86,7 @@ const CreateUserDialog = ({ visible, onClose, onSuccess }) => {
       footer={null}
       destroyOnClose
     >
-      {alert && <AlertMessage type={alert.type} message={alert.message} />}
+  {/* Notifications use antd notification (bottomRight) */}
 
       <Form
         form={form}

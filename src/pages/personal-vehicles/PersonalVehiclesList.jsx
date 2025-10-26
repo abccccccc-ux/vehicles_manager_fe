@@ -1,10 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-import { Card, Table, Row, Col, Button, Tag, Space } from 'antd';
+import { Card, Table, Row, Col, Button, Tag, Space, notification } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import SearchInput from '../../components/Search/SearchInput';
-import AlertMessage from '../../components/AlertMessage';
 import VehicleDetailsDialog from '../vehicles/VehicleDetailsDialog';
 import RegisterVehicleDialog from './RegisterVehicle';
 import { fetchMyVehicles, setSearch, setPagination, setSelectedVehicle } from '../../store/vehicleSlice';
@@ -16,10 +14,8 @@ const PersonalVehiclesList = () => {
     const { list, loading, pagination, search, error, selectedVehicle, detailLoading } = useSelector((state) => state.vehicle);
 
     const [showDetail, setShowDetail] = useState(false);
-    const [alert, setAlert] = useState(null);
     const [registerVisible, setRegisterVisible] = useState(false);
 
-    // fetch personal vehicles
     const load = useCallback(
         (page = pagination.current, pageSize = pagination.pageSize, q = search) => {
             dispatch(fetchMyVehicles({ page, limit: pageSize, search: q }));
@@ -32,8 +28,9 @@ const PersonalVehiclesList = () => {
     }, [load]);
 
     useEffect(() => {
-        if (error) setAlert({ type: 'error', message: error });
+        if (error) notification.error({ message: 'Lỗi', description: error, placement: 'bottomRight' });
     }, [error]);
+    // alert state removed: using antd notification instead
 
     const columns = [
         { title: 'Biển số', dataIndex: 'licensePlate', key: 'licensePlate' },
@@ -71,7 +68,7 @@ const PersonalVehiclesList = () => {
 
     const onRegisterSuccess = (response) => {
         // show success alert and refresh list
-        setAlert({ type: 'success', message: response.message || 'Đăng ký thành công' });
+        notification.success({ message: 'Thành công', description: response.message || 'Đăng ký thành công', placement: 'bottomRight' });
         closeRegister();
         // refresh current list
         load(1, pagination.pageSize, search);
@@ -91,7 +88,6 @@ const PersonalVehiclesList = () => {
                     </Col>
                 </Row>
 
-                {alert && <AlertMessage type={alert.type} message={alert.message} />}
 
                 <Table
                     rowKey="_id"
