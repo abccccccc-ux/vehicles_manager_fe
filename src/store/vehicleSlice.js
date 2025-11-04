@@ -14,6 +14,19 @@ export const fetchMyVehicles = createAsyncThunk(
   }
 );
 
+// General vehicles list with filters and pagination
+export const fetchVehicles = createAsyncThunk(
+  'vehicle/fetchVehicles',
+  async (params, { rejectWithValue }) => {
+    try {
+      const data = await vehicleApi.getVehicles(params);
+      return data; // expected: { success, message, data: [...], pagination }
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Lỗi khi tải danh sách xe');
+    }
+  }
+);
+
 
 const vehicleSlice = createSlice({
   name: 'vehicle',
@@ -22,9 +35,12 @@ const vehicleSlice = createSlice({
     loading: false,
     selectedVehicle: null,
     detailLoading: false,
-    // pagination for personal vehicles
+    // pagination for vehicles list
     pagination: { current: 1, pageSize: 10, total: 0 },
+    // filters
     search: '',
+    vehicleType: '', // '' means all, values: 'car'|'motorbike'
+    status: '', // '' means all, 'active'|'inactive'
     error: null,
     currentRequestId: undefined,
   },
@@ -43,6 +59,14 @@ const vehicleSlice = createSlice({
     },
     setSearch(state, action) {
       state.search = action.payload;
+      state.pagination.current = 1;
+    },
+    setVehicleType(state, action) {
+      state.vehicleType = action.payload;
+      state.pagination.current = 1;
+    },
+    setStatus(state, action) {
+      state.status = action.payload;
       state.pagination.current = 1;
     },
     setPagination(state, action) {
@@ -82,8 +106,48 @@ const vehicleSlice = createSlice({
           state.currentRequestId = undefined;
         }
       });
+
+    // handlers for fetchVehicles
+    builder
+      .addCase(fetchVehicles.pending, (state, action) => {
+        state.loading = true;
+        state.error = null;
+        state.currentRequestId = action.meta.requestId;
+      })
+      .addCase(fetchVehicles.fulfilled, (state, action) => {
+        if (state.currentRequestId === action.meta.requestId) {
+          state.loading = false;
+          const items = (action.payload.data || []).map((it) => ({ ...it, key: it._id }));
+          state.list = items;
+          const pag = action.payload.pagination || {};
+          state.pagination = {
+            ...state.pagination,
+            current: pag.currentPage || state.pagination.current,
+            pageSize: pag.itemsPerPage || state.pagination.pageSize,
+            total: pag.totalItems || 0,
+          };
+          state.currentRequestId = undefined;
+        }
+      })
+      .addCase(fetchVehicles.rejected, (state, action) => {
+        if (state.currentRequestId === action.meta.requestId) {
+          state.loading = false;
+          state.error = action.payload;
+          state.currentRequestId = undefined;
+        }
+      });
   },
 });
 
-export const { setVehicles, setLoading, setSelectedVehicle, setDetailLoading, setSearch, setPagination, clearError } = vehicleSlice.actions;
+export const {
+  setVehicles,
+  setLoading,
+  setSelectedVehicle,
+  setDetailLoading,
+  setSearch,
+  setVehicleType,
+  setStatus,
+  setPagination,
+  clearError,
+} = vehicleSlice.actions;
 export default vehicleSlice.reducer;

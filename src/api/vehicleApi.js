@@ -14,8 +14,9 @@ export const getVehicleByLicensePlate = async (licensePlate) => {
   return response.data;
 };
 
-export const getVehicles = async () => {
-  const response = await axiosClient.get('/vehicles');
+export const getVehicles = async (params = {}) => {
+  // params: { search, vehicleType, status, page, limit, departmentId }
+  const response = await axiosClient.get('/vehicles', { params });
   return response.data;
 };
 
