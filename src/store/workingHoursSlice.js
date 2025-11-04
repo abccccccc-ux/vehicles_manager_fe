@@ -27,6 +27,19 @@ export const createWorkingHours = createAsyncThunk(
   }
 );
 
+// Xóa giờ làm việc
+export const deleteWorkingHours = createAsyncThunk(
+  'workingHours/deleteWorkingHours',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await workingHoursApi.deleteWorkingHours(id);
+      return { id, ...response }; // include id for reducer
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Lỗi khi xóa giờ làm việc');
+    }
+  }
+);
+
 const initialState = {
   list: [],
   loading: false,
@@ -98,6 +111,28 @@ const workingHoursSlice = createSlice({
         .addCase(createWorkingHours.rejected, (state, action) => {
           state.creating = false;
           state.error = action.payload || action.error?.message;
+        });
+
+      // deleteWorkingHours
+      builder
+        .addCase(deleteWorkingHours.pending, (state) => {
+          state.deleting = true;
+          state.deleteError = null;
+        })
+        .addCase(deleteWorkingHours.fulfilled, (state, action) => {
+          state.deleting = false;
+          if (action.payload && action.payload.success) {
+            const id = action.payload.id;
+            state.list = (state.list || []).filter((i) => i._id !== id && i.key !== id);
+            state.pagination.total = Math.max(0, (state.pagination.total || 0) - 1);
+            state.deleteResult = action.payload.message || 'Xóa thành công';
+          } else {
+            state.deleteError = action.payload?.message || 'Xóa thất bại';
+          }
+        })
+        .addCase(deleteWorkingHours.rejected, (state, action) => {
+          state.deleting = false;
+          state.deleteError = action.payload || action.error?.message;
         });
   },
 });

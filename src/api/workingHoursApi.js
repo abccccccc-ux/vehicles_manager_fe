@@ -12,4 +12,10 @@ export const createWorkingHours = async (payload) => {
   return response.data; // { success, message, data }
 };
 
-export default { getWorkingHours, createWorkingHours };
+// Xóa cấu hình giờ làm việc theo id
+export const deleteWorkingHours = async (id) => {
+  const response = await axiosClient.delete(`/working-hours/${id}`);
+  return response.data; // { success, message }
+};
+
+export default { getWorkingHours, createWorkingHours, deleteWorkingHours };

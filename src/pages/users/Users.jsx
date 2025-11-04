@@ -15,6 +15,7 @@ import { deleteUser } from '../../store/userSlice';
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import MainLayout from '../../layouts/MainLayout';
+import AlertMessage from '../../components/AlertMessage';
 
 
 const Users = () => {

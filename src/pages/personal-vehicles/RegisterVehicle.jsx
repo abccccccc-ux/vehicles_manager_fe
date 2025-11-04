@@ -18,9 +18,13 @@ const RegisterVehicleDialog = ({ visible, onClose, onSuccess }) => {
       const body = { ...values, owner };
       const response = await vehicleApi.createVehicle(body);
       if (response.success) {
-        notification.success({ message: 'Thành công', description: response.message, placement: 'bottomRight' });
+        // Delegate success handling to parent when provided to avoid duplicate notifications.
         form.resetFields();
-        if (onSuccess) onSuccess(response);
+        if (onSuccess) {
+          onSuccess(response);
+        } else {
+          notification.success({ message: 'Thành công', description: response.message, placement: 'bottomRight' });
+        }
       } else {
         notification.error({ message: 'Lỗi', description: response.message || 'Đăng kí thất bại', placement: 'bottomRight' });
       }
