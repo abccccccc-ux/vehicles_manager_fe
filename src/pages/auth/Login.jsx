@@ -3,69 +3,97 @@ import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../store/authSlice';
 import { login as loginApi } from '../../api/authApi';
 import { useNavigate } from 'react-router-dom';
+import { Card, Form, Input, Button, Typography, message } from 'antd';
+import { EyeInvisibleOutlined, EyeTwoTone, UserOutlined, LockOutlined } from '@ant-design/icons';
+// logo removed (not used) to avoid unused import warning
+
+const { Title, Text } = Typography;
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onFinish = async (values) => {
+    const { username, password } = values;
     setLoading(true);
-    setError('');
     try {
       const res = await loginApi(username, password);
-      if (res.success) {
-        // Lưu token vào localStorage
-        localStorage.setItem('accessToken', res.data.tokens.accessToken);
-        localStorage.setItem('refreshToken', res.data.tokens.refreshToken);
-        localStorage.setItem('userId', res.data.user._id); // Lưu _id người dùng
-          localStorage.setItem('role', res.data.user.role); // Lưu role người dùng
+      if (res && res.success) {
+        if (res.data?.tokens) {
+          localStorage.setItem('accessToken', res.data.tokens.accessToken);
+          localStorage.setItem('refreshToken', res.data.tokens.refreshToken);
+        }
+        if (res.data?.user) {
+          localStorage.setItem('userId', res.data.user._id || res.data.user.id || '');
+          localStorage.setItem('role', res.data.user.role || '');
+        }
+
         dispatch(loginSuccess(res.data));
+        message.success('Đăng nhập thành công');
         navigate('/dashboard');
       } else {
-        setError(res.message || 'Đăng nhập thất bại');
+        message.error(res?.message || 'Đăng nhập thất bại');
       }
     } catch (err) {
-      setError('Đăng nhập thất bại');
+      message.error('Đăng nhập thất bại');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  const onFinishFailed = ({ errorFields }) => {
+    if (errorFields?.length) {
+      message.error(errorFields[0]?.errors[0] || 'Vui lòng kiểm tra thông tin');
+    }
   };
 
   return (
-    <>
-      <div className="max-w-sm mx-auto mt-10 p-6 bg-white rounded shadow">
-        <h2 className="text-xl font-bold mb-4">Đăng nhập</h2>
-        <form onSubmit={handleSubmit}>
-          <input
-            className="w-full mb-2 p-2 border rounded"
-            placeholder="Username"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            required
-          />
-          <input
-            className="w-full mb-2 p-2 border rounded"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
-          {error && <div className="text-red-500 mb-2">{error}</div>}
-          <button
-            className="w-full bg-blue-500 text-white p-2 rounded"
-            type="submit"
-            disabled={loading}
+    <div className="login-wrapper">
+      <Card className="login-card" bordered={false}>
+        <div className="text-center mb-6 flex flex-col items-center">
+          <Title level={3} style={{ margin: 0 }}>
+            Quản lý phương tiện
+          </Title>
+          <Text type="secondary">Đăng nhập để tiếp tục</Text>
+        </div>
+
+        <Form
+          name="login"
+          initialValues={{ remember: true }}
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          layout="vertical"
+        >
+          <Form.Item
+            label="Email hoặc Username"
+            name="username"
+            rules={[{ required: true, message: 'Vui lòng nhập email hoặc username' }]}
           >
-            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-          </button>
-        </form>
-      </div>
-    </>
+            <Input size="large" placeholder="Email hoặc Username" prefix={<UserOutlined />} />
+          </Form.Item>
+
+          <Form.Item
+            label="Mật khẩu"
+            name="password"
+            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+          >
+            <Input.Password
+              size="large"
+              placeholder="Mật khẩu"
+              iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+              prefix={<LockOutlined />}
+            />
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block size="large" loading={loading}>
+              Đăng nhập
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
+    </div>
   );
 };
 

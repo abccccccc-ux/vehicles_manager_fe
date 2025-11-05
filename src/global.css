@@ -13,3 +13,30 @@ body {
   right: 24px;
   bottom: 24px;
 }
+
+/* Login page layout */
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%);
+}
+
+.login-card {
+  width: 360px;
+  max-width: 92%;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  border-radius: 8px;
+}
+
+.login-card .ant-card-body {
+  padding: 24px;
+}
+
+@media (max-width: 400px) {
+  .login-card {
+    width: 92%;
+  }
+}
