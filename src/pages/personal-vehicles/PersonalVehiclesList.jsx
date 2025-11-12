@@ -5,7 +5,8 @@ import { ReloadOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import VehicleDetailsDialog from '../vehicles/VehicleDetailsDialog';
 import RegisterVehicleDialog from './RegisterVehicle';
-import { fetchMyVehicles, setSearch, setPagination, setSelectedVehicle } from '../../store/vehicleSlice';
+import { fetchMyVehicles, setSearch, setPagination, setSelectedVehicle, setDetailLoading } from '../../store/vehicleSlice';
+import vehicleApi from '../../api/vehicleApi';
 
 const statusTag = (isActive) => (isActive ? <Tag color="green">Hoạt động</Tag> : <Tag color="red">Ngừng</Tag>);
 
@@ -51,11 +52,22 @@ const PersonalVehiclesList = () => {
         load(1, pagination.pageSize, val);
     };
 
-    const handleRowClick = (record) => {
-        // reuse existing getVehicleByLicensePlate flow by setting selected vehicle key and opening dialog
-        // For simplicity we set selectedVehicle directly (record contains full data from my-vehicles)
-        dispatch(setSelectedVehicle(record));
-        setShowDetail(true);
+    const handleRowClick = async (record) => {
+        // When clicking a row, fetch latest vehicle details by license plate
+        dispatch(setDetailLoading(true));
+        try {
+            const res = await vehicleApi.getVehicleByLicensePlate(record.licensePlate);
+            if (res && res.success) {
+                dispatch(setSelectedVehicle(res.data));
+                setShowDetail(true);
+            } else {
+                notification.error({ message: 'Lỗi', description: res.message || 'Không thể tải thông tin xe', placement: 'bottomRight' });
+            }
+        } catch (err) {
+            notification.error({ message: 'Lỗi', description: err.message || 'Có lỗi khi gọi API', placement: 'bottomRight' });
+        } finally {
+            dispatch(setDetailLoading(false));
+        }
     };
 
     const closeDetail = () => {
