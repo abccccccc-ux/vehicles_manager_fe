@@ -10,6 +10,7 @@ import ChangePassword from './pages/settings/ChangePassword';
 import Departments from './pages/departments/Departments';
 import WorkingHours from './pages/working-hours/WorkingHours';
 import PersonalVehiclesList from './pages/personal-vehicles/PersonalVehiclesList';
+import SecurityDashboard from './pages/SecurityDashboard';
 
 // Route bảo vệ
 const PrivateRoute = ({ children }) => {
@@ -37,6 +38,7 @@ const routes = [
   { path: '/departments', element: <PrivateRoute><Departments/></PrivateRoute>},
   { path: '/working-hours', element: <PrivateRoute><WorkingHours/></PrivateRoute>},
   { path: '/personal-vehicles', element: <PrivateRoute><PersonalVehiclesList/></PrivateRoute>},
+  { path: '/security', element: <PrivateRoute><SecurityDashboard/></PrivateRoute>},
 ];
 
 export default routes;
