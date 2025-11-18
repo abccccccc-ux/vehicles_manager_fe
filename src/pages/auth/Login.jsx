@@ -25,6 +25,9 @@ const Login = () => {
           localStorage.setItem('refreshToken', res.data.tokens.refreshToken);
         }
         if (res.data?.user) {
+          // Persist full user object so we can restore auth state after a page reload
+          localStorage.setItem('user', JSON.stringify(res.data.user));
+          // keep older keys for backward compatibility
           localStorage.setItem('userId', res.data.user._id || res.data.user.id || '');
           localStorage.setItem('role', res.data.user.role || '');
         }

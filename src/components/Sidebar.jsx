@@ -15,6 +15,7 @@ import {
   ClockCircleOutlined,
   UnlockOutlined,
   LogoutOutlined,
+  SnippetsOutlined,
 } from "@ant-design/icons";
 
 const Sidebar = () => {
@@ -44,19 +45,25 @@ const Sidebar = () => {
     {
       key: "users",
       icon: <UserOutlined />,
-      label: <Link to="/users">Người dùng</Link>,
+      label: <Link to="/users">Quản lý Người dùng</Link>,
       role: "super_admin",
     },
     {
       key: "departments",
       icon: <TeamOutlined />,
-      label: <Link to="/departments">Phòng ban</Link>,
+      label: <Link to="/departments">Quản lý Phòng ban</Link>,
       role: "super_admin",
     },
     {
       key: "working-hours",
       icon: <ClockCircleOutlined />,
-      label: <Link to="/working-hours">Giờ làm việc</Link>,
+      label: <Link to="/working-hours">Quản lý Giờ làm việc</Link>,
+      role: "super_admin",
+    },
+    {
+      key: "working-hours-requests",
+      icon: <SnippetsOutlined />,
+      label: <Link to="/working-hours-requests">Quản lý Yêu cầu ra vào</Link>,
       role: "super_admin",
     },
     {
