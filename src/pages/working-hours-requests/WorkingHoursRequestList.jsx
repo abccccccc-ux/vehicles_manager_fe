@@ -52,8 +52,8 @@ const WorkingHoursRequestList = () => {
     const dispatch = useDispatch();
     const { list = [], loading, error, pagination, filters } = useSelector((s) => s.workingHoursRequests || {});
 
-    const [search, setSearch] = useState(filters?.search || '');
-    const debouncedSearch = useDebounce(search, 400);
+    const [licensePlate, setLicensePlate] = useState(filters?.licensePlate || '');
+    const debouncedLicensePlate = useDebounce(licensePlate, 400);
 
     useEffect(() => {
         // fetch when filters or pagination change
@@ -63,15 +63,15 @@ const WorkingHoursRequestList = () => {
                 limit: pagination?.pageSize,
                 status: filters?.status,
                 requestType: filters?.requestType,
-                search: filters?.search,
+                licensePlate: filters?.licensePlate,
             })
         );
     }, [dispatch, pagination?.current, pagination?.pageSize, filters?.status, filters?.requestType, filters?.search]);
 
     // when debounced search changes, set filter and reset page
     useEffect(() => {
-        dispatch(setFilters({ search: debouncedSearch }));
-    }, [debouncedSearch, dispatch]);
+        dispatch(setFilters({ licensePlate: debouncedLicensePlate }));
+    }, [debouncedLicensePlate, dispatch]);
 
     const handleTableChange = (pag) => {
         dispatch(setPagination({ current: pag.current, pageSize: pag.pageSize }));
@@ -90,7 +90,7 @@ const WorkingHoursRequestList = () => {
             <Card title="Danh sách yêu cầu ra/vào giờ hành chính">
                 <Row gutter={[16, 16]} style={{ marginBottom: 12 }}>
                     <Col xs={24} sm={12} md={8} lg={6}>
-                        <SearchInput value={search} onChange={setSearch} placeholder="Tìm tên / biển số" />
+                        <SearchInput value={licensePlate} onChange={setLicensePlate} placeholder="Tìm tên / biển số" />
                     </Col>
 
                     <Col xs={24} sm={12} md={8} lg={6}>

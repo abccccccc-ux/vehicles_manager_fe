@@ -26,7 +26,7 @@ const initialState = {
   filters: {
     status: undefined,
     requestType: undefined,
-    search: undefined,
+    licensePlate: undefined,
   },
 };
 
