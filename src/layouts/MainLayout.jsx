@@ -1,8 +1,9 @@
 import React from 'react';
 import Sidebar from '../components/Sidebar';
+import NotificationCenter from '../components/NotificationCenter';
 import { Layout } from 'antd';
 
-const { Content, Sider } = Layout;
+const { Header, Content, Sider } = Layout;
 
 
 const MainLayout = ({ children }) => {
@@ -19,6 +20,21 @@ const MainLayout = ({ children }) => {
 
       {/* Nội dung */}
       <Layout style={{ minHeight: '100vh' }}>
+        {/* Header với thông báo */}
+        <Header 
+          style={{ 
+            background: '#fff', 
+            padding: '0 24px', 
+            borderBottom: '1px solid #f0f0f0',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            height: 64
+          }}
+        >
+          <NotificationCenter />
+        </Header>
+
         <Content style={{ padding: 24, height: '100%' }}>
           <div style={{ minHeight: '100%', height: '100%', borderRadius: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.04)', background: '#fff', padding: 24 }}>
             {children}
