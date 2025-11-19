@@ -12,6 +12,7 @@ import WorkingHours from './pages/working-hours/WorkingHours';
 import PersonalVehiclesList from './pages/personal-vehicles/PersonalVehiclesList';
 import SecurityDashboard from './pages/SecurityDashboard';
 import WorkingHoursRequestList from './pages/working-hours-requests/WorkingHoursRequestList';
+import PersonalWorkingHoursRequestList from './pages/personal-working-hours-requests/PersonalWorkingHoursRequestList';
 
 // Route bảo vệ
 const PrivateRoute = ({ children }) => {
@@ -41,6 +42,7 @@ const routes = [
   { path: '/personal-vehicles', element: <PrivateRoute><PersonalVehiclesList/></PrivateRoute>},
   { path: '/security', element: <PrivateRoute><SecurityDashboard/></PrivateRoute>},
   { path: '/working-hours-requests', element: <PrivateRoute><WorkingHoursRequestList/></PrivateRoute>},
+  { path: '/personal-working-hours-requests', element: <PrivateRoute><PersonalWorkingHoursRequestList/></PrivateRoute>},
 ];
 
 export default routes;

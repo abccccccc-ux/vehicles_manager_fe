@@ -2,29 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { configureStore } from '@reduxjs/toolkit';
-import vehicleReducer from './store/vehicleSlice';
-import authReducer, { loginSuccess } from './store/authSlice';
-import departmentReducer from './store/departmentSlice';
-import userReducer from './store/userSlice';
-import workingHoursReducer from './store/workingHoursSlice';
-import workingHoursRequestReducer from './store/workingHoursRequestSlice';
+import store from './store/store';
+import { loginSuccess } from './store/authSlice';
 import App from './App';
 import './global.css';
 // antd v5: import reset css so notification and other components have default styles
 import 'antd/dist/reset.css';
 import { notification } from 'antd';
 
-const store = configureStore({
-  reducer: {
-    vehicle: vehicleReducer,
-    auth: authReducer,
-    departments: departmentReducer,
-    users: userReducer,
-    workingHours: workingHoursReducer,
-    workingHoursRequests: workingHoursRequestReducer,
-  },
-});
+// `store` is created and exported from `src/store/store.js`
 
 const queryClient = new QueryClient();
 

@@ -16,6 +16,7 @@ import {
   UnlockOutlined,
   LogoutOutlined,
   SnippetsOutlined,
+  ExceptionOutlined,
 } from "@ant-design/icons";
 
 const Sidebar = () => {
@@ -65,6 +66,11 @@ const Sidebar = () => {
       icon: <SnippetsOutlined />,
       label: <Link to="/working-hours-requests">Quản lý Yêu cầu ra vào</Link>,
       role: "super_admin",
+    },
+    {
+      key: "personal-working-hours-requests",
+      icon: <ExceptionOutlined />,
+      label: <Link to="/personal-working-hours-requests">Yêu cầu ra vào</Link>,
     },
     {
       key: "personal-vehicles",

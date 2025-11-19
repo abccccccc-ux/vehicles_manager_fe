@@ -56,21 +56,21 @@ const WorkingHoursRequestList = () => {
     const debouncedLicensePlate = useDebounce(licensePlate, 400);
 
     useEffect(() => {
-        // fetch when filters or pagination change
-        dispatch(
-            fetchWorkingHoursRequests({
-                page: pagination?.current,
-                limit: pagination?.pageSize,
-                status: filters?.status,
-                requestType: filters?.requestType,
-                licensePlate: filters?.licensePlate,
-            })
-        );
+        const params = {
+            page: pagination?.current,
+            limit: pagination?.pageSize,
+        };
+
+        if (filters?.status) params.status = filters.status;
+        if (filters?.requestType) params.requestType = filters.requestType;
+        if (filters?.licensePlate) params.licensePlate = filters.licensePlate;
+
+        dispatch(fetchWorkingHoursRequests(params));
     }, [dispatch, pagination?.current, pagination?.pageSize, filters?.status, filters?.requestType, filters?.search]);
 
-    // when debounced search changes, set filter and reset page
     useEffect(() => {
-        dispatch(setFilters({ licensePlate: debouncedLicensePlate }));
+        // Do not set an empty string as licensePlate filter — use undefined instead
+        dispatch(setFilters({ licensePlate: debouncedLicensePlate || undefined }));
     }, [debouncedLicensePlate, dispatch]);
 
     const handleTableChange = (pag) => {
