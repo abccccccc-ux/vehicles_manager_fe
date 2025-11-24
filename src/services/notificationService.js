@@ -5,34 +5,123 @@ class NotificationService {
     this.socket = null;
     this.listeners = new Map();
     this.isConnected = false;
+    this.isAuthenticated = false;
     this.notifications = [];
     this.maxNotifications = 100;
     this.settings = this.loadSettings();
+    this.userInfo = null;
   }
 
   // Kết nối socket cho notifications
-  connect(token) {
+  connect(token, userInfo = null) {
     if (this.socket?.connected) {
+      console.log('🔔 Socket already connected, skipping...');
       return;
     }
 
-    this.socket = io(process.env.REACT_APP_SOCKET_URL || 'http://localhost:3001', {
+    const socketUrl = process.env.REACT_APP_SOCKET_URL || 'http://localhost:8000';
+    console.log('🔔 Connecting to notification server:', socketUrl);
+
+    // Lưu thông tin user để sử dụng trong authentication
+    this.userInfo = userInfo;
+
+    this.socket = io(socketUrl, {
       auth: { token },
       transports: ['websocket'],
       autoConnect: true
     });
 
     this.socket.on('connect', () => {
-      console.log('🔔 Notification service connected');
+      console.log('✅ Notification service connected successfully', 'Socket ID:', this.socket.id);
       this.isConnected = true;
+      
+      // Gửi thông tin authentication ngay sau khi kết nối thành công
+      this.authenticateSocket(token);
+      
       this.emit('connection_status', { connected: true });
     });
 
-    this.socket.on('disconnect', () => {
-      console.log('🔔 Notification service disconnected');
+    this.socket.on('disconnect', (reason) => {
+      console.log('❌ Notification service disconnected:', reason);
       this.isConnected = false;
+      this.isAuthenticated = false;
       this.emit('connection_status', { connected: false });
     });
+
+    this.socket.on('connect_error', (error) => {
+      console.error('❌ Notification connection error:', error);
+      this.isConnected = false;
+      this.isAuthenticated = false;
+      this.emit('connection_status', { connected: false });
+    });
+
+    // Lắng nghe kết quả authentication
+    this.socket.on('authenticated', (data) => {
+      if (data.success) {
+        console.log('🔐 Authentication successful!');
+        console.log('✅ Joined rooms:', data.rooms);
+        this.isAuthenticated = true;
+        
+        // Emit authentication success event
+        this.emit('authentication_status', { 
+          authenticated: true, 
+          rooms: data.rooms,
+          userInfo: data.userInfo 
+        });
+        
+        // Sau khi authenticate thành công, subscribe notifications
+        this.subscribeToNotifications();
+      } else {
+        console.error('❌ Authentication failed:', data.error);
+        this.isAuthenticated = false;
+        this.emit('authentication_status', { 
+          authenticated: false, 
+          error: data.error 
+        });
+      }
+    });
+
+    // Xử lý lỗi authentication
+    this.socket.on('authentication_error', (error) => {
+      console.error('❌ Authentication failed:', error.error);
+      this.isAuthenticated = false;
+      this.emit('authentication_status', { 
+        authenticated: false, 
+        error: error.error 
+      });
+      
+      // Có thể emit event để redirect về login page
+      this.emit('authentication_failed', error);
+    });
+
+  }
+
+  // Gửi thông tin authentication tới server
+  authenticateSocket(token) {
+    if (!this.socket || !this.socket.connected) {
+      console.error('❌ Cannot authenticate: socket not connected');
+      return;
+    }
+
+    const authData = {
+      userId: this.userInfo?.id || this.userInfo?.userId || 'unknown',
+      role: this.userInfo?.role || 'user',
+      departmentId: this.userInfo?.departmentId || this.userInfo?.department?.id,
+      token: token
+    };
+
+    console.log('🔐 Sending authentication data:', { ...authData, token: '***' });
+    this.socket.emit('authenticate', authData);
+  }
+
+  // Subscribe tới notifications sau khi authentication thành công
+  subscribeToNotifications() {
+    if (!this.socket || !this.isAuthenticated) {
+      console.error('❌ Cannot subscribe: socket not authenticated');
+      return;
+    }
+
+    console.log('🔔 Subscribing to notification events...');
 
     // Lắng nghe các sự kiện notification từ server
     this.socket.on('vehicle_detected', (data) => {
@@ -256,12 +345,39 @@ class NotificationService {
     }
   }
 
+  // Kiểm tra trạng thái kết nối
+  isSocketConnected() {
+    return this.socket?.connected && this.isConnected;
+  }
+
+  // Kiểm tra trạng thái authentication
+  isSocketAuthenticated() {
+    return this.isSocketConnected() && this.isAuthenticated;
+  }
+
+  // Lấy thông tin user hiện tại
+  getCurrentUser() {
+    return this.userInfo;
+  }
+
+  // Reconnect với authentication
+  reconnect(token, userInfo = null) {
+    console.log('🔄 Reconnecting notification service...');
+    this.disconnect();
+    setTimeout(() => {
+      this.connect(token, userInfo);
+    }, 1000);
+  }
+
   // Ngắt kết nối
   disconnect() {
     if (this.socket) {
+      console.log('🔌 Disconnecting notification service...');
       this.socket.disconnect();
       this.socket = null;
       this.isConnected = false;
+      this.isAuthenticated = false;
+      this.userInfo = null;
     }
   }
 }

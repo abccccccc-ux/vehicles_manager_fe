@@ -10,6 +10,7 @@ import userReducer from './store/userSlice';
 import workingHoursReducer from './store/workingHoursSlice';
 import workingHoursRequestReducer from './store/workingHoursRequestSlice';
 import App from './App';
+import NotificationProvider from './components/NotificationProvider';
 import './global.css';
 // antd v5: import reset css so notification and other components have default styles
 import 'antd/dist/reset.css';
@@ -38,7 +39,9 @@ try {
 root.render(
   <Provider store={store}>
     <QueryClientProvider client={queryClient}>
-      <App />
+      <NotificationProvider>
+        <App />
+      </NotificationProvider>
     </QueryClientProvider>
   </Provider>
 );

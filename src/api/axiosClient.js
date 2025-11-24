@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosClient = axios.create({
-  baseURL: 'https://vehicle-manage.vercel.app/api', // Thay đổi nếu cần
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api',
   headers: {
     'Content-Type': 'application/json',
   },
