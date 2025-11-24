@@ -14,6 +14,9 @@ export const fetchWorkingHoursRequests = createAsyncThunk(
   }
 );
 
+// Cập nhật trạng thái 1 yêu cầu (id, payload)
+// Note: status update removed for personal view (read-only)
+
 const initialState = {
   list: [],
   loading: false,
@@ -66,6 +69,7 @@ const workingHoursRequestSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error?.message;
       });
+    // (status update removed for personal view)
   },
 });
 
