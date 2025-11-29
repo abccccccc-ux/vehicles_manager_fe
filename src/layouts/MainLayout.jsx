@@ -9,17 +9,25 @@ const { Header, Content, Sider } = Layout;
 const MainLayout = ({ children }) => {
   return (
     <Layout style={{ minHeight: '100vh', background: '#f3f4f6' }}>
-      {/* Sidebar nằm bên trái */}
+      {/* Sidebar nằm bên trái - đặt cố định để luôn hiển thị khi cuộn */}
       <Sider
         width={265}
         theme="light"
-        style={{ background: '#fff' }}
+        style={{
+          background: '#fff',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          height: '100vh',
+          overflow: 'auto',
+          zIndex: 1000,
+        }}
       >
         <Sidebar />
       </Sider>
 
-      {/* Nội dung */}
-      <Layout style={{ minHeight: '100vh' }}>
+      {/* Nội dung - thêm marginLeft bằng chiều rộng Sider để tránh chồng lấp */}
+      <Layout style={{ minHeight: '100vh', marginLeft: 265 }}>
         {/* Header với thông báo */}
         <Header 
           style={{ 

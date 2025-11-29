@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Menu } from "antd";
-import { Link, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Menu, message, Modal } from "antd";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout as logoutAction } from '../store/authSlice';
+import { logout as logoutApi } from '../api/authApi';
 import {
   DashboardOutlined,
   CarOutlined,
@@ -140,6 +142,41 @@ const Sidebar = () => {
     }
   };
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleMenuClick = ({ key }) => {
+    if (key !== 'log-out') return;
+
+    Modal.confirm({
+      title: 'Bạn có chắc muốn đăng xuất?',
+      content: 'Bạn sẽ cần đăng nhập lại để truy cập hệ thống.',
+      okText: 'Đăng xuất',
+      cancelText: 'Hủy',
+      centered: true,
+      onOk: async () => {
+        try {
+          // Try calling backend logout; ignore failure but proceed to clear local state
+          await logoutApi();
+        } catch (e) {
+          // ignore error
+        }
+
+        try {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user');
+          localStorage.removeItem('userId');
+          localStorage.removeItem('role');
+        } catch (e) {}
+
+        try { dispatch(logoutAction()); } catch (e) {}
+        message.success('Đăng xuất thành công');
+        navigate('/login');
+      },
+    });
+  };
+
   return (
     <Menu
       mode="inline"
@@ -147,6 +184,7 @@ const Sidebar = () => {
       items={items}
       openKeys={openKeys}
       onOpenChange={onOpenChange}
+      onClick={handleMenuClick}
     />
   );
 };
