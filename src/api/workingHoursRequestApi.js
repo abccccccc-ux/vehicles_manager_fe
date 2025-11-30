@@ -9,4 +9,10 @@ export const getWorkingHoursRequests = async (params) => {
   return response.data; // { success, message, data, pagination }
 };
 
-export default { getWorkingHoursRequests };
+// Tạo yêu cầu ra/vào
+// POST /api/working-hours-requests/
+export const createWorkingHoursRequest = async (body) => {
+  const response = await axiosClient.post('/working-hours-requests/', body);
+  return response.data; // { success, message, data }
+};
+export default { getWorkingHoursRequests, createWorkingHoursRequest };

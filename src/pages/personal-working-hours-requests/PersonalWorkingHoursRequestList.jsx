@@ -11,6 +11,7 @@ import AlertMessage from '../../components/AlertMessage';
 import useRebounce from '../../hooks/useRebounce';
 import SearchInput from '../../components/Search/SearchInput';
 import SearchFilter from '../../components/Search/SearchFilter';
+import CreatePersonalWorkingHoursRequest from './CreatePersonalWorkingHoursRequest';
 
 const STATUS_OPTIONS = ["pending", "approved", "rejected", "expired", "used"];
 const REQUEST_TYPE_OPTIONS = ["entry", "exit", "both"];
@@ -26,6 +27,7 @@ const PersonalWorkingHoursRequestList = () => {
     const [requestType, setRequestType] = useState(filters.requestType || "");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     // build params and fetch when filters or pagination change
     useEffect(() => {
@@ -122,6 +124,7 @@ const PersonalWorkingHoursRequestList = () => {
 
             <Space direction="vertical" style={{ width: '100%', marginBottom: 16 }}>
                 <Space wrap>
+                    <Button type="primary" onClick={() => setShowCreateModal(true)}>Tạo yêu cầu</Button>
                     <SearchFilter
                         placeholder="Trạng thái"
                         value={status || undefined}
@@ -180,6 +183,15 @@ const PersonalWorkingHoursRequestList = () => {
                         total: pagination.total,
                         showSizeChanger: true,
                         onChange: goPage,
+                    }}
+                />
+                <CreatePersonalWorkingHoursRequest
+                    visible={showCreateModal}
+                    onCancel={() => setShowCreateModal(false)}
+                    onCreated={() => {
+                        setShowCreateModal(false);
+                        // refresh list
+                        dispatch(fetchWorkingHoursRequests({ page: 1, limit: pagination.pageSize }));
                     }}
                 />
             </Space>

@@ -14,6 +14,19 @@ export const fetchWorkingHoursRequests = createAsyncThunk(
   }
 );
 
+// Tạo yêu cầu mới
+export const createWorkingHoursRequest = createAsyncThunk(
+  'workingHoursRequests/create',
+  async (body, { rejectWithValue }) => {
+    try {
+      const response = await workingHoursRequestApi.createWorkingHoursRequest(body);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Lỗi khi tạo yêu cầu');
+    }
+  }
+);
+
 // Cập nhật trạng thái 1 yêu cầu (id, payload)
 // Note: status update removed for personal view (read-only)
 
@@ -21,6 +34,8 @@ const initialState = {
   list: [],
   loading: false,
   error: null,
+  createLoading: false,
+  createError: null,
   pagination: {
     current: 1,
     pageSize: 10,
@@ -68,6 +83,28 @@ const workingHoursRequestSlice = createSlice({
       .addCase(fetchWorkingHoursRequests.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error?.message;
+      });
+    builder
+      .addCase(createWorkingHoursRequest.pending, (state) => {
+        state.createLoading = true;
+        state.createError = null;
+      })
+      .addCase(createWorkingHoursRequest.fulfilled, (state, action) => {
+        state.createLoading = false;
+        if (action.payload && action.payload.success) {
+          // option: push to list for immediate UI feedback
+          const created = action.payload.data?.request;
+          if (created) {
+            state.list = [ ...(state.list || []), created ];
+            state.pagination.total = (state.pagination.total || 0) + 1;
+          }
+        } else {
+          state.createError = action.payload?.message || 'Lỗi khi tạo yêu cầu';
+        }
+      })
+      .addCase(createWorkingHoursRequest.rejected, (state, action) => {
+        state.createLoading = false;
+        state.createError = action.payload || action.error?.message;
       });
     // (status update removed for personal view)
   },
