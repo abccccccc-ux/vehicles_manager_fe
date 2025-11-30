@@ -1,9 +1,9 @@
 import React from 'react';
 import Sidebar from '../components/Sidebar';
-import NotificationCenter from '../components/NotificationCenter';
+import Navbar from '../components/Navbar';
 import { Layout } from 'antd';
 
-const { Header, Content, Sider } = Layout;
+const { Content, Sider } = Layout;
 
 
 const MainLayout = ({ children }) => {
@@ -28,20 +28,8 @@ const MainLayout = ({ children }) => {
 
       {/* Nội dung - thêm marginLeft bằng chiều rộng Sider để tránh chồng lấp */}
       <Layout style={{ minHeight: '100vh', marginLeft: 265 }}>
-        {/* Header với thông báo */}
-        <Header 
-          style={{ 
-            background: '#fff', 
-            padding: '0 24px', 
-            borderBottom: '1px solid #f0f0f0',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            height: 64
-          }}
-        >
-          <NotificationCenter />
-        </Header>
+        {/* Navbar Header */}
+        <Navbar />
 
         <Content style={{ padding: 24, height: '100%' }}>
           <div style={{ minHeight: '100%', height: '100%', borderRadius: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.04)', background: '#fff', padding: 24 }}>

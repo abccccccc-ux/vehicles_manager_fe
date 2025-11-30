@@ -41,6 +41,10 @@ axiosClient.interceptors.response.use(
     const originalRequest = error.config;
     const { response } = error;
 
+    if (originalRequest && originalRequest.url && originalRequest.url.includes('/auth/login')) {
+      return Promise.reject(error);
+    }
+
     if (response && response.status === 401 && originalRequest && !originalRequest._retry) {
       // Avoid trying to refresh while the refresh endpoint itself failed
       if (originalRequest.url && originalRequest.url.includes('/auth/refresh-token')) {
