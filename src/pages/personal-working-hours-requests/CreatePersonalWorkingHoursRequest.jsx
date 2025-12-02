@@ -42,10 +42,18 @@ const CreatePersonalWorkingHoursRequest = ({ visible, onCancel, onCreated }) => 
     const body = {
       requestType: values.requestType,
       plannedDateTime: values.plannedDateTime.toISOString(),
-      plannedEndDateTime: values.plannedEndDateTime ? values.plannedEndDateTime.toISOString() : undefined,
       licensePlate: values.licensePlate,
-      reason: values.reason || '',
     };
+
+    // only include 'plannedEndDateTime' when provided
+    if (values.plannedEndDateTime) {
+      body.plannedEndDateTime = values.plannedEndDateTime.toISOString();
+    }
+
+    // only include 'reason' when it's not empty (avoid sending empty string)
+    if (values.reason && values.reason.trim() !== '') {
+      body.reason = values.reason.trim();
+    }
 
     try {
       const result = await dispatch(createWorkingHoursRequest(body)).unwrap();
