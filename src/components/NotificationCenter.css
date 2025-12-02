@@ -42,8 +42,12 @@
   font-size: 12px;
 }
 
-.connection-status.connected {
+.connection-status.authenticated {
   color: #4caf50;
+}
+
+.connection-status.connected {
+  color: #ff9800;
 }
 
 .connection-status.disconnected {

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNotifications } from '../hooks/useNotifications';
+import React, { useState, useEffect } from 'react';
+import { useNotificationContext } from './NotificationProvider';
 import './NotificationCenter.css';
 
 const NotificationCenter = () => {
@@ -8,16 +8,26 @@ const NotificationCenter = () => {
     unreadCount,
     settings,
     isConnected,
+    isAuthenticated,
+    authError,
     markAsRead,
     markAllAsRead,
     removeNotification,
     clearAll,
     requestPermission,
-    updateSettings
-  } = useNotifications();
+    updateSettings,
+    reconnect
+  } = useNotificationContext();
 
   const [isOpen, setIsOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+
+  // Show authentication error if any
+  useEffect(() => {
+    if (authError) {
+      console.error('🚨 Notification authentication error:', authError);
+    }
+  }, [authError]);
 
   const toggleNotificationCenter = () => {
     setIsOpen(!isOpen);
@@ -195,8 +205,8 @@ const NotificationCenter = () => {
       </button>
 
       {/* Connection Status */}
-      <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
-        {isConnected ? '🟢' : '🔴'}
+      <div className={`connection-status ${isConnected && isAuthenticated ? 'authenticated' : isConnected ? 'connected' : 'disconnected'}`}>
+        {isConnected && isAuthenticated ? '🟢' : isConnected ? '🟡' : '🔴'}
       </div>
 
       {/* Notification Panel */}

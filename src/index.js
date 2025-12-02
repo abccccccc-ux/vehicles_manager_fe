@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import store from './store/store';
 import { loginSuccess } from './store/authSlice';
 import App from './App';
+import NotificationProvider from './components/NotificationProvider';
 import './global.css';
 // antd v5: import reset css so notification and other components have default styles
 import 'antd/dist/reset.css';
@@ -24,7 +25,9 @@ try {
 root.render(
   <Provider store={store}>
     <QueryClientProvider client={queryClient}>
-      <App />
+      <NotificationProvider>
+        <App />
+      </NotificationProvider>
     </QueryClientProvider>
   </Provider>
 );

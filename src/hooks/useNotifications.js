@@ -6,6 +6,8 @@ export const useNotifications = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [settings, setSettings] = useState({});
   const [isConnected, setIsConnected] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authError, setAuthError] = useState(null);
 
   // Update local state when notifications change
   const updateNotifications = useCallback(() => {
@@ -23,12 +25,25 @@ export const useNotifications = () => {
     setIsConnected(connected);
   }, []);
 
+  // Update authentication status
+  const updateAuthStatus = useCallback(({ authenticated, error }) => {
+    setIsAuthenticated(authenticated);
+    setAuthError(error || null);
+  }, []);
+
+  // Handle authentication failure
+  const handleAuthFailure = useCallback((error) => {
+    console.error('Authentication failed, may need to redirect to login');
+    setAuthError(error);
+  }, []);
+
   // Setup event listeners
   useEffect(() => {
     // Initial data
     updateNotifications();
     setSettings(notificationService.settings);
     setIsConnected(notificationService.isConnected);
+    setIsAuthenticated(notificationService.isAuthenticated);
 
     // Event listeners
     notificationService.on('new_notification', updateNotifications);
@@ -36,6 +51,8 @@ export const useNotifications = () => {
     notificationService.on('notifications_updated', updateNotifications);
     notificationService.on('settings_updated', updateSettings);
     notificationService.on('connection_status', updateConnectionStatus);
+    notificationService.on('authentication_status', updateAuthStatus);
+    notificationService.on('authentication_failed', handleAuthFailure);
 
     return () => {
       notificationService.off('new_notification', updateNotifications);
@@ -43,8 +60,10 @@ export const useNotifications = () => {
       notificationService.off('notifications_updated', updateNotifications);
       notificationService.off('settings_updated', updateSettings);
       notificationService.off('connection_status', updateConnectionStatus);
+      notificationService.off('authentication_status', updateAuthStatus);
+      notificationService.off('authentication_failed', handleAuthFailure);
     };
-  }, [updateNotifications, updateSettings, updateConnectionStatus]);
+  }, [updateNotifications, updateSettings, updateConnectionStatus, updateAuthStatus, handleAuthFailure]);
 
   // Mark notification as read
   const markAsRead = useCallback((notificationId) => {
@@ -83,14 +102,24 @@ export const useNotifications = () => {
     notificationService.updateSettings(newSettings);
   }, []);
 
-  // Connect notification service
-  const connect = useCallback((token) => {
-    notificationService.connect(token);
+  // Connect notification service with authentication
+  const connect = useCallback((token, userInfo) => {
+    notificationService.connect(token, userInfo);
+  }, []);
+
+  // Reconnect notification service
+  const reconnect = useCallback((token, userInfo) => {
+    notificationService.reconnect(token, userInfo);
   }, []);
 
   // Disconnect notification service
   const disconnect = useCallback(() => {
     notificationService.disconnect();
+  }, []);
+
+  // Check if socket is authenticated
+  const checkAuth = useCallback(() => {
+    return notificationService.isSocketAuthenticated();
   }, []);
 
   return {
@@ -99,6 +128,8 @@ export const useNotifications = () => {
     unreadCount,
     settings,
     isConnected,
+    isAuthenticated,
+    authError,
     
     // Actions
     markAsRead,
@@ -108,6 +139,8 @@ export const useNotifications = () => {
     requestPermission,
     updateSettings: updateNotificationSettings,
     connect,
-    disconnect
+    reconnect,
+    disconnect,
+    checkAuth
   };
 };
