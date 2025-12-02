@@ -1,6 +1,19 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import vehicleApi from '../api/vehicleApi';
 
+// Async thunk to update a vehicle
+export const updateVehicle = createAsyncThunk(
+  'vehicle/updateVehicle',
+  async ({ id, body }, { rejectWithValue }) => {
+    try {
+      const data = await vehicleApi.updateVehicle(id, body);
+      return data; // expected shape: { success, message, data: { vehicle } }
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Lỗi khi cập nhật xe');
+    }
+  }
+);
+
 // Async thunk to fetch current user's vehicles (personal vehicles)
 export const fetchMyVehicles = createAsyncThunk(
   'vehicle/fetchMyVehicles',
@@ -33,8 +46,10 @@ const vehicleSlice = createSlice({
   initialState: {
     list: [],
     loading: false,
+      updating: false,
     selectedVehicle: null,
     detailLoading: false,
+    error: null,
     // pagination for vehicles list
     pagination: { current: 1, pageSize: 10, total: 0 },
     // filters
@@ -77,6 +92,29 @@ const vehicleSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder
+      .addCase(updateVehicle.pending, (state) => {
+        state.updating = true;
+        state.error = null;
+      })
+      .addCase(updateVehicle.fulfilled, (state, action) => {
+        state.updating = false;
+        state.error = null;
+        const vehicle = action.payload?.data?.vehicle;
+        if (vehicle) {
+          // replace in list
+          state.list = state.list.map((it) => (it._id === vehicle._id ? { ...vehicle, key: vehicle._id } : it));
+          // update selectedVehicle if matches
+          if (state.selectedVehicle && state.selectedVehicle._id === vehicle._id) {
+            state.selectedVehicle = vehicle;
+          }
+        }
+      })
+      .addCase(updateVehicle.rejected, (state, action) => {
+        state.updating = false;
+        state.error = action.payload || action.error?.message;
+      });
+
     builder
       .addCase(fetchMyVehicles.pending, (state, action) => {
         state.loading = true;

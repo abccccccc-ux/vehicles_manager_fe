@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-import { Card, Table, Row, Col, Button, Tag, Space, notification } from 'antd';
-import { ReloadOutlined } from '@ant-design/icons';
+import { Card, Table, Row, Col, Button, Tag, Space, notification, Tooltip } from 'antd';
+import { ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import VehicleDetailsDialog from '../vehicles/VehicleDetailsDialog';
 import RegisterVehicleDialog from './RegisterVehicle';
+import UpdatePersonalVehicleDialog from './UpdatePersonalVehicleDialog';
 import { fetchMyVehicles, setSearch, setPagination, setSelectedVehicle, setDetailLoading } from '../../store/vehicleSlice';
 import vehicleApi from '../../api/vehicleApi';
 
@@ -16,6 +17,7 @@ const PersonalVehiclesList = () => {
 
     const [showDetail, setShowDetail] = useState(false);
     const [registerVisible, setRegisterVisible] = useState(false);
+    const [editVisible, setEditVisible] = useState(false);
 
     const load = useCallback(
         (page = pagination.current, pageSize = pagination.pageSize, q = search) => {
@@ -40,6 +42,36 @@ const PersonalVehiclesList = () => {
         { title: 'Màu', dataIndex: 'color', key: 'color' },
         { title: 'Ngày đăng ký', dataIndex: 'registrationDate', key: 'registrationDate', render: (d) => d ? new Date(d).toLocaleString('vi-VN') : '-' },
         { title: 'Trạng thái', dataIndex: 'isActive', key: 'isActive', render: statusTag },
+        {
+            title: 'Hành động',
+            key: 'actions',
+            render: (text, record) => (
+                <Space>
+                    <Tooltip title="Chỉnh sửa">
+                        <Button
+                            type="text"
+                            icon={<EditOutlined />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                dispatch(setSelectedVehicle(record));
+                                setEditVisible(true);
+                            }}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Xóa">
+                        <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                // Xử lý xóa sẽ làm sau theo yêu cầu
+                            }}
+                        />
+                    </Tooltip>
+                </Space>
+            ),
+        },
     ];
 
     const handleTableChange = (pag) => {
@@ -122,6 +154,20 @@ const PersonalVehiclesList = () => {
 
                 <VehicleDetailsDialog open={showDetail} onClose={closeDetail} vehicle={selectedVehicle} loading={detailLoading} />
                 <RegisterVehicleDialog visible={registerVisible} onClose={closeRegister} onSuccess={onRegisterSuccess} />
+                <UpdatePersonalVehicleDialog
+                    visible={editVisible}
+                    vehicle={selectedVehicle}
+                    onClose={() => {
+                        setEditVisible(false);
+                        dispatch(setSelectedVehicle(null));
+                    }}
+                    onSuccess={() => {
+                        // refresh list and close
+                        setEditVisible(false);
+                        dispatch(setSelectedVehicle(null));
+                        load(1, pagination.pageSize, search);
+                    }}
+                />
             </Card>
         </MainLayout>
     );

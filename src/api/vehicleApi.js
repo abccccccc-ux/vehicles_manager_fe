@@ -32,4 +32,9 @@ export const createVehicle = async (body) => {
   return response.data;
 };
 
-export default { getVehicleByLicensePlate, getVehicles, createVehicle, getMyVehicles };
+export const updateVehicle = async (id, body) => {
+  const response = await axiosClient.put(`/vehicles/${id}`, body);
+  return response.data;
+};
+
+export default { getVehicleByLicensePlate, getVehicles, createVehicle, getMyVehicles, updateVehicle };
