@@ -22,7 +22,7 @@ export const createWorkingHoursRequest = createAsyncThunk(
       const response = await workingHoursRequestApi.createWorkingHoursRequest(body);
       return response;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Lỗi khi tạo yêu cầu');
+      return rejectWithValue(err.response?.data?.errors[0].message || err.message || 'Lỗi khi tạo yêu cầu');
     }
   }
 );

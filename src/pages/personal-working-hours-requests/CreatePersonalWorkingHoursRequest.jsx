@@ -62,7 +62,7 @@ const CreatePersonalWorkingHoursRequest = ({ visible, onCancel, onCreated }) => 
         form.resetFields();
         onCreated && onCreated(result.data?.request);
       } else {
-        message.error(result?.message || 'Tạo yêu cầu không thành công');
+        message.error(result?.errors[0].message || 'Tạo yêu cầu không thành công');
       }
     } catch (err) {
       message.error(err || 'Lỗi khi tạo yêu cầu');
