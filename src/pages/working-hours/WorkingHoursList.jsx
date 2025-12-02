@@ -7,6 +7,7 @@ import AlertMessage from '../../components/AlertMessage';
 import showDeleteConfirm from '../../components/DeleteConfirm';
 import { fetchWorkingHours, setIsActive, setPagination, deleteWorkingHours } from '../../store/workingHoursSlice';
 import CreateWorkingHoursDialog from './CreateWorkingHoursDialog';
+import UpdateWorkingHoursDialog from './UpdateWorkingHoursDialog';
 
 const statusOptions = [
   { label: 'Hoạt động', value: true },
@@ -44,6 +45,8 @@ const columns = (onEdit, onDelete) => [
 
 const WorkingHoursList = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showUpdateDialog, setShowUpdateDialog] = useState(false);
+  const [selectedWorkingHour, setSelectedWorkingHour] = useState(null);
   const dispatch = useDispatch();
   const { list = [], loading, error, isActive, pagination, deleting, deleteResult, deleteError } = useSelector((state) => state.workingHours || {});
 
@@ -62,9 +65,8 @@ const WorkingHoursList = () => {
   };
 
   const handleEdit = (record) => {
-    // edit flow will be implemented later
-    // placeholder for future action
-    console.log('edit', record);
+    setSelectedWorkingHour(record);
+    setShowUpdateDialog(true);
   };
 
   const handleDelete = (record) => {
@@ -142,6 +144,22 @@ const WorkingHoursList = () => {
         onClose={() => setShowCreateDialog(false)}
         onSuccess={() => {
           setShowCreateDialog(false);
+          dispatch(
+            fetchWorkingHours({
+              isActive,
+              page: pagination?.current,
+              limit: pagination?.pageSize,
+            })
+          );
+        }}
+      />
+      <UpdateWorkingHoursDialog
+        visible={showUpdateDialog}
+        workingHour={selectedWorkingHour}
+        onClose={() => setShowUpdateDialog(false)}
+        onSuccess={() => {
+          setShowUpdateDialog(false);
+          setSelectedWorkingHour(null);
           dispatch(
             fetchWorkingHours({
               isActive,

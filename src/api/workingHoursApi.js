@@ -18,4 +18,9 @@ export const deleteWorkingHours = async (id) => {
   return response.data; // { success, message }
 };
 
-export default { getWorkingHours, createWorkingHours, deleteWorkingHours };
+// Cập nhật giờ làm việc theo id
+export const updateWorkingHours = async (workingHourId, payload) => {
+  const response = await axiosClient.put(`/working-hours/${workingHourId}`, payload);
+  return response.data; // { success, message, data }
+};
+export default { getWorkingHours, createWorkingHours, deleteWorkingHours, updateWorkingHours };

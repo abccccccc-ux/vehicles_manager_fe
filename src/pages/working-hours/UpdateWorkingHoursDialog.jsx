@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, Button, notification, Checkbox, InputNumber, TimePicker } from 'antd';
+import { Modal, Form, Input, Button, notification, Checkbox, InputNumber, TimePicker, Switch } from 'antd';
 import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { createWorkingHours } from '../../store/workingHoursSlice';
+import { updateWorkingHours } from '../../store/workingHoursSlice';
 
 const dayOptions = [
   { label: 'Thứ 2', value: 1 },
@@ -15,12 +15,29 @@ const dayOptions = [
   { label: 'Chủ nhật', value: 0 },
 ];
 
-const CreateWorkingHoursDialog = ({ visible, onClose, onSuccess }) => {
+const UpdateWorkingHoursDialog = ({ visible, onClose, onSuccess, workingHour }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const creating = useSelector((state) => state.workingHours?.creating);
+  const updating = useSelector((state) => state.workingHours?.updating);
 
-  // Remove keys with empty-ish values so optional fields are not sent as empty strings/arrays
+  useEffect(() => {
+    if (visible && workingHour) {
+      form.setFieldsValue({
+        name: workingHour.name,
+        startTime: workingHour.startTime ? dayjs(workingHour.startTime, 'HH:mm') : undefined,
+        endTime: workingHour.endTime ? dayjs(workingHour.endTime, 'HH:mm') : undefined,
+        workingDays: workingHour.workingDays || [],
+        lateToleranceMinutes: workingHour.lateToleranceMinutes ?? 0,
+        earlyToleranceMinutes: workingHour.earlyToleranceMinutes ?? 0,
+        description: workingHour.description || '',
+        isActive: workingHour.isActive ?? true,
+      });
+    }
+    if (!visible) {
+      form.resetFields();
+    }
+  }, [visible, workingHour]);
+
   const cleanPayload = (obj) => {
     const out = {};
     Object.entries(obj).forEach(([k, v]) => {
@@ -32,11 +49,6 @@ const CreateWorkingHoursDialog = ({ visible, onClose, onSuccess }) => {
     return out;
   };
 
-  useEffect(() => {
-    if (!visible) return;
-    form.resetFields();
-  }, [visible]);
-
   const handleSubmit = async (values) => {
     try {
       const raw = {
@@ -47,23 +59,24 @@ const CreateWorkingHoursDialog = ({ visible, onClose, onSuccess }) => {
         lateToleranceMinutes: values.lateToleranceMinutes || 0,
         earlyToleranceMinutes: values.earlyToleranceMinutes || 0,
         description: values.description || '',
+        isActive: values.isActive,
       };
 
       const payload = cleanPayload(raw);
 
-      const action = await dispatch(createWorkingHours(payload));
+      const action = await dispatch(updateWorkingHours({ id: workingHour._id || workingHour.key, payload }));
       const result = unwrapResult(action);
 
       if (result && result.success) {
-        notification.success({ message: 'Thành công', description: result.message || 'Tạo cài đặt giờ làm việc thành công', placement: 'bottomRight' });
-        form.resetFields();
+        notification.success({ message: 'Thành công', description: result.message || 'Cập nhật cài đặt giờ làm việc thành công', placement: 'bottomRight' });
         if (onSuccess) onSuccess();
       } else {
-        const msg = result?.message || 'Tạo thất bại';
-        console.error('CreateWorkingHours failed:', msg);
+        const msg = result?.message || 'Cập nhật thất bại';
+        notification.error({ message: 'Lỗi', description: msg, placement: 'bottomRight' });
       }
     } catch (err) {
-      console.error('CreateWorkingHours exception:', err);
+      console.error('UpdateWorkingHours exception:', err);
+      notification.error({ message: 'Lỗi', description: err?.message || 'Cập nhật thất bại', placement: 'bottomRight' });
     }
   };
 
@@ -74,7 +87,7 @@ const CreateWorkingHoursDialog = ({ visible, onClose, onSuccess }) => {
 
   return (
     <Modal
-      title="Thêm mới ca làm việc"
+      title="Cập nhật ca làm việc"
       open={visible}
       onCancel={handleCancel}
       footer={null}
@@ -105,13 +118,17 @@ const CreateWorkingHoursDialog = ({ visible, onClose, onSuccess }) => {
           <InputNumber min={0} style={{ width: '100%' }} />
         </Form.Item>
 
+        <Form.Item name="isActive" label="Hoạt động" valuePropName="checked">
+          <Switch />
+        </Form.Item>
+
         <Form.Item name="description" label="Ghi chú">
           <Input.TextArea rows={3} placeholder="Mô tả (tuỳ chọn)" />
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" loading={creating} block>
-            {creating ? 'Đang tạo...' : 'Tạo mới'}
+          <Button type="primary" htmlType="submit" loading={updating} block>
+            {updating ? 'Đang cập nhật...' : 'Cập nhật'}
           </Button>
         </Form.Item>
       </Form>
@@ -119,4 +136,4 @@ const CreateWorkingHoursDialog = ({ visible, onClose, onSuccess }) => {
   );
 };
 
-export default CreateWorkingHoursDialog;
+export default UpdateWorkingHoursDialog;

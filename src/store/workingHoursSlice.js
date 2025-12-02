@@ -40,6 +40,19 @@ export const deleteWorkingHours = createAsyncThunk(
   }
 );
 
+// Cập nhật giờ làm việc
+export const updateWorkingHours = createAsyncThunk(
+  'workingHours/updateWorkingHours',
+  async ({ id, payload }, { rejectWithValue }) => {
+    try {
+      const response = await workingHoursApi.updateWorkingHours(id, payload);
+      return { id, ...response };
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message || 'Lỗi khi cập nhật giờ làm việc');
+    }
+  }
+);
+
 const initialState = {
   list: [],
   loading: false,
@@ -88,6 +101,29 @@ const workingHoursSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       });
+      // cập nhật giờ làm việc
+      builder
+        .addCase(updateWorkingHours.pending, (state) => {
+          state.updating = true;
+          state.updateError = null;
+        })
+        .addCase(updateWorkingHours.fulfilled, (state, action) => {
+          state.updating = false;
+          if (action.payload && action.payload.success) {
+            const w = action.payload.data?.workingHours;
+            if (w) {
+              const updated = { ...w, key: w._id };
+              state.list = (state.list || []).map((item) => (item._id === w._id || item.key === w._id ? updated : item));
+            }
+            state.updateResult = action.payload.message || 'Cập nhật thành công';
+          } else {
+            state.updateError = action.payload?.message || 'Cập nhật thất bại';
+          }
+        })
+        .addCase(updateWorkingHours.rejected, (state, action) => {
+          state.updating = false;
+          state.updateError = action.payload || action.error?.message;
+        });
       // createWorkingHours
       builder
         .addCase(createWorkingHours.pending, (state) => {
