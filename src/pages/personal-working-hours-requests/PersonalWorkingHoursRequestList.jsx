@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import MainLayout from "../../layouts/MainLayout";
 import {
-    fetchWorkingHoursRequests,
+    fetchMyWorkingHoursRequests,
     setFilters,
     setPagination,
 } from "../../store/workingHoursRequestSlice";
@@ -50,7 +50,7 @@ const PersonalWorkingHoursRequestList = () => {
             params.endDate = e.toISOString();
         }
 
-        dispatch(fetchWorkingHoursRequests(params));
+        dispatch(fetchMyWorkingHoursRequests(params));
     }, [dispatch, pagination.current, pagination.pageSize, status, requestType, licensePlate, startDate, endDate]);
 
     const onSearch = () => {
@@ -191,7 +191,7 @@ const PersonalWorkingHoursRequestList = () => {
                     onCreated={() => {
                         setShowCreateModal(false);
                         // refresh list
-                        dispatch(fetchWorkingHoursRequests({ page: 1, limit: pagination.pageSize }));
+                        dispatch(fetchMyWorkingHoursRequests({ page: 1, limit: pagination.pageSize }));
                     }}
                 />
             </Space>

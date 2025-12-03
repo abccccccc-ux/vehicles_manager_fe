@@ -161,8 +161,9 @@ const PersonalVehiclesList = () => {
                         setEditVisible(false);
                         dispatch(setSelectedVehicle(null));
                     }}
-                    onSuccess={() => {
-                        // refresh list and close
+                    onSuccess={(response) => {
+                        // show success notification, refresh list and close
+                        notification.success({ message: 'Thành công', description: response?.message || 'Cập nhật thành công', placement: 'bottomRight' });
                         setEditVisible(false);
                         dispatch(setSelectedVehicle(null));
                         load(1, pagination.pageSize, search);

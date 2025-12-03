@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Row, Col, Empty, Tag, Select, Space } from 'antd';
+import { Card, Table, Row, Col, Empty, Tag, Space, Button, Tooltip, message } from 'antd';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import ApproveConfirm from '../../components/ApproveConfirm';
+import RejectConfirm from '../../components/RejectConfirm';
 import MainLayout from '../../layouts/MainLayout';
 import SearchFilter from '../../components/Search/SearchFilter';
 import SearchInput from '../../components/Search/SearchInput';
@@ -8,9 +11,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import useDebounce from '../../hooks/useDebounce';
 import { formatDate } from '../../utils/formatDate';
 import {
-    fetchWorkingHoursRequests,
+    fetchAllWorkingHoursRequests,
     setPagination,
     setFilters,
+    approveWorkingHoursRequest,
+    rejectWorkingHoursRequest,
 } from '../../store/workingHoursRequestSlice';
 
 const statusOptions = [
@@ -37,7 +42,7 @@ const statusTag = (status) => {
     return <Tag color={s.color}>{s.text}</Tag>;
 };
 
-const columns = () => [
+const columns = (onApprove, onReject) => [
     { title: 'Người yêu cầu', dataIndex: ['requestedBy', 'name'], key: 'requestedBy' },
     { title: 'Mã nhân viên', dataIndex: ['requestedBy', 'employeeId'], key: 'employeeId' },
     { title: 'Số điện thoại', dataIndex: ['requestedBy', 'phone'], key: 'phone' },
@@ -46,11 +51,29 @@ const columns = () => [
     { title: 'Thời gian dự kiến', dataIndex: 'plannedDateTime', key: 'plannedDateTime', render: (d) => formatDate(d) },
     { title: 'Trạng thái', dataIndex: 'status', key: 'status', render: statusTag },
     { title: 'Ghi chú', dataIndex: 'reason', key: 'reason' },
+    {
+        title: 'Hành động',
+        key: 'actions',
+        render: (_, record) => (
+            <Space>
+                <Tooltip title="Phê duyệt">
+                    <Button type="primary" icon={<CheckOutlined />} onClick={() => onApprove(record)} />
+                </Tooltip>
+                <Tooltip title="Từ chối">
+                    <Button danger icon={<CloseOutlined />} onClick={() => onReject(record)} />
+                </Tooltip>
+            </Space>
+        ),
+    },
 ];
 
 const WorkingHoursRequestList = () => {
     const dispatch = useDispatch();
     const { list = [], loading, error, pagination, filters } = useSelector((s) => s.workingHoursRequests || {});
+
+    const [approveVisible, setApproveVisible] = useState(false);
+    const [rejectVisible, setRejectVisible] = useState(false);
+    const [selectedRecord, setSelectedRecord] = useState(null);
 
     const [licensePlate, setLicensePlate] = useState(filters?.licensePlate || '');
     const debouncedLicensePlate = useDebounce(licensePlate, 400);
@@ -65,7 +88,7 @@ const WorkingHoursRequestList = () => {
         if (filters?.requestType) params.requestType = filters.requestType;
         if (filters?.licensePlate) params.licensePlate = filters.licensePlate;
 
-        dispatch(fetchWorkingHoursRequests(params));
+        dispatch(fetchAllWorkingHoursRequests(params));
     }, [dispatch, pagination?.current, pagination?.pageSize, filters?.status, filters?.requestType, filters?.search]);
 
     useEffect(() => {
@@ -83,6 +106,41 @@ const WorkingHoursRequestList = () => {
 
     const onRequestTypeChange = (val) => {
         dispatch(setFilters({ requestType: val }));
+    };
+
+    const openApprove = (record) => {
+        setSelectedRecord(record);
+        setApproveVisible(true);
+    };
+
+    const openReject = (record) => {
+        setSelectedRecord(record);
+        setRejectVisible(true);
+    };
+
+    const handleApprove = async (approvalNote) => {
+        if (!selectedRecord) return;
+        try {
+            await dispatch(approveWorkingHoursRequest({ id: selectedRecord._id, approvalNote })).unwrap();
+            message.success('Phê duyệt yêu cầu thành công');
+            setApproveVisible(false);
+            setSelectedRecord(null);
+        } catch (e) {
+            message.error(e?.message || 'Lỗi khi phê duyệt yêu cầu');
+        }
+    };
+
+    const handleReject = async (approvalNote) => {
+        if (!selectedRecord) return;
+        try {
+            await dispatch(rejectWorkingHoursRequest({ id: selectedRecord._id, approvalNote })).unwrap();
+            message.success('Từ chối yêu cầu thành công');
+            setRejectVisible(false);
+            setSelectedRecord(null);
+        } catch (e) {
+            console.log(e);
+            message.error(e?.message || 'Yêu cầu nhập lý do');
+        }
     };
 
     return (
@@ -112,23 +170,21 @@ const WorkingHoursRequestList = () => {
                     </Col>
                 </Row>
 
-                {error && (
-                    <AlertMessage
-                        type="error"
-                        message={typeof error === 'string' ? error : error?.message || JSON.stringify(error)}
-                    />
-                )}
 
                 {list && list.length > 0 ? (
-                    <Table
-                        rowKey="_id"
-                        columns={columns()}
-                        dataSource={list}
-                        loading={loading}
-                        pagination={pagination}
-                        onChange={handleTableChange}
-                        bordered
-                    />
+                    <>
+                        <Table
+                            rowKey="_id"
+                            columns={columns(openApprove, openReject)}
+                            dataSource={list}
+                            loading={loading}
+                            pagination={pagination}
+                            onChange={handleTableChange}
+                            bordered
+                        />
+                        <ApproveConfirm visible={approveVisible} onCancel={() => setApproveVisible(false)} onConfirm={handleApprove} confirmLoading={loading} />
+                        <RejectConfirm visible={rejectVisible} onCancel={() => setRejectVisible(false)} onConfirm={handleReject} confirmLoading={loading} />
+                    </>
                 ) : (
                     <Empty description={loading ? 'Đang tải...' : 'Không có yêu cầu'} />
                 )}

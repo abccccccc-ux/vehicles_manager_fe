@@ -1,13 +1,16 @@
 import axiosClient from './axiosClient';
 
-// Lấy danh sách yêu cầu ra/vào giờ hành chính của người dùng hiện tại
-// Endpoint mẫu: GET {{baseURL}}/api/working-hours-requests/my-requests
-// Hỗ trợ params: page, limit, status, requestType, licensePlate, startDate, endDate
+//cá nhân
 export const getWorkingHoursRequests = async (params) => {
-  // axiosClient base URL usually points to /api
   const response = await axiosClient.get('/working-hours-requests/my-requests', { params });
   return response.data; // { success, message, data, pagination }
 };
+
+//admin quản lý
+export const getAllWorkingHoursRequest = async (params) => {
+  const response = await axiosClient.get('/working-hours-requests/', {params});
+  return response.data;
+}
 
 // Tạo yêu cầu ra/vào
 // POST /api/working-hours-requests/
@@ -15,4 +18,25 @@ export const createWorkingHoursRequest = async (body) => {
   const response = await axiosClient.post('/working-hours-requests/', body);
   return response.data; // { success, message, data }
 };
-export default { getWorkingHoursRequests, createWorkingHoursRequest };
+// Phê duyệt một yêu cầu
+export const approveWorkingHoursRequest = async (id, body) => {
+  const response = body !== undefined
+    ? await axiosClient.put(`/working-hours-requests/${id}/approve`, body)
+    : await axiosClient.put(`/working-hours-requests/${id}/approve`);
+  return response.data; // { success, message, data }
+};
+
+// Từ chối một yêu cầu
+export const rejectWorkingHoursRequest = async (id, body) => {
+  const response = body !== undefined
+    ? await axiosClient.put(`/working-hours-requests/${id}/reject`, body)
+    : await axiosClient.put(`/working-hours-requests/${id}/reject`);
+  return response.data;
+};
+export default {
+  getWorkingHoursRequests,
+  createWorkingHoursRequest,
+  getAllWorkingHoursRequest,
+  approveWorkingHoursRequest,
+  rejectWorkingHoursRequest,
+};
