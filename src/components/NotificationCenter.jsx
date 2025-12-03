@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { BellOutlined, SettingOutlined, CheckOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNotificationContext } from './NotificationProvider';
 import './NotificationCenter.css';
+import { Badge, Popover, Empty, Button, Switch, Divider, Space, Typography, Avatar } from 'antd';
+import NotificationList from './NotificationList';
 
 const NotificationCenter = () => {
   const {
@@ -38,8 +41,10 @@ const NotificationCenter = () => {
   };
 
   const handleNotificationClick = (notification) => {
-    if (!notification.read) {
-      markAsRead(notification.id);
+    const id = notification._id || notification.id;
+    const isRead = typeof notification.isRead !== 'undefined' ? notification.isRead : notification.read;
+    if (!isRead) {
+      markAsRead(id);
     }
     
     // Handle actionable notifications
@@ -107,74 +112,40 @@ const NotificationCenter = () => {
   };
 
   const NotificationSettings = () => (
-    <div className="notification-settings">
-      <div className="settings-header">
-        <h4>Cài đặt thông báo</h4>
-        <button 
-          className="close-btn"
-          onClick={() => setShowSettings(false)}
-        >
-          ✕
-        </button>
+    <div className="notification-settings" style={{ width: 360 }}>
+      <div className="settings-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography.Title level={5} style={{ margin: 0 }}>Cài đặt thông báo</Typography.Title>
+        <Button type="text" icon={<DeleteOutlined />} onClick={() => setShowSettings(false)} />
       </div>
-      
+
       <div className="settings-content">
-        <div className="setting-item">
-          <label>
-            <input
-              type="checkbox"
-              checked={settings.browserNotifications}
-              onChange={(e) => updateSettings({
-                ...settings,
-                browserNotifications: e.target.checked
-              })}
-            />
-            Thông báo trên trình duyệt
-          </label>
-          {!settings.browserNotifications && (
-            <button 
-              className="enable-btn"
-              onClick={handleEnableBrowserNotifications}
-            >
-              Bật thông báo
-            </button>
-          )}
+        <div className="setting-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div><Typography.Text>Thông báo trên trình duyệt</Typography.Text></div>
+          <div>
+            <Switch checked={settings.browserNotifications} onChange={(val) => updateSettings({ ...settings, browserNotifications: val })} />
+            {!settings.browserNotifications && (
+              <Button size="small" style={{ marginLeft: 8 }} onClick={handleEnableBrowserNotifications}>Bật</Button>
+            )}
+          </div>
         </div>
 
-        <div className="setting-item">
-          <label>
-            <input
-              type="checkbox"
-              checked={settings.soundNotifications}
-              onChange={(e) => updateSettings({
-                ...settings,
-                soundNotifications: e.target.checked
-              })}
-            />
-            Âm thanh thông báo
-          </label>
+        <div className="setting-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div><Typography.Text>Âm thanh thông báo</Typography.Text></div>
+          <div><Switch checked={settings.soundNotifications} onChange={(val) => updateSettings({ ...settings, soundNotifications: val })} /></div>
         </div>
+
+        <Divider />
 
         <div className="setting-section">
           <h5>Loại thông báo</h5>
-          {Object.entries(settings.enabledTypes || {}).map(([type, enabled]) => (
-            <div key={type} className="setting-item">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={enabled}
-                  onChange={(e) => updateSettings({
-                    ...settings,
-                    enabledTypes: {
-                      ...settings.enabledTypes,
-                      [type]: e.target.checked
-                    }
-                  })}
-                />
-                {getTypeLabel(type)}
-              </label>
-            </div>
-          ))}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {Object.entries(settings.enabledTypes || {}).map(([type, enabled]) => (
+              <Space key={type} style={{ justifyContent: 'space-between', width: '100%' }}>
+                <Typography.Text>{getTypeLabel(type)}</Typography.Text>
+                <Switch checked={enabled} onChange={(val) => updateSettings({ ...settings, enabledTypes: { ...settings.enabledTypes, [type]: val } })} />
+              </Space>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -191,114 +162,60 @@ const NotificationCenter = () => {
     }
   };
 
+  const panelContent = (
+    <div style={{ width: 360 }}>
+      <div className="notification-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography.Title level={4} style={{ margin: 0 }}>Thông báo</Typography.Title>
+        <Space>
+          <Button type="text" icon={<SettingOutlined />} onClick={() => setShowSettings(!showSettings)} />
+          {notifications.length > 0 && (
+            <>
+              <Button type="text" icon={<CheckOutlined />} onClick={markAllAsRead} />
+              <Button type="text" icon={<DeleteOutlined />} onClick={clearAll} />
+            </>
+          )}
+        </Space>
+      </div>
+
+      <div style={{ padding: 8 }}>
+        {showSettings ? (
+          <NotificationSettings />
+        ) : (
+          <div className="notification-content">
+            <NotificationList
+              initial={notifications}
+              onOpen={(item) => handleNotificationClick(item)}
+              onMarkRead={(id) => { try { markAsRead(id); } catch (e) {} }}
+              onRemove={(id) => { try { removeNotification(id); } catch (e) {} }}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="notification-center">
-      {/* Notification Bell */}
-      <button 
-        className={`notification-bell ${unreadCount > 0 ? 'has-unread' : ''}`}
-        onClick={toggleNotificationCenter}
+      <Popover
+        content={panelContent}
+        trigger="click"
+        placement="bottomRight"
+        open={isOpen}
+        onOpenChange={(visible) => {
+          setIsOpen(visible);
+          if (visible && unreadCount > 0) setTimeout(markAllAsRead, 1000);
+        }}
       >
-        🔔
-        {unreadCount > 0 && (
-          <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
-        )}
-      </button>
+        <Badge count={unreadCount > 99 ? '99+' : unreadCount} offset={[6, 0]}>
+          <Button type="text" aria-label="Mở trung tâm thông báo" className={`notification-bell ${unreadCount > 0 ? 'has-unread' : ''}`} onClick={() => { toggleNotificationCenter(); }}>
+            <BellOutlined style={{ fontSize: 18 }} />
+          </Button>
+        </Badge>
+      </Popover>
 
-      {/* Connection Status */}
       <div className={`connection-status ${isConnected && isAuthenticated ? 'authenticated' : isConnected ? 'connected' : 'disconnected'}`}>
         {isConnected && isAuthenticated ? '🟢' : isConnected ? '🟡' : '🔴'}
       </div>
-
-      {/* Notification Panel */}
-      {isOpen && (
-        <div className="notification-panel">
-          <div className="notification-header">
-            <h3>Thông báo</h3>
-            <div className="notification-actions">
-              <button 
-                className="settings-btn"
-                onClick={() => setShowSettings(!showSettings)}
-                title="Cài đặt"
-              >
-                ⚙️
-              </button>
-              {notifications.length > 0 && (
-                <>
-                  <button 
-                    className="mark-all-btn"
-                    onClick={markAllAsRead}
-                    title="Đánh dấu tất cả đã đọc"
-                  >
-                    ✓
-                  </button>
-                  <button 
-                    className="clear-all-btn"
-                    onClick={clearAll}
-                    title="Xóa tất cả"
-                  >
-                    🗑️
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-
-          {showSettings ? (
-            <NotificationSettings />
-          ) : (
-            <div className="notification-content">
-              {notifications.length === 0 ? (
-                <div className="no-notifications">
-                  <span className="empty-icon">📭</span>
-                  <p>Không có thông báo nào</p>
-                </div>
-              ) : (
-                <div className="notifications-list">
-                  {notifications.map(notification => (
-                    <div 
-                      key={notification.id}
-                      className={`notification-item ${notification.read ? 'read' : 'unread'} ${notification.priority}`}
-                      onClick={() => handleNotificationClick(notification)}
-                    >
-                      <div className="notification-icon">
-                        {getTypeIcon(notification.type)}
-                        {getPriorityIcon(notification.priority)}
-                      </div>
-                      
-                      <div className="notification-content">
-                        <div className="notification-title">
-                          {notification.title}
-                        </div>
-                        <div className="notification-message">
-                          {notification.message}
-                        </div>
-                        <div className="notification-time">
-                          {formatTime(notification.timestamp)}
-                        </div>
-                      </div>
-
-                      <div className="notification-actions">
-                        {notification.actionable && (
-                          <span className="actionable-indicator">→</span>
-                        )}
-                        <button 
-                          className="remove-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeNotification(notification.id);
-                          }}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };

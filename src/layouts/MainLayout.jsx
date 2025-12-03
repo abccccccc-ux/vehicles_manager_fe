@@ -13,6 +13,9 @@ const MainLayout = ({ children }) => {
       <Sider
         width={265}
         theme="light"
+        collapsible
+        breakpoint="lg"
+        collapsedWidth={0}
         style={{
           background: '#fff',
           position: 'fixed',
@@ -27,7 +30,7 @@ const MainLayout = ({ children }) => {
       </Sider>
 
       {/* Nội dung - thêm marginLeft bằng chiều rộng Sider để tránh chồng lấp */}
-      <Layout style={{ minHeight: '100vh', marginLeft: 265 }}>
+      <Layout className="main-layout" style={{ minHeight: '100vh' }}>
         {/* Navbar Header */}
         <Navbar />
 

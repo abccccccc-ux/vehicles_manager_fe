@@ -1,0 +1,23 @@
+/* Styles for application header */
+.app-header {
+  background: #fff;
+  padding: 0 24px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 64px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+}
+
+.nav-notification {
+  cursor: pointer;
+}
+
+.nav-notification:focus {
+  outline: 2px solid rgba(24, 144, 255, 0.85);
+  outline-offset: 2px;
+}

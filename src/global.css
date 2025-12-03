@@ -40,3 +40,15 @@ body {
     width: 92%;
   }
 }
+
+/* Main layout margin to accommodate fixed sider; collapses on smaller screens */
+.main-layout {
+  margin-left: 265px;
+  transition: margin-left 0.2s ease;
+}
+
+@media (max-width: 991px) {
+  .main-layout {
+    margin-left: 0;
+  }
+}
