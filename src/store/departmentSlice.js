@@ -8,7 +8,7 @@ export const fetchDepartmentById = createAsyncThunk(
       const { data } = await departmentApi.getDepartmentById(departmentId);
       return data.data.department;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || 'Lỗi khi lấy thông tin phòng ban');
+      return rejectWithValue(err.response?.data?.message || 'Lỗi khi lấy thông tin đơn vị');
     }
   }
 );
@@ -23,7 +23,7 @@ export const fetchDepartments = createAsyncThunk(
         pagination: data.pagination,
       };
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || 'Lỗi khi tải phòng ban');
+      return rejectWithValue(err.response?.data?.message || 'Lỗi khi tải đơn vị');
     }
   }
 );
@@ -35,7 +35,7 @@ export const deleteDepartment = createAsyncThunk(
       const { data } = await departmentApi.deleteDepartment(departmentId);
       return { departmentId, message: data.message };
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || 'Lỗi khi xóa phòng ban');
+      return rejectWithValue(err.response?.data?.message || 'Lỗi khi xóa đơn vị');
     }
   }
 );

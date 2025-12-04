@@ -12,7 +12,7 @@ const CreateUserDialog = ({ visible, onClose, onSuccess }) => {
   const [departments, setDepartments] = useState([]);
   const [departmentsLoading, setDepartmentsLoading] = useState(false);
 
-  // 🔹 Load danh sách phòng ban khi mở modal
+  // 🔹 Load danh sách đơn vị khi mở modal
   useEffect(() => {
     if (!visible) return;
 
@@ -146,12 +146,12 @@ const CreateUserDialog = ({ visible, onClose, onSuccess }) => {
 
         <Form.Item
           name="department"
-          label="Phòng ban"
-          rules={[{ required: true, message: 'Vui lòng chọn phòng ban' }]}
+          label="đơn vị"
+          rules={[{ required: true, message: 'Vui lòng chọn đơn vị' }]}
         >
           <Select
             loading={departmentsLoading}
-            placeholder="Chọn phòng ban"
+            placeholder="Chọn đơn vị"
             allowClear
             showSearch
             optionFilterProp="children"

@@ -178,13 +178,13 @@ const payloadData = {
           </Form.Item>
 
           <Form.Item
-            label="Phòng ban"
+            label="đơn vị"
             name="department"
-            rules={[{ required: true, message: 'Vui lòng chọn phòng ban' }]}
+            rules={[{ required: true, message: 'Vui lòng chọn đơn vị' }]}
           >
             <Select
               loading={loadingDeps}
-              placeholder="Chọn phòng ban"
+              placeholder="Chọn đơn vị"
               showSearch
               optionFilterProp="children"
               allowClear
