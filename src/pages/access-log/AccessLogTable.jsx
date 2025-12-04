@@ -300,6 +300,7 @@ const AccessLogTable = () => {
       </Row>
 
       <Table
+        bordered
         columns={columns}
         dataSource={list}
         loading={loading}

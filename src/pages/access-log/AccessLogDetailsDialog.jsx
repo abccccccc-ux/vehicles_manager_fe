@@ -199,26 +199,6 @@ const AccessLogDetailsDialog = ({ open, onClose, accessLog, loading }) => {
                 </Card>
               </Col>
             )}
-
-            {/* Metadata */}
-            <Col span={24}>
-              <Card title="Metadata" size="small">
-                <Descriptions column={2} size="small">
-                  <Descriptions.Item label="ID">
-                    <code>{accessLog._id}</code>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Ngày tạo">
-                    {new Date(accessLog.createdAt).toLocaleString('vi-VN')}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Cập nhật lần cuối">
-                    {new Date(accessLog.updatedAt).toLocaleString('vi-VN')}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Version">
-                    {accessLog.__v}
-                  </Descriptions.Item>
-                </Descriptions>
-              </Card>
-            </Col>
           </Row>
         </div>
       )}

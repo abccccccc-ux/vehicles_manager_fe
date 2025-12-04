@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
 import VideoPlayer from '../components/VideoPlayer';
-import VehicleTable from './vehicles/VehicleTable';
 import ChartStats from '../components/ChartStats';
 import AlertMessage from '../components/AlertMessage';
 import useCameras from '../hooks/useCameras';

@@ -93,9 +93,29 @@ const accessLogSlice = createSlice({
       })
       .addCase(fetchAccessLogs.fulfilled, (state, action) => {
         state.loading = false;
-        const { data } = action.payload;
-        state.list = data.items || data.accessLogs || [];
-        state.pagination.total = data.totalCount || data.total || 0;
+        // Support multiple response shapes.
+        // API may return { success, message, data: [...], pagination: { currentPage, totalItems, itemsPerPage, ... } }
+        // Or other APIs may return { data: { items: [...], total: ... } }
+        const payload = action.payload || {};
+
+        // If payload.data is an array -> use it directly
+        if (Array.isArray(payload.data)) {
+          state.list = payload.data;
+        } else if (payload.data && Array.isArray(payload.data.items)) {
+          // In case data contains items
+          state.list = payload.data.items;
+        } else if (payload.data && Array.isArray(payload.data.accessLogs)) {
+          state.list = payload.data.accessLogs;
+        } else {
+          state.list = [];
+        }
+
+        // Pagination: prefer payload.pagination (from backend)
+        const pag = payload.pagination || payload.data || {};
+        // Map common keys to store.pagination
+        state.pagination.total = pag.totalItems || pag.totalCount || pag.total || state.pagination.total || 0;
+        state.pagination.current = pag.currentPage || pag.page || state.pagination.current;
+        state.pagination.pageSize = pag.itemsPerPage || pag.pageSize || state.pagination.pageSize;
       })
       .addCase(fetchAccessLogs.rejected, (state, action) => {
         state.loading = false;
