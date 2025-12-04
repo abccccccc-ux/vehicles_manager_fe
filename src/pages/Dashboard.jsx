@@ -5,6 +5,7 @@ import VehicleTable from './vehicles/VehicleTable';
 import ChartStats from '../components/ChartStats';
 import AlertMessage from '../components/AlertMessage';
 import useCameras from '../hooks/useCameras';
+import { AccessLogTable } from './access-log';
 
 const Dashboard = () => {
   const [streamAlert, setStreamAlert] = useState('');
@@ -99,7 +100,7 @@ const Dashboard = () => {
           <ChartStats />
         </div>
       )}
-      <VehicleTable />
+      <AccessLogTable></AccessLogTable>
       
       {/* Stream Alert Messages */}
       {streamAlert && (

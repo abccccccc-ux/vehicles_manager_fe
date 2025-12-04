@@ -5,6 +5,7 @@ import departmentReducer from './departmentSlice';
 import userReducer from './userSlice';
 import workingHoursReducer from './workingHoursSlice';
 import workingHoursRequestReducer from './workingHoursRequestSlice';
+import accessLogReducer from './accessLogSlice';
 
 const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
     users: userReducer,
     workingHours: workingHoursReducer,
     workingHoursRequests: workingHoursRequestReducer,
+    accessLog: accessLogReducer,
   },
 });
 

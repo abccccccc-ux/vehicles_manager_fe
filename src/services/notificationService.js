@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client';
+import accessLogService from './accessLogService';
 
 class NotificationService {
   constructor() {
@@ -19,7 +20,7 @@ class NotificationService {
       return;
     }
 
-    const socketUrl = process.env.REACT_APP_SOCKET_URL || 'http://localhost:8000';
+    const socketUrl = process.env.REACT_APP_WEBSOCKET_URL || 'http://localhost:8000';
     console.log('🔔 Connecting to notification server:', socketUrl);
 
     // Lưu thông tin user để sử dụng trong authentication
@@ -182,6 +183,32 @@ class NotificationService {
           });
           break;
 
+        case 'vehicle_access':
+          this.handleNotification({
+            type: 'vehicle_access',
+            title: 'Xe ra/vào',
+            message: `Xe ${data.data?.licensePlate || 'không xác định'} đã ${data.data?.direction === 'in' ? 'vào' : 'ra'} cổng ${data.data?.gateName || data.data?.gateId}`,
+            data: data.data,
+            timestamp: new Date(data.timestamp),
+            priority: data.priority || 'medium',
+            actionable: true
+          });
+          
+          // Emit specific event for vehicle access để có thể hook vào từ components
+          this.emit('vehicle_access', {
+            notification: data,
+            data: data.data
+          });
+
+          // Fetch latest access logs khi có xe access mới
+          try {
+            console.log('🚗 Vehicle access detected, fetching latest access logs...');
+            accessLogService.fetchLatestAccessLogs();
+          } catch (error) {
+            console.error('❌ Error fetching access logs after vehicle access:', error);
+          }
+          break;
+
         default:
           console.log('🔔 Unknown notification type:', data.type);
           // Vẫn hiển thị notification chung cho các type không biết
@@ -325,7 +352,8 @@ class NotificationService {
         working_hours_request: true,
         working_hours_request_update: true,
         access_log_verification: true,
-        access_log_verified: true
+        access_log_verified: true,
+        vehicle_access: true
       }
     };
   }
