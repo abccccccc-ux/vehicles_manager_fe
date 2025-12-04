@@ -54,7 +54,7 @@ const Sidebar = () => {
     {
       key: "departments",
       icon: <TeamOutlined />,
-      label: <Link to="/departments">Quản lý Phòng ban</Link>,
+      label: <Link to="/departments">Quản lý Đơn vị</Link>,
       role: "super_admin",
     },
     {

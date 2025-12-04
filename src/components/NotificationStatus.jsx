@@ -84,7 +84,7 @@ const NotificationStatus = () => {
               <div><strong>Người dùng:</strong> {user.username}</div>
               <div><strong>Vai trò:</strong> {user.role}</div>
               {user.department && (
-                <div><strong>Phòng ban:</strong> {user.department.name}</div>
+                <div><strong>đơn vị:</strong> {user.department.name}</div>
               )}
             </>
           )}
