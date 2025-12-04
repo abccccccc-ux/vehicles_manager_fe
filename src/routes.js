@@ -13,6 +13,7 @@ import PersonalVehiclesList from './pages/personal-vehicles/PersonalVehiclesList
 import SecurityDashboard from './pages/SecurityDashboard';
 import WorkingHoursRequestList from './pages/working-hours-requests/WorkingHoursRequestList';
 import PersonalWorkingHoursRequestList from './pages/personal-working-hours-requests/PersonalWorkingHoursRequestList';
+import AccessLogList from './pages/access-logs/AccessLogList';
 
 // Route bảo vệ
 const PrivateRoute = ({ children }) => {
@@ -43,6 +44,7 @@ const routes = [
   { path: '/security', element: <PrivateRoute><SecurityDashboard/></PrivateRoute>},
   { path: '/working-hours-requests', element: <PrivateRoute><WorkingHoursRequestList/></PrivateRoute>},
   { path: '/personal-working-hours-requests', element: <PrivateRoute><PersonalWorkingHoursRequestList/></PrivateRoute>},
+  { path: '/access-logs', element: <PrivateRoute><AccessLogList/></PrivateRoute>},
 ];
 
 export default routes;

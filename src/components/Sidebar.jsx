@@ -40,9 +40,9 @@ const Sidebar = () => {
       role: "super_admin",
     },
     {
-      key: "history",
+      key: "access-logs",
       icon: <HistoryOutlined />,
-      label: <Link to="/history">Lịch sử ra/vào</Link>,
+      label: <Link to="/access-logs">Lịch sử ra/vào</Link>,
       role: "super_admin",
     },
     {
