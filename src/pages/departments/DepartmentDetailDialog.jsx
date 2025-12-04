@@ -17,7 +17,7 @@ const DepartmentDetailDialog = ({ visible, departmentId, onClose }) => {
 
   return (
     <Modal
-      title="Chi tiết phòng ban"
+      title="Chi tiết đơn vị"
       visible={visible}
       onCancel={onClose}
       footer={null}
@@ -46,7 +46,7 @@ const DepartmentDetailDialog = ({ visible, departmentId, onClose }) => {
               '-'
             )}
           </Descriptions.Item>
-          <Descriptions.Item label="Phòng ban cha">
+          <Descriptions.Item label="đơn vị cha">
             {currentDepartment.parentDepartment ? (
               <div>
                 <div style={{ fontWeight: 600 }}>{currentDepartment.parentDepartment.name}</div>

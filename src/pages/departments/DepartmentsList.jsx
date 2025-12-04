@@ -69,23 +69,17 @@ const DepartmentsList = () => {
 
   const columns = [
     {
-      title: 'Tên phòng ban',
+      title: 'Tên đơn vị',
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Mã phòng ban',
+      title: 'Mã đơn vị',
       dataIndex: 'code',
       key: 'code',
     },
     {
-      title: 'Phòng ban cha',
-      dataIndex: ['parentDepartment', 'name'],
-      key: 'parentDepartment',
-      render: (text, record) => record.parentDepartment?.name || '-',
-    },
-    {
-      title: 'Trưởng phòng',
+      title: 'Trưởng đơn vị',
       dataIndex: ['manager', 'name'],
       key: 'manager',
       render: (text, record) => record.manager?.name || '-',
@@ -115,7 +109,7 @@ const DepartmentsList = () => {
             size="small"
             loading={deletingId === record._id}
             disabled={!record.isActive}
-            title={!record.isActive ? 'Phòng ban không hoạt động - không thể xóa' : ''}
+            title={!record.isActive ? 'đơn vị không hoạt động - không thể xóa' : ''}
             onClick={(e) => {
               e.stopPropagation();
               if (!record.isActive) return;
@@ -130,7 +124,7 @@ const DepartmentsList = () => {
                     if (res.error) {
                       notification.error({ message: 'Lỗi', description: res.error.message || 'Xóa thất bại', placement: 'bottomRight' });
                     } else {
-                      notification.success({ message: 'Thành công', description: res.payload?.message || 'Đã xóa phòng ban', placement: 'bottomRight' });
+                      notification.success({ message: 'Thành công', description: res.payload?.message || 'Đã xóa đơn vị', placement: 'bottomRight' });
                       // re-fetch current page
                       dispatch(fetchDepartments({ search, isActive, page: pagination.current, limit: pagination.pageSize }));
                     }
@@ -148,7 +142,7 @@ const DepartmentsList = () => {
   ];
 
   return (
-    <Card title="Danh sách phòng ban">
+    <Card title="Danh sách đơn vị">
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} sm={12} md={8} lg={6}>
           <SearchInput
@@ -157,7 +151,7 @@ const DepartmentsList = () => {
               setLocalSearch(val);
               debouncedDispatchSearch(val);
             }}
-            placeholder="Tìm kiếm tên, mã phòng ban..."
+            placeholder="Tìm kiếm tên, mã đơn vị..."
           />
         </Col>
         <Col xs={24} sm={12} md={8} lg={6}>
