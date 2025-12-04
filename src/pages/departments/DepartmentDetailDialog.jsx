@@ -36,21 +36,11 @@ const DepartmentDetailDialog = ({ visible, departmentId, onClose }) => {
           <Descriptions.Item label="Trạng thái">
             {currentDepartment.isActive ? <Tag color="green">Hoạt động</Tag> : <Tag color="red">Ngừng hoạt động</Tag>}
           </Descriptions.Item>
-          <Descriptions.Item label="Trưởng phòng">
+          <Descriptions.Item label="Trưởng đơn vị">
             {currentDepartment.manager ? (
               <div>
                 <div style={{ fontWeight: 600 }}>{currentDepartment.manager.name}</div>
                 <div style={{ color: '#666' }}>{currentDepartment.manager.username}</div>
-              </div>
-            ) : (
-              '-'
-            )}
-          </Descriptions.Item>
-          <Descriptions.Item label="đơn vị cha">
-            {currentDepartment.parentDepartment ? (
-              <div>
-                <div style={{ fontWeight: 600 }}>{currentDepartment.parentDepartment.name}</div>
-                <div style={{ color: '#666' }}>{currentDepartment.parentDepartment.code}</div>
               </div>
             ) : (
               '-'
