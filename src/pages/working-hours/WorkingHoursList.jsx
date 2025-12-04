@@ -16,14 +16,24 @@ const statusOptions = [
  
 const statusTag = (isActive) => (isActive ? <Tag color="green">Hoạt động</Tag> : <Tag color="red">Ngừng hoạt động</Tag>);
 
+// Hàm chuyển đổi số ngày thành tên ngày
+const getDayName = (dayNumber) => {
+  const dayNames = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+  return dayNames[dayNumber] || dayNumber;
+};
+
 const columns = (onEdit, onDelete) => [
   { title: 'Tên', dataIndex: 'name', key: 'name' },
   { title: 'Thời gian', key: 'time', render: (_, record) => `${record.startTime} - ${record.endTime}` },
-  { title: 'Ngày làm', dataIndex: 'workingDays', key: 'workingDays', render: (days) => days?.join(', ') },
+  { 
+    title: 'Ngày làm', 
+    dataIndex: 'workingDays', 
+    key: 'workingDays', 
+    render: (days) => days?.map(day => getDayName(day)).join(', ') 
+  },
   { title: 'Trễ (phút)', dataIndex: 'lateToleranceMinutes', key: 'lateToleranceMinutes' },
   { title: 'Sớm (phút)', dataIndex: 'earlyToleranceMinutes', key: 'earlyToleranceMinutes' },
   { title: 'Trạng thái', dataIndex: 'isActive', key: 'isActive', render: statusTag },
-  { title: 'Người tạo', dataIndex: ['createdBy', 'name'], key: 'createdBy' },
   {
     title: 'Hành động',
     key: 'actions',
