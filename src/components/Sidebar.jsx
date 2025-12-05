@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Menu, message, Modal } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -8,17 +8,15 @@ import {
   DashboardOutlined,
   CarOutlined,
   HistoryOutlined,
-  PlusCircleOutlined,
   SettingOutlined,
   UserOutlined,
   LockOutlined,
   TeamOutlined,
-  InfoCircleOutlined,
   ClockCircleOutlined,
-  UnlockOutlined,
   LogoutOutlined,
   SnippetsOutlined,
   ExceptionOutlined,
+  AlertOutlined,
 } from "@ant-design/icons";
 
 const Sidebar = () => {
@@ -36,7 +34,7 @@ const Sidebar = () => {
     {
       key: "vehicles",
       icon: <CarOutlined />,
-      label: <Link to="/vehicles">Danh sách xe</Link>,
+      label: <Link to="/vehicles">Phương tiện</Link>,
       role: "super_admin",
     },
     {
@@ -48,25 +46,31 @@ const Sidebar = () => {
     {
       key: "users",
       icon: <UserOutlined />,
-      label: <Link to="/users">Quản lý Người dùng</Link>,
+      label: <Link to="/users">Người dùng</Link>,
       role: "super_admin",
     },
     {
       key: "departments",
       icon: <TeamOutlined />,
-      label: <Link to="/departments">Quản lý Đơn vị</Link>,
+      label: <Link to="/departments">Đơn vị</Link>,
       role: "super_admin",
     },
     {
       key: "working-hours",
       icon: <ClockCircleOutlined />,
-      label: <Link to="/working-hours">Quản lý Giờ làm việc</Link>,
+      label: <Link to="/working-hours">Giờ làm việc</Link>,
       role: "super_admin",
     },
     {
       key: "working-hours-requests",
       icon: <SnippetsOutlined />,
-      label: <Link to="/working-hours-requests">Quản lý Yêu cầu ra vào</Link>,
+      label: <Link to="/working-hours-requests">Phê duyệt Yêu cầu ra vào</Link>,
+      role: "super_admin",
+    },
+    {
+      key: "working-hours-violations",
+      icon: <AlertOutlined />,
+      label: <Link to="/working-hours-violations">Vi phạm giờ làm việc</Link>,
       role: "super_admin",
     },
     {
@@ -77,7 +81,6 @@ const Sidebar = () => {
     {
       key: "personal-vehicles",
       icon: <CarOutlined />,
-      label: "Phương tiện cá nhân",
       label: <Link to="/personal-vehicles">Phương tiện cá nhân</Link>,
     },
     {
