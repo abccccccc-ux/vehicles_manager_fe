@@ -48,7 +48,6 @@ const AccessLogs = () => {
         }}>
           <Space direction="vertical" size={0}>
             <Title level={3} style={{ margin: 0 }}>
-              <EyeOutlined style={{ marginRight: 8 }} />
               Lịch sử Ra/Vào
             </Title>
             <Text type="secondary">

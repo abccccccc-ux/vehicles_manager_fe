@@ -36,7 +36,6 @@ const AccessLogList = () => {
                     }}>
                         <Space direction="vertical" size={0}>
                             <Title level={3} style={{ margin: 0 }}>
-                                <EyeOutlined style={{ marginRight: 8 }} />
                                 Lịch sử Ra/Vào
                             </Title>
                             <Text type="secondary">Quản lý và theo dõi lịch sử ra/vào của các phương tiện</Text>

@@ -54,16 +54,23 @@ const columns = (onApprove, onReject) => [
     {
         title: 'Hành động',
         key: 'actions',
-        render: (_, record) => (
-            <Space>
-                <Tooltip title="Phê duyệt">
-                    <Button type="primary" icon={<CheckOutlined />} onClick={() => onApprove(record)} />
-                </Tooltip>
-                <Tooltip title="Từ chối">
-                    <Button danger icon={<CloseOutlined />} onClick={() => onReject(record)} />
-                </Tooltip>
-            </Space>
-        ),
+        render: (_, record) => {
+            // Chỉ hiển thị hành động khi trạng thái là pending
+            if (record.status !== 'pending') {
+                return null;
+            }
+            
+            return (
+                <Space>
+                    <Tooltip title="Phê duyệt">
+                        <Button type="primary" icon={<CheckOutlined />} onClick={() => onApprove(record)} />
+                    </Tooltip>
+                    <Tooltip title="Từ chối">
+                        <Button danger icon={<CloseOutlined />} onClick={() => onReject(record)} />
+                    </Tooltip>
+                </Space>
+            );
+        },
     },
 ];
 
