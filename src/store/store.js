@@ -6,6 +6,7 @@ import userReducer from './userSlice';
 import workingHoursReducer from './workingHoursSlice';
 import workingHoursRequestReducer from './workingHoursRequestSlice';
 import accessLogReducer from './accessLogSlice';
+import workingHoursViolationReducer from './workingHoursViolationSlice';
 
 const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ const store = configureStore({
     workingHours: workingHoursReducer,
     workingHoursRequests: workingHoursRequestReducer,
     accessLog: accessLogReducer,
+    workingHoursViolation: workingHoursViolationReducer,
   },
 });
 
