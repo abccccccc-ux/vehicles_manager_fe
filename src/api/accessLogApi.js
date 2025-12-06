@@ -26,8 +26,36 @@ export const getLatestAccessLogs = async (params = {}) => {
   return getAccessLogs({ ...defaultParams, ...params });
 };
 
+// Xác minh access log
+export const verifyAccessLog = async (id, data) => {
+  const response = await axiosClient.put(`/access-logs/${id}/verify`, data);
+  return response.data;
+};
+
+// Cập nhật thông tin access log
+export const updateAccessLog = async (id, data) => {
+  const response = await axiosClient.put(`/access-logs/${id}`, data);
+  return response.data;
+};
+
+// Phê duyệt access log
+export const approveAccessLog = async (id, data = {}) => {
+  const response = await axiosClient.patch(`/access-logs/${id}/approve`, data);
+  return response.data;
+};
+
+// Từ chối access log
+export const rejectAccessLog = async (id, data = {}) => {
+  const response = await axiosClient.patch(`/access-logs/${id}/reject`, data);
+  return response.data;
+};
+
 export default {
   getAccessLogs,
   getAccessLogById,
-  getLatestAccessLogs
+  getLatestAccessLogs,
+  verifyAccessLog,
+  updateAccessLog,
+  approveAccessLog,
+  rejectAccessLog
 };

@@ -1,0 +1,595 @@
+/* Access Log Verification Modal Styles */
+.access-verification-modal .ant-modal-content {
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.access-verification-modal .ant-modal-header {
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+}
+
+.access-verification-modal .ant-modal-title {
+  color: white;
+}
+
+.access-verification-modal .ant-modal-close {
+  color: white;
+}
+
+.access-verification-modal .ant-modal-close:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Card Styles */
+.verification-card {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.verification-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.verification-card .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+  background-color: #fafafa;
+  border-radius: 8px 8px 0 0;
+}
+
+.verification-card .ant-card-head-title {
+  font-weight: 600;
+  color: #262626;
+}
+
+.verification-card .ant-card-body {
+  transition: all 0.3s ease;
+}
+
+.verification-card:hover .ant-card-body {
+  background-color: rgba(24, 144, 255, 0.02);
+}
+
+/* Media Section */
+.media-section {
+  padding: 16px;
+  background-color: #fafafa;
+  border-radius: 8px;
+}
+
+.media-item {
+  text-align: center;
+  padding: 8px;
+  border-radius: 6px;
+  background-color: white;
+  border: 1px solid #e8e8e8;
+  transition: all 0.3s ease;
+}
+
+.media-item:hover {
+  border-color: #1890ff;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.1);
+}
+
+.media-item .ant-image {
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.media-item {
+  text-align: center;
+  padding: 8px;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  background-color: #fafafa;
+  transition: all 0.3s ease;
+}
+
+.media-item:hover {
+  border-color: #d9d9d9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Confidence Display */
+.confidence-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.confidence-high {
+  background-color: rgba(82, 196, 26, 0.1);
+  color: #52c41a;
+  border: 1px solid rgba(82, 196, 26, 0.2);
+}
+
+.confidence-medium {
+  background-color: rgba(250, 140, 22, 0.1);
+  color: #fa8c16;
+  border: 1px solid rgba(250, 140, 22, 0.2);
+}
+
+.confidence-low {
+  background-color: rgba(255, 77, 79, 0.1);
+  color: #ff4d4f;
+  border: 1px solid rgba(255, 77, 79, 0.2);
+}
+
+/* Form Styles */
+.verification-form .ant-form-item {
+  margin-bottom: 12px;
+}
+
+.verification-form .ant-form-item-label > label {
+  font-weight: 500;
+  color: #262626;
+}
+
+.verification-form .ant-input,
+.verification-form .ant-select-selector {
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.verification-form .ant-input:focus,
+.verification-form .ant-select-focused .ant-select-selector {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.verification-form .ant-form-item-required .ant-form-item-label > label::before {
+  content: '* ';
+  color: #ff4d4f;
+  font-size: 14px;
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+.verification-form input[type="number"] {
+  text-align: center;
+  font-weight: 600;
+}
+
+.verification-form .ant-form-item-has-error .ant-input,
+.verification-form .ant-form-item-has-error .ant-select-selector {
+  border-color: #ff4d4f;
+}
+
+.verification-form .ant-form-item-has-error .ant-input:focus,
+.verification-form .ant-form-item-has-error .ant-select-focused .ant-select-selector {
+  border-color: #ff4d4f;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+}
+
+.verification-form .ant-form-item-has-success .ant-input {
+  border-color: #52c41a;
+}
+
+.verification-form .ant-form-item-has-success .ant-input:focus {
+  border-color: #52c41a;
+  box-shadow: 0 0 0 2px rgba(82, 196, 26, 0.2);
+}
+
+/* Edit Mode Toggle */
+.edit-mode-toggle {
+  color: #1890ff;
+  font-size: 12px;
+}
+
+.edit-mode-toggle:hover {
+  color: #096dd9;
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.edit-mode-toggle {
+  color: #1890ff;
+  transition: all 0.3s ease;
+}
+
+.edit-mode-toggle:hover {
+  color: #40a9ff;
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+/* Action Buttons */
+.verification-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.verification-actions .ant-btn {
+  border-radius: 6px;
+  font-weight: 500;
+  min-width: 100px;
+}
+
+.verification-actions .ant-btn-primary {
+  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+  border: none;
+  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+}
+
+.verification-actions .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #73d13d 0%, #52c41a 100%);
+  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.4);
+  transform: translateY(-1px);
+}
+
+.verification-actions .ant-btn-primary:disabled {
+  background: #f5f5f5;
+  border-color: #d9d9d9;
+  color: #bfbfbf;
+  box-shadow: none;
+  transform: none;
+}
+
+.verification-actions .ant-btn-dangerous {
+  background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+  border: none;
+  box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
+}
+
+.verification-actions .ant-btn-dangerous:hover {
+  background: linear-gradient(135deg, #ff7875 0%, #ff4d4f 100%);
+  box-shadow: 0 4px 12px rgba(255, 77, 79, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Rate Component for Confidence */
+.confidence-rate .ant-rate-star {
+  margin-right: 4px;
+  font-size: 16px;
+}
+
+.confidence-rate .ant-rate-star-full .anticon {
+  color: #1890ff;
+}
+
+.confidence-rate .ant-rate-star-half .anticon {
+  color: #1890ff;
+}
+
+/* Tags */
+.license-plate-tag {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}
+
+.license-plate-tag {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+}
+
+.action-tag {
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.action-tag {
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* Video Player */
+.verification-video {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading States */
+.verification-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.ant-input-search-loading .ant-input-suffix {
+  pointer-events: none;
+}
+
+.ant-input-search-loading .ant-input {
+  padding-right: 32px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .access-verification-modal {
+    width: 95vw !important;
+    max-width: none;
+  }
+  
+  .verification-actions {
+    flex-direction: column;
+  }
+  
+  .verification-actions .ant-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .access-verification-modal .ant-modal {
+    margin: 0;
+    max-width: 100vw;
+    top: 0;
+  }
+  
+  .verification-card {
+    margin-bottom: 12px;
+  }
+  
+  .ant-col {
+    margin-bottom: 8px;
+  }
+  
+  .license-plate-tag {
+    font-size: 12px;
+  }
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.verification-card {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.verification-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.verification-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.verification-card:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+/* Vehicle Search Styles */
+.ant-input-search .ant-input-group .ant-input-affix-wrapper {
+  border-radius: 6px 0 0 6px;
+}
+
+.ant-input-search .ant-btn-primary {
+  border-radius: 0 6px 6px 0;
+  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+  border-color: #52c41a;
+  transition: all 0.3s ease;
+}
+
+.ant-input-search .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #73d13d 0%, #52c41a 100%);
+  border-color: #73d13d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(82, 196, 26, 0.3);
+}
+
+.ant-input-search .ant-input {
+  transition: all 0.3s ease;
+}
+
+.ant-input-search .ant-input:focus {
+  box-shadow: 0 0 0 2px rgba(82, 196, 26, 0.2);
+  border-color: #52c41a;
+}
+
+.ant-input-search-button {
+  border-left: 0;
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.ant-input-search-button:hover {
+  background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
+  transform: translateX(-1px);
+}
+
+/* Success Alert for Auto-filled Information */
+.ant-alert-success {
+  border-left: 4px solid #52c41a;
+  background-color: #f6ffed;
+}
+
+.ant-alert-success .ant-alert-icon {
+  color: #52c41a;
+}
+
+/* Form Item Improvements */
+.ant-form-item-with-help .ant-form-item-explain {
+  min-height: 0;
+}
+
+.ant-form-item-tooltip {
+  color: #8c8c8c;
+  cursor: help;
+}
+
+/* Form Validation Styles */
+.ant-form-item-has-error .ant-input-search .ant-input,
+.ant-form-item-has-error .ant-input-search .ant-input:focus {
+  border-color: #ff4d4f;
+}
+
+.ant-form-item-has-error .ant-input-search .ant-input:focus {
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+}
+
+/* Guest Mode Styles */
+.guest-info-card .ant-card-head {
+  background: linear-gradient(135deg, #fff2e8 0%, #ffeee0 100%);
+  border-bottom: 2px solid #ffa940;
+}
+
+.guest-info-card .ant-card-head-title {
+  color: #d46b08;
+  font-weight: 600;
+}
+
+.guest-info-card {
+  border: 1px solid #ffa940;
+  box-shadow: 0 2px 8px rgba(255, 169, 64, 0.15);
+}
+
+.guest-info-card .ant-card-body {
+  background-color: #fffbf7;
+}
+
+/* Mode Toggle Button */
+.mode-toggle {
+  color: #fa8c16;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.mode-toggle:hover {
+  color: #ffa940;
+  background-color: rgba(255, 169, 64, 0.1);
+  transform: translateY(-1px);
+}
+
+.mode-toggle .anticon {
+  color: #fa8c16;
+  transition: transform 0.3s ease;
+}
+
+.mode-toggle:hover .anticon {
+  transform: rotate(180deg);
+}
+
+/* Guest Form Styles */
+.guest-info-card .ant-form-item-label > label {
+  color: #d46b08;
+  font-weight: 500;
+}
+
+.guest-info-card .ant-input-prefix {
+  color: #fa8c16;
+}
+
+.guest-info-card .ant-input:focus,
+.guest-info-card .ant-input-focused {
+  border-color: #ffa940;
+  box-shadow: 0 0 0 2px rgba(255, 169, 64, 0.2);
+}
+
+/* Guest Alert Styles */
+.ant-alert-warning.guest-mode-alert {
+  border-left: 4px solid #fa8c16;
+  background-color: #fff7e6;
+}
+
+.ant-alert-warning.guest-mode-alert .ant-alert-icon {
+  color: #fa8c16;
+}
+
+/* Required Field Indicators for Guest Mode */
+.guest-info-card .ant-form-item-required::before {
+  color: #ff4d4f;
+  font-size: 14px;
+}
+
+/* Guest Mode Badge */
+.guest-mode-badge {
+  background: linear-gradient(135deg, #fa8c16 0%, #ffa940 100%);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Validation Error Styles for Guest Mode */
+.guest-info-card .ant-form-item-has-error .ant-input,
+.guest-info-card .ant-form-item-has-error .ant-input:focus {
+  border-color: #ff4d4f;
+}
+
+.guest-info-card .ant-form-item-has-error .ant-input:focus {
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+}
+
+/* Animation for Mode Switch */
+.verification-card {
+  animation: modeSwitch 0.3s ease-in-out;
+}
+
+@keyframes modeSwitch {
+  0% {
+    opacity: 0.8;
+    transform: translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Guest Info Text Styling */
+.guest-info-text {
+  color: #595959;
+  font-style: italic;
+}
+
+.guest-info-text.empty {
+  color: #bfbfbf;
+}
+
+/* Mobile Responsive for Guest Mode */
+@media (max-width: 768px) {
+  .guest-info-card .ant-col {
+    margin-bottom: 12px;
+  }
+  
+  .mode-toggle {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+  
+  .guest-mode-badge {
+    font-size: 10px;
+    padding: 1px 6px;
+  }
+}
+
+/* Mode Toggle Popconfirm Styling */
+.ant-popover-content .ant-popover-message {
+  padding-left: 0;
+}
+
+.ant-popover-content .ant-popover-buttons {
+  text-align: right;
+}

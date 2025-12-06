@@ -1,6 +1,7 @@
 import React, { useEffect, createContext, useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { useNotifications } from '../hooks/useNotifications';
+import HighPriorityNotificationPopup from './HighPriorityNotificationPopup';
 
 const NotificationContext = createContext();
 
@@ -69,6 +70,7 @@ export const NotificationProvider = ({ children }) => {
   return (
     <NotificationContext.Provider value={notifications}>
       {children}
+      <HighPriorityNotificationPopup />
     </NotificationContext.Provider>
   );
 };

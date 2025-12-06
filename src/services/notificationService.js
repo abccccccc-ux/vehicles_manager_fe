@@ -144,7 +144,7 @@ class NotificationService {
             message: `${data.data?.username || data.data?.requesterName} yêu cầu ra/vào - Biển số: ${data.data?.licensePlate}`,
             data: data.data,
             timestamp: new Date(data.timestamp),
-            priority: data.priority || 'high',
+            priority: data.priority || 'medium',
             actionable: true
           });
           break;
@@ -165,6 +165,18 @@ class NotificationService {
             type: 'access_log_verification',
             title: data.title || 'Xác minh log ra/vào',
             message: data.message || `Xe ${data.data?.licensePlate} tại cổng ${data.data?.gateName} cần xác minh - Độ tin cậy: ${Math.round((data.data?.confidence || 0) * 100)}%`,
+            data: data.data,
+            timestamp: new Date(data.timestamp),
+            priority: data.priority || 'high',
+            actionable: true
+          });
+          break;
+
+        case 'unknown_vehicle_access':
+          this.handleNotification({
+            type: 'unknown_vehicle_access',
+            title: data.title || '⚠️ Xe lạ phát hiện',
+            message: data.message || `Xe lạ ${data.data?.licensePlate} ${data.data?.action === 'entry' ? 'vào' : 'ra'} tại ${data.data?.gateName || data.data?.gateId} - Cần kiểm tra ngay`,
             data: data.data,
             timestamp: new Date(data.timestamp),
             priority: data.priority || 'high',
@@ -252,7 +264,7 @@ class NotificationService {
 
       // Phát âm thanh nếu được bật
       if (this.settings.soundNotifications) {
-        this.playNotificationSound();
+        this.playNotificationSound(notification.priority);
       }
     }
   }
@@ -274,10 +286,19 @@ class NotificationService {
   }
 
   // Phát âm thanh notification
-  playNotificationSound() {
-    const audio = new Audio('/notification-sound.mp3');
+  playNotificationSound(priority = 'medium') {
+    let soundFile = '/notification-sound.mp3';
+    
+    // Sử dụng âm thanh khác cho priority high
+    if (priority === 'high') {
+      soundFile = '/high-priority-notification.mp3';
+    }
+    
+    const audio = new Audio(soundFile);
+    audio.volume = priority === 'high' ? 0.8 : 0.5; // Âm lượng cao hơn cho high priority
     audio.play().catch(() => {
       // Không thể phát âm thanh (có thể do chính sách browser)
+      console.log('Could not play notification sound');
     });
   }
 
@@ -353,7 +374,8 @@ class NotificationService {
         working_hours_request_update: true,
         access_log_verification: true,
         access_log_verified: true,
-        vehicle_access: true
+        vehicle_access: true,
+        unknown_vehicle_access: true
       }
     };
   }

@@ -156,7 +156,7 @@ const WorkingHoursViolationDetailsDialog = ({ open, onClose, violation, loading 
           </Descriptions.Item>
           
           {violation.department && (
-            <Descriptions.Item label="Phòng ban" span={1}>
+            <Descriptions.Item label="Đơn vị" span={1}>
               {violation.department.name}
             </Descriptions.Item>
           )}
