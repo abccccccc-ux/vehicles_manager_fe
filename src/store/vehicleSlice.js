@@ -40,13 +40,26 @@ export const fetchVehicles = createAsyncThunk(
   }
 );
 
+// Async thunk for bulk upload vehicles
+export const bulkUploadVehicles = createAsyncThunk(
+  'vehicle/bulkUploadVehicles',
+  async (excelFile, { rejectWithValue }) => {
+    try {
+      const data = await vehicleApi.bulkUploadVehicles(excelFile);
+      return data; // expected shape: { success, message, data: { summary, createdVehicles, createdUsers, errors } }
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Lỗi khi upload xe hàng loạt');
+    }
+  }
+);
+
 
 const vehicleSlice = createSlice({
   name: 'vehicle',
   initialState: {
     list: [],
     loading: false,
-      updating: false,
+    updating: false,
     selectedVehicle: null,
     detailLoading: false,
     error: null,
@@ -56,8 +69,11 @@ const vehicleSlice = createSlice({
     search: '',
     vehicleType: '', // '' means all, values: 'car'|'motorbike'
     status: '', // '' means all, 'active'|'inactive'
-    error: null,
     currentRequestId: undefined,
+    // bulk upload state
+    bulkUploading: false,
+    bulkUploadResult: null,
+    bulkUploadError: null,
   },
   reducers: {
     setVehicles(state, action) {
@@ -89,6 +105,10 @@ const vehicleSlice = createSlice({
     },
     clearError(state) {
       state.error = null;
+    },
+    clearBulkUploadResult(state) {
+      state.bulkUploadResult = null;
+      state.bulkUploadError = null;
     },
   },
   extraReducers: (builder) => {
@@ -174,6 +194,26 @@ const vehicleSlice = createSlice({
           state.currentRequestId = undefined;
         }
       });
+
+    // handlers for bulkUploadVehicles
+    builder
+      .addCase(bulkUploadVehicles.pending, (state) => {
+        state.bulkUploading = true;
+        state.bulkUploadError = null;
+        state.bulkUploadResult = null;
+      })
+      .addCase(bulkUploadVehicles.fulfilled, (state, action) => {
+        state.bulkUploading = false;
+        state.bulkUploadResult = action.payload;
+        // If the upload was successful, we may want to refresh the list
+        if (action.payload.success) {
+          state.bulkUploadError = null;
+        }
+      })
+      .addCase(bulkUploadVehicles.rejected, (state, action) => {
+        state.bulkUploading = false;
+        state.bulkUploadError = action.payload;
+      });
   },
 });
 
@@ -187,5 +227,6 @@ export const {
   setStatus,
   setPagination,
   clearError,
+  clearBulkUploadResult,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

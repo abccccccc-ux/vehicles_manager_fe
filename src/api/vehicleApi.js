@@ -37,4 +37,15 @@ export const updateVehicle = async (id, body) => {
   return response.data;
 };
 
-export default { getVehicleByLicensePlate, getVehicles, createVehicle, getMyVehicles, updateVehicle };
+export const bulkUploadVehicles = async (excelFile) => {
+  const formData = new FormData();
+  formData.append('excelFile', excelFile);
+  const response = await axiosClient.post('/bulk-vehicles/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+export default { getVehicleByLicensePlate, getVehicles, createVehicle, getMyVehicles, updateVehicle, bulkUploadVehicles };

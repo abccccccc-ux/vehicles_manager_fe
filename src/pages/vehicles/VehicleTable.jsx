@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Input, Select, Space, Row, Col, Button } from 'antd';
+import { CloudUploadOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { getVehicleByLicensePlate } from '../../api/vehicleApi';
 import VehicleDetailsDialog from './VehicleDetailsDialog';
+import BulkUploadModal from './BulkUploadModal';
 import useDebounce from '../../hooks/useDebounce';
 import { fetchVehicles, setSearch, setVehicleType, setStatus, setPagination, setSelectedVehicle, setDetailLoading } from '../../store/vehicleSlice';
 
@@ -23,6 +25,7 @@ const VehicleTable = () => {
   const dispatch = useDispatch();
   const { list, loading, selectedVehicle, detailLoading, pagination, search: storeSearch, vehicleType: storeVehicleType, status: storeStatus } = useSelector(state => state.vehicle);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
 
   // Local UI state for controlled inputs
   const [search, setSearchLocal] = useState(storeSearch || '');
@@ -116,8 +119,12 @@ const VehicleTable = () => {
         </Col>
         <Col xs={24} sm={12} md={24} lg={4} style={{ textAlign: 'right' }}>
           <Space>
-            <Button onClick={() => { setSearchLocal(''); setVehicleTypeLocal(''); setStatusLocal(''); dispatch(setSearch('')); dispatch(setVehicleType('')); dispatch(setStatus('')); dispatch(setPagination({ current: 1 })); }}>
-              Reset
+            <Button
+              type="primary"
+              icon={<CloudUploadOutlined />}
+              onClick={() => setBulkUploadModalOpen(true)}
+            >
+              Nhập hàng loạt
             </Button>
           </Space>
         </Col>
@@ -145,6 +152,11 @@ const VehicleTable = () => {
         onClose={handleCloseDialog}
         vehicle={selectedVehicle}
         loading={detailLoading}
+      />
+
+      <BulkUploadModal
+        open={bulkUploadModalOpen}
+        onClose={() => setBulkUploadModalOpen(false)}
       />
     </>
   );
