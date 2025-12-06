@@ -31,11 +31,11 @@ export const useAccessLogs = () => {
     };
 
     // Register listeners for real-time updates
-    accessLogService.on('access_logs_updated', handleAccessLogsUpdated);
+    accessLogService.on('vehicle_access', handleAccessLogsUpdated);
 
     // Cleanup
     return () => {
-      accessLogService.off('access_logs_updated', handleAccessLogsUpdated);
+      accessLogService.off('vehicle_access', handleAccessLogsUpdated);
     };
   }, []);
 
