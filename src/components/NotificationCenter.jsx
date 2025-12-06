@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BellOutlined, SettingOutlined, CheckOutlined, DeleteOutlined } from '@ant-design/icons';
+import { BellOutlined, SettingOutlined, CheckOutlined, DeleteOutlined, ExperimentOutlined } from '@ant-design/icons';
 import { useNotificationContext } from './NotificationProvider';
 import './NotificationCenter.css';
-import { Badge, Popover, Empty, Button, Switch, Divider, Space, Typography, Avatar } from 'antd';
+import { Badge, Popover, Button, Switch, Divider, Space, Typography, Dropdown } from 'antd';
 import NotificationList from './NotificationList';
+import notificationService from '../services/notificationService';
 
 const NotificationCenter = () => {
   const {
@@ -18,8 +19,7 @@ const NotificationCenter = () => {
     removeNotification,
     clearAll,
     requestPermission,
-    updateSettings,
-    reconnect
+    updateSettings
   } = useNotificationContext();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -70,36 +70,37 @@ const NotificationCenter = () => {
     setIsOpen(false);
   };
 
-  const getPriorityIcon = (priority) => {
-    switch (priority) {
-      case 'high': return '🔴';
-      case 'medium': return '🟡';
-      case 'low': return '🟢';
-      default: return '🔵';
-    }
-  };
+  // Utility functions for future use
+  // const getPriorityIcon = (priority) => {
+  //   switch (priority) {
+  //     case 'high': return '🔴';
+  //     case 'medium': return '🟡';
+  //     case 'low': return '🟢';
+  //     default: return '🔵';
+  //   }
+  // };
 
-  const getTypeIcon = (type) => {
-    switch (type) {
-      case 'vehicle_detected': return '🚗';
-      case 'access_request': return '🚪';
-      case 'working_hours_request': return '⏰';
-      case 'camera_status': return '📹';
-      case 'system_alert': return '⚠️';
-      default: return '📢';
-    }
-  };
+  // const getTypeIcon = (type) => {
+  //   switch (type) {
+  //     case 'vehicle_detected': return '🚗';
+  //     case 'access_request': return '🚪';
+  //     case 'working_hours_request': return '⏰';
+  //     case 'camera_status': return '📹';
+  //     case 'system_alert': return '⚠️';
+  //     default: return '📢';
+  //   }
+  // };
 
-  const formatTime = (timestamp) => {
-    const now = new Date();
-    const time = new Date(timestamp);
-    const diff = now - time;
-    
-    if (diff < 60000) return 'Vừa xong';
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} phút trước`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)} giờ trước`;
-    return time.toLocaleDateString('vi-VN');
-  };
+  // const formatTime = (timestamp) => {
+  //   const now = new Date();
+  //   const time = new Date(timestamp);
+  //   const diff = now - time;
+  //   
+  //   if (diff < 60000) return 'Vừa xong';
+  //   if (diff < 3600000) return `${Math.floor(diff / 60000)} phút trước`;
+  //   if (diff < 86400000) return `${Math.floor(diff / 3600000)} giờ trước`;
+  //   return time.toLocaleDateString('vi-VN');
+  // };
 
   const handleEnableBrowserNotifications = async () => {
     const granted = await requestPermission();
