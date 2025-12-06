@@ -66,13 +66,21 @@ export const useNotifications = () => {
   }, [updateNotifications, updateSettings, updateConnectionStatus, updateAuthStatus, handleAuthFailure]);
 
   // Mark notification as read
-  const markAsRead = useCallback((notificationId) => {
-    notificationService.markAsRead(notificationId);
+  const markAsRead = useCallback(async (notificationId) => {
+    try {
+      await notificationService.markAsRead(notificationId);
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
   }, []);
 
   // Mark all notifications as read
-  const markAllAsRead = useCallback(() => {
-    notificationService.markAllAsRead();
+  const markAllAsRead = useCallback(async () => {
+    try {
+      await notificationService.markAllAsRead();
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+    }
   }, []);
 
   // Remove notification
