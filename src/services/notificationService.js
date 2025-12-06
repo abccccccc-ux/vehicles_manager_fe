@@ -303,18 +303,50 @@ class NotificationService {
   }
 
   // Đánh dấu notification đã đọc
-  markAsRead(notificationId) {
-    const notification = this.notifications.find(n => n.id === notificationId);
-    if (notification) {
-      notification.read = true;
-      this.emit('notification_updated', notification);
+  async markAsRead(notificationId) {
+    try {
+      // Gọi API để đánh dấu trên server
+      const { markNotificationRead } = await import('../api/notificationApi');
+      await markNotificationRead(notificationId);
+      
+      console.log('✅ Marked notification as read:', notificationId);
+    } catch (error) {
+      console.error('❌ Failed to mark notification as read:', error);
+      // Vẫn cập nhật local state trong trường hợp lỗi API
+      const notification = this.notifications.find(n => n.id === notificationId);
+      if (notification) {
+        notification.read = true;
+        this.emit('notification_updated', notification);
+      }
     }
   }
 
   // Đánh dấu tất cả đã đọc
-  markAllAsRead() {
-    this.notifications.forEach(n => n.read = true);
-    this.emit('notifications_updated', this.notifications);
+  async markAllAsRead() {
+    try {
+      // Gọi API để đánh dấu trên server
+      const { markAllAsReadApi } = await import('../api/notificationApi');
+      await markAllAsReadApi();
+      
+      // Cập nhật local state và emit từng notification
+      this.notifications.forEach(n => {
+        if (!n.read) {
+          n.read = true;
+          this.emit('notification_updated', n);
+        }
+      });
+      
+      console.log('✅ Marked all notifications as read');
+    } catch (error) {
+      console.error('❌ Failed to mark all notifications as read:', error);
+      // Vẫn cập nhật local state trong trường hợp lỗi API
+      this.notifications.forEach(n => {
+        if (!n.read) {
+          n.read = true;
+          this.emit('notification_updated', n);
+        }
+      });
+    }
   }
 
   // Xóa notification
