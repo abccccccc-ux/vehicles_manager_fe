@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { BellOutlined, SettingOutlined, CheckOutlined, DeleteOutlined, ExperimentOutlined } from '@ant-design/icons';
+import { useState, useEffect } from 'react';
+import { BellOutlined, SettingOutlined, CheckOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNotificationContext } from './NotificationProvider';
 import './NotificationCenter.css';
-import { Badge, Popover, Button, Switch, Divider, Space, Typography, Dropdown } from 'antd';
+import { Badge, Popover, Button, Switch, Divider, Space, Typography } from 'antd';
 import NotificationList from './NotificationList';
-import notificationService from '../services/notificationService';
 
 const NotificationCenter = () => {
   const {
@@ -34,17 +33,17 @@ const NotificationCenter = () => {
 
   const toggleNotificationCenter = () => {
     setIsOpen(!isOpen);
-    if (!isOpen && unreadCount > 0) {
-      // Automatically mark notifications as read when opened
-      setTimeout(markAllAsRead, 1000);
-    }
   };
 
-  const handleNotificationClick = (notification) => {
+  const handleNotificationClick = async (notification) => {
     const id = notification._id || notification.id;
     const isRead = typeof notification.isRead !== 'undefined' ? notification.isRead : notification.read;
     if (!isRead) {
-      markAsRead(id);
+      try {
+        await markAsRead(id);
+      } catch (error) {
+        console.error('Failed to mark notification as read:', error);
+      }
     }
     
     // Handle actionable notifications
@@ -69,38 +68,6 @@ const NotificationCenter = () => {
     }
     setIsOpen(false);
   };
-
-  // Utility functions for future use
-  // const getPriorityIcon = (priority) => {
-  //   switch (priority) {
-  //     case 'high': return '🔴';
-  //     case 'medium': return '🟡';
-  //     case 'low': return '🟢';
-  //     default: return '🔵';
-  //   }
-  // };
-
-  // const getTypeIcon = (type) => {
-  //   switch (type) {
-  //     case 'vehicle_detected': return '🚗';
-  //     case 'access_request': return '🚪';
-  //     case 'working_hours_request': return '⏰';
-  //     case 'camera_status': return '📹';
-  //     case 'system_alert': return '⚠️';
-  //     default: return '📢';
-  //   }
-  // };
-
-  // const formatTime = (timestamp) => {
-  //   const now = new Date();
-  //   const time = new Date(timestamp);
-  //   const diff = now - time;
-  //   
-  //   if (diff < 60000) return 'Vừa xong';
-  //   if (diff < 3600000) return `${Math.floor(diff / 60000)} phút trước`;
-  //   if (diff < 86400000) return `${Math.floor(diff / 3600000)} giờ trước`;
-  //   return time.toLocaleDateString('vi-VN');
-  // };
 
   const handleEnableBrowserNotifications = async () => {
     const granted = await requestPermission();
@@ -171,7 +138,17 @@ const NotificationCenter = () => {
           <Button type="text" icon={<SettingOutlined />} onClick={() => setShowSettings(!showSettings)} />
           {notifications.length > 0 && (
             <>
-              <Button type="text" icon={<CheckOutlined />} onClick={markAllAsRead} />
+              <Button 
+                type="text" 
+                icon={<CheckOutlined />} 
+                onClick={async () => {
+                  try {
+                    await markAllAsRead();
+                  } catch (error) {
+                    console.error('Failed to mark all as read:', error);
+                  }
+                }}
+              />
               <Button type="text" icon={<DeleteOutlined />} onClick={clearAll} />
             </>
           )}
@@ -186,7 +163,13 @@ const NotificationCenter = () => {
             <NotificationList
               initial={notifications}
               onOpen={(item) => handleNotificationClick(item)}
-              onMarkRead={(id) => { try { markAsRead(id); } catch (e) {} }}
+              onMarkRead={async (id) => { 
+                try { 
+                  await markAsRead(id); 
+                } catch (e) {
+                  console.error('Failed to mark notification as read:', e);
+                } 
+              }}
               onRemove={(id) => { try { removeNotification(id); } catch (e) {} }}
             />
           </div>
@@ -204,7 +187,15 @@ const NotificationCenter = () => {
         open={isOpen}
         onOpenChange={(visible) => {
           setIsOpen(visible);
-          if (visible && unreadCount > 0) setTimeout(markAllAsRead, 1000);
+          if (visible && unreadCount > 0) {
+            setTimeout(async () => {
+              try {
+                await markAllAsRead();
+              } catch (error) {
+                console.error('Failed to mark all as read:', error);
+              }
+            }, 1000);
+          }
         }}
       >
         <Badge count={unreadCount > 99 ? '99+' : unreadCount} offset={[6, 0]}>
