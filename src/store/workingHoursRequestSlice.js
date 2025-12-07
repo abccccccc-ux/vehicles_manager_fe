@@ -40,6 +40,19 @@ export const createWorkingHoursRequest = createAsyncThunk(
   }
 );
 
+// Cập nhật yêu cầu
+export const updateWorkingHoursRequest = createAsyncThunk(
+  'workingHoursRequests/update',
+  async ({ id, body }, { rejectWithValue }) => {
+    try {
+      const response = await workingHoursRequestApi.updateWorkingHoursRequest(id, body);
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.errors[0].message || err.message || 'Lỗi khi cập nhật yêu cầu');
+    }
+  }
+);
+
 // Phê duyệt yêu cầu
 export const approveWorkingHoursRequest = createAsyncThunk(
   'workingHoursRequests/approve',
@@ -172,6 +185,28 @@ const workingHoursRequestSlice = createSlice({
         state.createLoading = false;
         state.createError = action.payload || action.error?.message;
       });
+      
+      // Update request
+      builder
+        .addCase(updateWorkingHoursRequest.pending, (state) => {
+          state.createLoading = true;
+          state.createError = null;
+        })
+        .addCase(updateWorkingHoursRequest.fulfilled, (state, action) => {
+          state.createLoading = false;
+          if (action.payload && action.payload.success) {
+            const updated = action.payload.data?.request;
+            if (updated) {
+              state.list = (state.list || []).map((i) => (i._id === updated._id ? { ...i, ...updated } : i));
+            }
+          } else {
+            state.createError = action.payload?.message || 'Lỗi khi cập nhật yêu cầu';
+          }
+        })
+        .addCase(updateWorkingHoursRequest.rejected, (state, action) => {
+          state.createLoading = false;
+          state.createError = action.payload || action.error?.message;
+        });
       // Approve / Reject
       builder
         .addCase(approveWorkingHoursRequest.pending, (state) => {

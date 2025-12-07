@@ -12,9 +12,21 @@ import useRebounce from '../../hooks/useRebounce';
 import SearchInput from '../../components/Search/SearchInput';
 import SearchFilter from '../../components/Search/SearchFilter';
 import CreatePersonalWorkingHoursRequest from './CreatePersonalWorkingHoursRequest';
+import EditPersonalWorkingHoursRequest from './EditPersonalWorkingHoursRequest';
 
-const STATUS_OPTIONS = ["pending", "approved", "rejected", "expired", "used"];
-const REQUEST_TYPE_OPTIONS = ["entry", "exit", "both"];
+const STATUS_OPTIONS = [
+    { label: "Chờ duyệt", value: "pending" },
+    { label: "Đã duyệt", value: "approved" },
+    { label: "Từ chối", value: "rejected" },
+    { label: "Hết hạn", value: "expired" },
+    { label: "Đã sử dụng", value: "used" }
+];
+
+const REQUEST_TYPE_OPTIONS = [
+    { label: "Vào", value: "entry" },
+    { label: "Ra", value: "exit" },
+    { label: "Cả hai", value: "both" }
+];
 
 const PersonalWorkingHoursRequestList = () => {
     const dispatch = useDispatch();
@@ -28,6 +40,8 @@ const PersonalWorkingHoursRequestList = () => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingRequest, setEditingRequest] = useState(null);
 
     // build params and fetch when filters or pagination change
     useEffect(() => {
@@ -81,13 +95,26 @@ const PersonalWorkingHoursRequestList = () => {
             title: 'Loại',
             dataIndex: 'requestType',
             key: 'requestType',
-            render: (t) => <Tag>{t}</Tag>
+            render: (t) => {
+                const typeMap = {
+                    'entry': 'Vào',
+                    'exit': 'Ra', 
+                    'both': 'Cả hai'
+                };
+                return <Tag>{typeMap[t] || t}</Tag>
+            }
         },
         {
-            title: 'Thời gian dự kiến',
+            title: 'Thời gian bắt đầu',
             dataIndex: 'plannedDateTime',
             key: 'plannedDateTime',
-            render: (d) => d ? new Date(d).toLocaleString() : '-',
+            render: (d) => d ? new Date(d).toLocaleString('vi-VN') : '-',
+        },
+        {
+            title: 'Thời gian kết thúc',
+            dataIndex: 'plannedEndDateTime',
+            key: 'plannedEndDateTime',
+            render: (d) => d ? new Date(d).toLocaleString('vi-VN') : '-',
         },
         {
             title: 'Lý do',
@@ -107,7 +134,14 @@ const PersonalWorkingHoursRequestList = () => {
                     expired: 'default',
                     used: 'blue',
                 };
-                return <Tag color={colorMap[statusVal] || 'default'}>{statusVal}</Tag>;
+                const statusMap = {
+                    'pending': 'Chờ duyệt',
+                    'approved': 'Đã duyệt',
+                    'rejected': 'Từ chối',
+                    'expired': 'Hết hạn',
+                    'used': 'Đã sử dụng'
+                };
+                return <Tag color={colorMap[statusVal] || 'default'}>{statusMap[statusVal] || statusVal}</Tag>;
             }
         },
         {
@@ -115,6 +149,27 @@ const PersonalWorkingHoursRequestList = () => {
             dataIndex: ['approvedBy', 'name'],
             key: 'approvedBy',
             render: (n) => n || '-',
+        },
+        {
+            title: 'Thao tác',
+            key: 'actions',
+            render: (_, record) => {
+                if (record.status === 'pending') {
+                    return (
+                        <Button 
+                            size="small" 
+                            type="link"
+                            onClick={() => {
+                                setEditingRequest(record);
+                                setShowEditModal(true);
+                            }}
+                        >
+                            Chỉnh sửa
+                        </Button>
+                    );
+                }
+                return '-';
+            }
         },
     ], []);
 
@@ -130,7 +185,7 @@ const PersonalWorkingHoursRequestList = () => {
                         value={status || undefined}
                         onChange={(v) => setStatus(v)}
                         style={{ width: 160 }}
-                        options={STATUS_OPTIONS.map((s) => ({ label: s, value: s }))}
+                        options={STATUS_OPTIONS}
                     />
 
                     <SearchFilter
@@ -138,7 +193,7 @@ const PersonalWorkingHoursRequestList = () => {
                         value={requestType || undefined}
                         onChange={(v) => setRequestType(v)}
                         style={{ width: 140 }}
-                        options={REQUEST_TYPE_OPTIONS.map((r) => ({ label: r, value: r }))}
+                        options={REQUEST_TYPE_OPTIONS}
                     />
 
                     <SearchInput
@@ -192,6 +247,24 @@ const PersonalWorkingHoursRequestList = () => {
                         setShowCreateModal(false);
                         // refresh list
                         dispatch(fetchMyWorkingHoursRequests({ page: 1, limit: pagination.pageSize }));
+                    }}
+                />
+                
+                <EditPersonalWorkingHoursRequest
+                    visible={showEditModal}
+                    request={editingRequest}
+                    onCancel={() => {
+                        setShowEditModal(false);
+                        setEditingRequest(null);
+                    }}
+                    onUpdated={() => {
+                        setShowEditModal(false);
+                        setEditingRequest(null);
+                        // refresh list
+                        dispatch(fetchMyWorkingHoursRequests({ 
+                            page: pagination.current, 
+                            limit: pagination.pageSize 
+                        }));
                     }}
                 />
             </Space>
