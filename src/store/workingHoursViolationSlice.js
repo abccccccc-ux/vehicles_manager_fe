@@ -102,7 +102,7 @@ const workingHoursViolationSlice = createSlice({
           // Xử lý lateEntries
           userViolation.lateEntries?.forEach(entry => {
             flattenedViolations.push({
-              _id: `${userViolation.user._id}-late-${entry.date}-${entry.time}`,
+              _id: entry.logId,
               licensePlate: entry.licensePlate,
               owner: userViolation.user,
               violationType: 'late_entry',
@@ -111,7 +111,7 @@ const workingHoursViolationSlice = createSlice({
               lateMinutes: entry.lateMinutes,
               severity: entry.lateMinutes > 60 ? 'high' : entry.lateMinutes > 30 ? 'medium' : 'low',
               verificationStatus: 'pending',
-              notes: `Đi muộn ${entry.lateMinutes} phút`,
+              notes: `${entry.lateMinutes} phút`,
               allowedTime: responseData.summary?.workingHoursConfig?.startTime || '08:00'
             });
           });
@@ -119,7 +119,7 @@ const workingHoursViolationSlice = createSlice({
           // Xử lý earlyExits
           userViolation.earlyExits?.forEach(exit => {
             flattenedViolations.push({
-              _id: `${userViolation.user._id}-early-${exit.date}-${exit.time}`,
+              _id: exit.logId,
               licensePlate: exit.licensePlate,
               owner: userViolation.user,
               violationType: 'early_exit',
@@ -128,7 +128,7 @@ const workingHoursViolationSlice = createSlice({
               earlyMinutes: exit.earlyMinutes,
               severity: exit.earlyMinutes > 60 ? 'high' : exit.earlyMinutes > 30 ? 'medium' : 'low',
               verificationStatus: 'pending',
-              notes: `Về sớm ${exit.earlyMinutes} phút`,
+              notes: `${exit.earlyMinutes} phút`,
               allowedTime: responseData.summary?.workingHoursConfig?.endTime || '16:30'
             });
           });

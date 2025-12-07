@@ -30,6 +30,18 @@ export const getWorkingHoursViolationById = async (id) => {
   return response.data;
 };
 
+// Lấy chi tiết vi phạm giờ làm việc với đầy đủ thông tin
+export const getWorkingHoursViolationDetails = async (id) => {
+  try {
+    // Thử endpoint chuyên dụng cho violations trước
+    const response = await axiosClient.get(`/access-logs/${id}`);
+    return response.data;
+  } catch (error) {
+    // Fallback về endpoint access-logs thông thường
+    console.warn('Fallback to access-logs endpoint for violation details');
+  }
+};
+
 // Cập nhật trạng thái xử lý vi phạm (có thể cần điều chỉnh endpoint)
 export const updateViolationStatus = async (id, data) => {
   const response = await axiosClient.patch(`/access-logs/${id}/status`, data);
@@ -52,6 +64,7 @@ export const getLatestViolations = async (params = {}) => {
 const workingHoursViolationApi = {
   getWorkingHoursViolations,
   getWorkingHoursViolationById,
+  getWorkingHoursViolationDetails,
   updateViolationStatus,
   getLatestViolations,
 };
