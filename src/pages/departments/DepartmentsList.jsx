@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Tag, Row, Col, Button, notification } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, Table, Tag, Row, Col, Button, notification, Space } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchInput from '../../components/Search/SearchInput';
 import SearchFilter from '../../components/Search/SearchFilter';
@@ -8,6 +8,8 @@ import showDeleteConfirm from '../../components/DeleteConfirm';
 import { deleteDepartment } from '../../store/departmentSlice';
 // inline AlertMessage replaced by antd notification (bottomRight)
 import DepartmentDetailDialog from './DepartmentDetailDialog';
+import DepartmentEditDialog from './DepartmentEditDialog';
+import CreateDepartmentDialog from './CreateDepartmentDialog';
 import useRebounce from '../../hooks/useRebounce';
 import {
   fetchDepartments,
@@ -33,6 +35,8 @@ const DepartmentsList = () => {
   const [deletingId, setDeletingId] = useState(null);
   const [selectedDeptId, setSelectedDeptId] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [localSearch, setLocalSearch] = useState(search || '');
 
   // debounced dispatcher for search to avoid rapid requests while typing
@@ -100,7 +104,8 @@ const DepartmentsList = () => {
             size="small"
             onClick={(e) => {
               e.stopPropagation();
-              // edit handler will be implemented later
+              setSelectedDeptId(record._id);
+              setShowEditDialog(true);
             }}
           />
           <Button
@@ -142,7 +147,9 @@ const DepartmentsList = () => {
   ];
 
   return (
-    <Card title="Danh sách đơn vị">
+    <Card 
+      title="Danh sách đơn vị"
+    >
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} sm={12} md={8} lg={6}>
           <SearchInput
@@ -161,6 +168,15 @@ const DepartmentsList = () => {
             options={statusOptions}
             placeholder="Trạng thái"
           />
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={12} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setShowCreateDialog(true)}
+          >
+            Tạo mới
+          </Button>
         </Col>
       </Row>
       <Table
@@ -182,6 +198,15 @@ const DepartmentsList = () => {
         visible={showDetail}
         departmentId={selectedDeptId}
         onClose={() => setShowDetail(false)}
+      />
+      <DepartmentEditDialog
+        visible={showEditDialog}
+        departmentId={selectedDeptId}
+        onClose={() => setShowEditDialog(false)}
+      />
+      <CreateDepartmentDialog
+        visible={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
       />
     </Card>
   );

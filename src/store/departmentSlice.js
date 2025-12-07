@@ -1,6 +1,18 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import departmentApi from '../api/departmentApi';
 
+export const updateDepartment = createAsyncThunk(
+  'departments/updateDepartment',
+  async ({ departmentId, departmentData }, { rejectWithValue }) => {
+    try {
+      const { data } = await departmentApi.updateDepartment(departmentId, departmentData);
+      return data.data.department;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Lỗi khi cập nhật đơn vị');
+    }
+  }
+);
+
 export const fetchDepartmentById = createAsyncThunk(
   'departments/fetchDepartmentById',
   async (departmentId, { rejectWithValue }) => {
@@ -24,6 +36,18 @@ export const fetchDepartments = createAsyncThunk(
       };
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || 'Lỗi khi tải đơn vị');
+    }
+  }
+);
+
+export const createDepartment = createAsyncThunk(
+  'departments/createDepartment',
+  async (departmentData, { rejectWithValue }) => {
+    try {
+      const { data } = await departmentApi.createDepartment(departmentData);
+      return data.data.department;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Lỗi khi tạo đơn vị');
     }
   }
 );
@@ -100,6 +124,19 @@ const departmentSlice = createSlice({
         }
       });
     builder
+      .addCase(createDepartment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createDepartment.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list.unshift(action.payload);
+      })
+      .addCase(createDepartment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+    builder
       .addCase(fetchDepartmentById.pending, (state) => {
         state.currentDepartmentLoading = true;
         state.currentDepartmentError = null;
@@ -124,6 +161,25 @@ const departmentSlice = createSlice({
         state.list = state.list.filter((d) => d._id !== action.payload.departmentId);
       })
       .addCase(deleteDepartment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+    builder
+      .addCase(updateDepartment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateDepartment.fulfilled, (state, action) => {
+        state.loading = false;
+        const updated = action.payload;
+        // update list item if present
+        state.list = state.list.map((d) => (d._id === updated._id ? updated : d));
+        // update currentDepartment if open
+        if (state.currentDepartment && state.currentDepartment._id === updated._id) {
+          state.currentDepartment = updated;
+        }
+      })
+      .addCase(updateDepartment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
