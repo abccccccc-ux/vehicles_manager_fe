@@ -18,6 +18,13 @@ export const createWorkingHoursRequest = async (body) => {
   const response = await axiosClient.post('/working-hours-requests/', body);
   return response.data; // { success, message, data }
 };
+
+// Cập nhật yêu cầu ra/vào (chỉ cho yêu cầu chưa được duyệt)
+// PUT /api/working-hours-requests/:id
+export const updateWorkingHoursRequest = async (id, body) => {
+  const response = await axiosClient.put(`/working-hours-requests/${id}`, body);
+  return response.data; // { success, message, data }
+};
 // Phê duyệt một yêu cầu
 export const approveWorkingHoursRequest = async (id, body) => {
   const response = body !== undefined
@@ -33,10 +40,13 @@ export const rejectWorkingHoursRequest = async (id, body) => {
     : await axiosClient.put(`/working-hours-requests/${id}/reject`);
   return response.data;
 };
-export default {
+const workingHoursRequestApi = {
   getWorkingHoursRequests,
   createWorkingHoursRequest,
+  updateWorkingHoursRequest,
   getAllWorkingHoursRequest,
   approveWorkingHoursRequest,
   rejectWorkingHoursRequest,
 };
+
+export default workingHoursRequestApi;
