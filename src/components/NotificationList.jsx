@@ -112,9 +112,6 @@ const NotificationList = ({
                     borderLeft: item.isRead ? 'none' : '4px solid #1890ff',
                     cursor: 'pointer',
                   }}
-                  actions={[
-                    <Button key="del" type="text" icon={<DeleteOutlined />} onClick={(e) => { e.stopPropagation(); handleRemove(item._id); }} aria-label={`Xóa thông báo ${item.title}`} />
-                  ]}
                   onClick={() => handleOpen(item)}
                   tabIndex={0}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpen(item); } }}

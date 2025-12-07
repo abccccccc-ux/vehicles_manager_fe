@@ -63,7 +63,9 @@ const Dashboard = () => {
           cameras.length === 1 
             ? "mb-4" // 1 camera: không dùng grid, để VideoPlayer tự responsive
             : "grid grid-cols-1 md:grid-cols-2 gap-4 mb-4" // Nhiều cameras: 2 cột trên màn hình medium+
-        }>
+        }
+         style={{ marginBottom: '16px' }}
+        >
           {cameras.map((camera) => (
             <div key={camera._id || camera.id}>
               <h3 className="text-lg font-semibold mb-2">
@@ -91,13 +93,6 @@ const Dashboard = () => {
             </div>
           </div>
         )
-      )}
-      
-      {/* Stats Chart - Hiển thị riêng biệt */}
-      {cameras.length > 0 && (
-        <div className="mb-4">
-          <ChartStats />
-        </div>
       )}
       <AccessLogTable></AccessLogTable>
       

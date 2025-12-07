@@ -149,7 +149,6 @@ const NotificationCenter = () => {
                   }
                 }}
               />
-              <Button type="text" icon={<DeleteOutlined />} onClick={clearAll} />
             </>
           )}
         </Space>
@@ -187,15 +186,6 @@ const NotificationCenter = () => {
         open={isOpen}
         onOpenChange={(visible) => {
           setIsOpen(visible);
-          if (visible && unreadCount > 0) {
-            setTimeout(async () => {
-              try {
-                await markAllAsRead();
-              } catch (error) {
-                console.error('Failed to mark all as read:', error);
-              }
-            }, 1000);
-          }
         }}
       >
         <Badge count={unreadCount > 99 ? '99+' : unreadCount} offset={[6, 0]}>
