@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Input, Select, Space, Row, Col, Button, DatePicker, Tag } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { getWorkingHoursViolationById } from '../../api/workingHoursViolationApi';
+import { getWorkingHoursViolationDetails } from '../../api/workingHoursViolationApi';
 import WorkingHoursViolationDetailsDialog from './WorkingHoursViolationDetailsDialog';
 import useDebounce from '../../hooks/useDebounce';
 import { 
@@ -78,17 +78,17 @@ const WorkingHoursViolationTable = () => {
       key: 'violationType',
       render: (type, record) => {
         const violationTypes = {
-          'late_entry': 'Đi muộn',
-          'early_exit': 'Về sớm',
+          'late_entry': 'Vào',
+          'early_exit': 'Ra',
         };
         
         const violationType = violationTypes[type] || type || 'N/A';
-        const minutes = record.lateMinutes || record.earlyMinutes;
+        // const minutes = record.lateMinutes || record.earlyMinutes;
         
         return (
           <div>
             <div>{violationType}</div>
-            {minutes && <small style={{color: '#666'}}>{minutes} phút</small>}
+            {/* {minutes && <small style={{color: '#666'}}>{minutes} phút</small>} */}
           </div>
         );
       }
@@ -161,9 +161,9 @@ const WorkingHoursViolationTable = () => {
   const handleRowClick = async (record) => {
     dispatch(setDetailLoading(true));
     try {
-      const res = await getWorkingHoursViolationById(record._id);
+      const res = await getWorkingHoursViolationDetails(record._id);
       if (res.success) {
-        dispatch(setSelectedViolation(res.data));
+        dispatch(setSelectedViolation(res.data.log));
         setDialogOpen(true);
       }
     } catch (err) {
@@ -262,8 +262,8 @@ const WorkingHoursViolationTable = () => {
             allowClear 
             placeholder="Loại vi phạm"
           >
-            <Option value="late">Đi muộn</Option>
-            <Option value="early">Về sớm</Option>
+            <Option value="late">Vào</Option>
+            <Option value="early">Ra</Option>
           </Select>
         </Col>
         <Col xs={24} sm={12} md={8} lg={6}>
