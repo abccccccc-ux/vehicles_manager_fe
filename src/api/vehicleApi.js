@@ -48,4 +48,25 @@ export const bulkUploadVehicles = async (excelFile) => {
   return response.data;
 };
 
-export default { getVehicleByLicensePlate, getVehicles, createVehicle, getMyVehicles, updateVehicle, bulkUploadVehicles };
+// Tải template Excel cho bulk upload
+export const downloadVehicleTemplate = async () => {
+  const response = await axiosClient.get('/bulk-vehicles/template', {
+    responseType: 'blob',
+  });
+  
+  // Tạo URL để download file
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'vehicle_template.xlsx');
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+  
+  return { success: true, message: 'Tải template thành công' };
+};
+
+const vehicleApi = { getVehicleByLicensePlate, getVehicles, createVehicle, getMyVehicles, updateVehicle, bulkUploadVehicles, downloadVehicleTemplate };
+
+export default vehicleApi;

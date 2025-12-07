@@ -3,9 +3,7 @@ import {
   Modal,
   Upload,
   Button,
-  Space,
   Spin,
-  Divider,
   Alert,
   Table,
   Tabs,
@@ -15,12 +13,12 @@ import {
 } from 'antd';
 import {
   InboxOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
   FileExcelOutlined,
+  DownloadOutlined,
 } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { bulkUploadVehicles, clearBulkUploadResult, fetchVehicles } from '../../store/vehicleSlice';
+import { downloadVehicleTemplate } from '../../api/vehicleApi';
 
 const BulkUploadModal = ({ open, onClose }) => {
   const dispatch = useDispatch();
@@ -29,9 +27,22 @@ const BulkUploadModal = ({ open, onClose }) => {
   );
   const [file, setFile] = useState(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [downloadingTemplate, setDownloadingTemplate] = useState(false);
 
   const handleFileChange = ({ file: newFile }) => {
     setFile(newFile);
+  };
+
+  const handleDownloadTemplate = async () => {
+    setDownloadingTemplate(true);
+    try {
+      await downloadVehicleTemplate();
+      message.success('Tải template thành công');
+    } catch (error) {
+      message.error('Lỗi khi tải template');
+    } finally {
+      setDownloadingTemplate(false);
+    }
   };
 
   const handleUpload = async () => {
@@ -275,6 +286,17 @@ const BulkUploadModal = ({ open, onClose }) => {
 
     return (
       <div>
+        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            type="default"
+            icon={<DownloadOutlined />}
+            loading={downloadingTemplate}
+            onClick={handleDownloadTemplate}
+          >
+            Tải template
+          </Button>
+        </div>
+        
         <Upload.Dragger
           accept=".xlsx,.xls,.csv"
           maxCount={1}
