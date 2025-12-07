@@ -40,6 +40,13 @@ export const rejectWorkingHoursRequest = async (id, body) => {
     : await axiosClient.put(`/working-hours-requests/${id}/reject`);
   return response.data;
 };
+
+// Xóa một yêu cầu
+export const deleteWorkingHoursRequest = async (id) => {
+  const response = await axiosClient.delete(`/working-hours-requests/${id}`);
+  return response.data; // { success, message, data }
+};
+
 const workingHoursRequestApi = {
   getWorkingHoursRequests,
   createWorkingHoursRequest,
@@ -47,6 +54,7 @@ const workingHoursRequestApi = {
   getAllWorkingHoursRequest,
   approveWorkingHoursRequest,
   rejectWorkingHoursRequest,
+  deleteWorkingHoursRequest,
 };
 
 export default workingHoursRequestApi;

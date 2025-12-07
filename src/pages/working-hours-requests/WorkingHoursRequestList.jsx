@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Table, Row, Col, Empty, Tag, Space, Button, Tooltip, message } from 'antd';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, DeleteOutlined } from '@ant-design/icons';
 import ApproveConfirm from '../../components/ApproveConfirm';
 import RejectConfirm from '../../components/RejectConfirm';
+import showDeleteConfirm from '../../components/DeleteConfirm';
 import MainLayout from '../../layouts/MainLayout';
 import SearchFilter from '../../components/Search/SearchFilter';
 import SearchInput from '../../components/Search/SearchInput';
-import AlertMessage from '../../components/AlertMessage';
 import { useDispatch, useSelector } from 'react-redux';
 import useDebounce from '../../hooks/useDebounce';
 import { formatDate } from '../../utils/formatDate';
@@ -16,6 +16,7 @@ import {
     setFilters,
     approveWorkingHoursRequest,
     rejectWorkingHoursRequest,
+    deleteWorkingHoursRequest,
 } from '../../store/workingHoursRequestSlice';
 
 const statusOptions = [
@@ -42,7 +43,7 @@ const statusTag = (status) => {
     return <Tag color={s.color}>{s.text}</Tag>;
 };
 
-const columns = (onApprove, onReject) => [
+const columns = (onApprove, onReject, onDelete) => [
     { title: 'Người yêu cầu', dataIndex: ['requestedBy', 'name'], key: 'requestedBy' },
     { title: 'Mã nhân viên', dataIndex: ['requestedBy', 'employeeId'], key: 'employeeId' },
     { title: 'Số điện thoại', dataIndex: ['requestedBy', 'phone'], key: 'phone' },
@@ -55,28 +56,37 @@ const columns = (onApprove, onReject) => [
         title: 'Hành động',
         key: 'actions',
         render: (_, record) => {
-            // Chỉ hiển thị hành động khi trạng thái là pending
-            if (record.status !== 'pending') {
-                return null;
-            }
+            const actions = [];
             
-            return (
-                <Space>
-                    <Tooltip title="Phê duyệt">
+            // Chỉ hiển thị phê duyệt/từ chối khi trạng thái là pending
+            if (record.status === 'pending') {
+                actions.push(
+                    <Tooltip title="Phê duyệt" key="approve">
                         <Button type="primary" icon={<CheckOutlined />} onClick={() => onApprove(record)} />
                     </Tooltip>
-                    <Tooltip title="Từ chối">
+                );
+                actions.push(
+                    <Tooltip title="Từ chối" key="reject">
                         <Button danger icon={<CloseOutlined />} onClick={() => onReject(record)} />
                     </Tooltip>
-                </Space>
+                );
+            }
+            
+            // Luôn hiển thị nút xóa
+            actions.push(
+                <Tooltip title="Xóa" key="delete">
+                    <Button danger icon={<DeleteOutlined />} onClick={() => onDelete(record)} />
+                </Tooltip>
             );
+            
+            return actions.length > 0 ? <Space>{actions}</Space> : null;
         },
     },
 ];
 
 const WorkingHoursRequestList = () => {
     const dispatch = useDispatch();
-    const { list = [], loading, error, pagination, filters } = useSelector((s) => s.workingHoursRequests || {});
+    const { list = [], loading, pagination, filters } = useSelector((s) => s.workingHoursRequests || {});
 
     const [approveVisible, setApproveVisible] = useState(false);
     const [rejectVisible, setRejectVisible] = useState(false);
@@ -123,6 +133,22 @@ const WorkingHoursRequestList = () => {
     const openReject = (record) => {
         setSelectedRecord(record);
         setRejectVisible(true);
+    };
+
+    const openDelete = (record) => {
+        showDeleteConfirm({
+            message: `Bạn có chắc chắn muốn xóa yêu cầu của ${record.requestedBy?.name || 'người dùng'} với biển số ${record.licensePlate}?`,
+            onOk: () => handleDelete(record._id),
+        });
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await dispatch(deleteWorkingHoursRequest(id)).unwrap();
+            message.success('Xóa yêu cầu thành công');
+        } catch (e) {
+            message.error(e?.message || 'Lỗi khi xóa yêu cầu');
+        }
     };
 
     const handleApprove = async (approvalNote) => {
@@ -182,7 +208,7 @@ const WorkingHoursRequestList = () => {
                     <>
                         <Table
                             rowKey="_id"
-                            columns={columns(openApprove, openReject)}
+                            columns={columns(openApprove, openReject, openDelete)}
                             dataSource={list}
                             loading={loading}
                             pagination={pagination}

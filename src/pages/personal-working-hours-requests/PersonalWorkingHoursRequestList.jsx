@@ -5,9 +5,12 @@ import {
     fetchMyWorkingHoursRequests,
     setFilters,
     setPagination,
+    deleteWorkingHoursRequest,
 } from "../../store/workingHoursRequestSlice";
-import { Table, DatePicker, Button, Space, Tag } from 'antd';
+import { Table, DatePicker, Button, Space, Tag, message, Tooltip } from 'antd';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import AlertMessage from '../../components/AlertMessage';
+import showDeleteConfirm from '../../components/DeleteConfirm';
 import useRebounce from '../../hooks/useRebounce';
 import SearchInput from '../../components/Search/SearchInput';
 import SearchFilter from '../../components/Search/SearchFilter';
@@ -83,6 +86,20 @@ const PersonalWorkingHoursRequestList = () => {
         dispatch(setPagination({ current: page, pageSize }));
     };
 
+    const handleDelete = (record) => {
+        showDeleteConfirm({
+            message: `Bạn có chắc chắn muốn xóa yêu cầu với biển số ${record.licensePlate}?`,
+            onOk: async () => {
+                try {
+                    await dispatch(deleteWorkingHoursRequest(record._id)).unwrap();
+                    message.success('Xóa yêu cầu thành công');
+                } catch (e) {
+                    message.error(e?.message || 'Lỗi khi xóa yêu cầu');
+                }
+            },
+        });
+    };
+
     // status is read-only in personal view
 
     const columns = useMemo(() => [
@@ -154,24 +171,42 @@ const PersonalWorkingHoursRequestList = () => {
             title: 'Thao tác',
             key: 'actions',
             render: (_, record) => {
+                const actions = [];
+                
+                // Chỉ cho phép chỉnh sửa khi trạng thái là pending
                 if (record.status === 'pending') {
-                    return (
-                        <Button 
-                            size="small" 
-                            type="link"
-                            onClick={() => {
-                                setEditingRequest(record);
-                                setShowEditModal(true);
-                            }}
-                        >
-                            Chỉnh sửa
-                        </Button>
+                    actions.push(
+                        <Tooltip title="Chỉnh sửa" key="edit">
+                            <Button 
+                                size="small" 
+                                type="text"
+                                icon={<EditOutlined />}
+                                onClick={() => {
+                                    setEditingRequest(record);
+                                    setShowEditModal(true);
+                                }}
+                            />
+                        </Tooltip>
                     );
                 }
-                return '-';
+                if (record.status === 'pending') {
+                    actions.push(
+                        <Tooltip title="Xóa" key="delete">
+                            <Button 
+                                size="small" 
+                                type="text"
+                                danger
+                                icon={<DeleteOutlined />}
+                                onClick={() => handleDelete(record)}
+                            />
+                        </Tooltip>
+                    );
+                }
+                
+                return actions.length > 0 ? <Space>{actions}</Space> : '-';
             }
         },
-    ], []);
+    ], [handleDelete]);
 
     return (
         <MainLayout>
