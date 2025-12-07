@@ -81,6 +81,19 @@ export const rejectWorkingHoursRequest = createAsyncThunk(
   }
 );
 
+// Xóa yêu cầu
+export const deleteWorkingHoursRequest = createAsyncThunk(
+  'workingHoursRequests/delete',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await workingHoursRequestApi.deleteWorkingHoursRequest(id);
+      return { ...response, deletedId: id };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Lỗi khi xóa yêu cầu');
+    }
+  }
+);
+
 // Cập nhật trạng thái 1 yêu cầu (id, payload)
 // Note: status update removed for personal view (read-only)
 
@@ -246,6 +259,29 @@ const workingHoursRequestSlice = createSlice({
           }
         })
         .addCase(rejectWorkingHoursRequest.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload || action.error?.message;
+        });
+
+      // Delete request
+      builder
+        .addCase(deleteWorkingHoursRequest.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(deleteWorkingHoursRequest.fulfilled, (state, action) => {
+          state.loading = false;
+          if (action.payload && action.payload.success) {
+            const deletedId = action.payload.deletedId;
+            if (deletedId) {
+              state.list = (state.list || []).filter((i) => i._id !== deletedId);
+              state.pagination.total = Math.max(0, (state.pagination.total || 0) - 1);
+            }
+          } else {
+            state.error = action.payload?.message || 'Lỗi khi xóa yêu cầu';
+          }
+        })
+        .addCase(deleteWorkingHoursRequest.rejected, (state, action) => {
           state.loading = false;
           state.error = action.payload || action.error?.message;
         });
