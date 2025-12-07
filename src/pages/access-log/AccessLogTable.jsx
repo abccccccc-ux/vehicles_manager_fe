@@ -63,7 +63,7 @@ const AccessLogTable = () => {
       title: 'Chủ xe', 
       dataIndex: ['owner', 'name'], 
       key: 'owner',
-      render: (text, record) => record.owner?.name || 'N/A'
+      render: (text, record) => record.owner?.name || record.guestInfo?.name || 'N/A'
     },
     { 
       title: 'Loại xe', 

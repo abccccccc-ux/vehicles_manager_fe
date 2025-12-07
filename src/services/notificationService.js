@@ -339,13 +339,6 @@ class NotificationService {
       console.log('✅ Marked all notifications as read');
     } catch (error) {
       console.error('❌ Failed to mark all notifications as read:', error);
-      // Vẫn cập nhật local state trong trường hợp lỗi API
-      this.notifications.forEach(n => {
-        if (!n.read) {
-          n.read = true;
-          this.emit('notification_updated', n);
-        }
-      });
     }
   }
 

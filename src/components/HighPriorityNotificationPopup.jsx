@@ -7,7 +7,6 @@ import {
 } from '@ant-design/icons';
 import { useNotificationContext } from './NotificationProvider';
 import AccessLogVerificationModal from './AccessLogVerificationModal';
-// import './HighPriorityNotificationPopup.css';
 
 const { Title, Text } = Typography;
 
@@ -34,7 +33,7 @@ const HighPriorityNotificationPopup = ({ __mockContext }) => {
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'access_log_verification':
-        return <ExclamationCircleOutlined style={{ color: '#fa8c16' }} />;
+        return <ExclamationCircleOutlined style={{ color: '#ffffff' }} />;
       case 'unknown_vehicle_access':
         return <WarningOutlined style={{ color: '#ff4d4f' }} />;
       case 'working_hours_request':
@@ -212,15 +211,20 @@ const HighPriorityNotificationPopup = ({ __mockContext }) => {
       console.log('Access log đã bị từ chối');
     }
     
-    // Tiếp tục hiển thị notification tiếp theo nếu có
+    // Kiểm tra xem còn notification high priority nào không
     setTimeout(() => {
       const remainingHighPriority = notifications.filter(
         n => n.priority === 'high' && !n.read && !n.dismissed && n.id !== currentNotification?.id
       );
       
       if (remainingHighPriority.length > 0) {
+        // Còn thông báo quan trọng khác, hiển thị tiếp
         setCurrentNotification(remainingHighPriority[0]);
         setIsVisible(true);
+      } else {
+        // Không còn thông báo quan trọng nào, tắt luôn popup
+        setCurrentNotification(null);
+        setIsVisible(false);
       }
     }, 500);
   };
@@ -233,29 +237,20 @@ const HighPriorityNotificationPopup = ({ __mockContext }) => {
     switch (type) {
       case 'access_log_verification':
         return (
-          <Space>
-            <Button onClick={handleDismiss}>
-              Bỏ qua
-            </Button>
-            <Button onClick={handleReject} danger>
-              Từ chối
-            </Button>
+          <div className="verification-actions">
             <Button type="primary" onClick={handleView}>
               Xác minh chi tiết
             </Button>
-          </Space>
+          </div>
         );
         
       case 'unknown_vehicle_access':
         return (
-          <Space>
-            <Button onClick={handleDismiss}>
-              Bỏ qua
-            </Button>
+          <div className="verification-actions">
             <Button type="primary" onClick={handleView}>
               Xem chi tiết
             </Button>
-          </Space>
+          </div>
         );
         
       case 'working_hours_request':
@@ -331,8 +326,8 @@ const HighPriorityNotificationPopup = ({ __mockContext }) => {
       footer={null}
       width={500}
       centered
-      maskClosable={false}
-      closable={true}
+      maskClosable={!(currentNotification.type === 'unknown_vehicle_access' || currentNotification.type === 'access_log_verification')}
+      closable={!(currentNotification.type === 'unknown_vehicle_access' || currentNotification.type === 'access_log_verification')}
       className={getModalClassName()}
       style={{
         zIndex: 9999
