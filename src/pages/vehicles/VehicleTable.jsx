@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Select, Space, Row, Col, Button } from 'antd';
-import { CloudUploadOutlined } from '@ant-design/icons';
+import { Table, Input, Select, Space, Row, Col, Button, message } from 'antd';
+import { CloudUploadOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { getVehicleByLicensePlate } from '../../api/vehicleApi';
+import { getVehicleByLicensePlate, downloadVehicleTemplate } from '../../api/vehicleApi';
 import VehicleDetailsDialog from './VehicleDetailsDialog';
 import BulkUploadModal from './BulkUploadModal';
 import useDebounce from '../../hooks/useDebounce';
@@ -26,6 +26,7 @@ const VehicleTable = () => {
   const { list, loading, selectedVehicle, detailLoading, pagination, search: storeSearch, vehicleType: storeVehicleType, status: storeStatus } = useSelector(state => state.vehicle);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
+  const [downloadingTemplate, setDownloadingTemplate] = useState(false);
 
   // Local UI state for controlled inputs
   const [search, setSearchLocal] = useState(storeSearch || '');
@@ -92,6 +93,18 @@ const VehicleTable = () => {
     dispatch(setPagination({ current: pag.current, pageSize: pag.pageSize }));
   };
 
+  const handleDownloadTemplate = async () => {
+    setDownloadingTemplate(true);
+    try {
+      await downloadVehicleTemplate();
+      message.success('Tải template thành công');
+    } catch (error) {
+      message.error('Lỗi khi tải template');
+    } finally {
+      setDownloadingTemplate(false);
+    }
+  };
+
   return (
     <>
       <Row gutter={[16, 16]} style={{ marginBottom: 12 }}>
@@ -105,13 +118,13 @@ const VehicleTable = () => {
             onSearch={(value) => { setSearchLocal(value); }}
           />
         </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
+        <Col xs={24} sm={12} md={8} lg={4}>
           <Select value={vehicleType} onChange={onVehicleTypeChange} style={{ width: '100%' }} allowClear placeholder="Loại xe">
             <Option value="car">Xe ô tô</Option>
             <Option value="motorbike">Xe máy</Option>
           </Select>
         </Col>
-        <Col xs={24} sm={12} md={6} lg={6}>
+        <Col xs={24} sm={12} md={6} lg={4}>
           <Select value={status} onChange={onStatusChange} style={{ width: '100%' }} allowClear placeholder="Trạng thái">
             <Option value="active">Hoạt động</Option>
             <Option value="inactive">Ngừng</Option>
@@ -119,6 +132,13 @@ const VehicleTable = () => {
         </Col>
         <Col xs={24} sm={12} md={24} lg={4} style={{ textAlign: 'right' }}>
           <Space>
+            <Button
+              icon={<DownloadOutlined />}
+              loading={downloadingTemplate}
+              onClick={handleDownloadTemplate}
+            >
+              Tải template
+            </Button>
             <Button
               type="primary"
               icon={<CloudUploadOutlined />}

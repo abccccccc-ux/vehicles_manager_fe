@@ -118,13 +118,13 @@ const AccessLogTable = () => {
       render: (status) => {
         const colors = {
           pending: 'gold',
-          verified: 'green',
-          rejected: 'red'
+          approved: 'green',
+          auto_approved: 'red'
         };
         const labels = {
           pending: 'Chờ xác minh',
           approved: 'Đã xác minh',
-          rejected: 'Từ chối'
+          auto_approved: 'Tự động xác minh'
         };
         return (
           <Tag color={colors[status] || 'default'}>
