@@ -374,8 +374,7 @@ const AccessLogVerificationModal = ({
             name="confidence" 
             style={{ marginBottom: 8 }}
             rules={[
-              { required: true, message: 'Vui lòng nhập độ tin cậy' },
-              { type: 'number', min: 0, max: 100, message: 'Độ tin cậy phải từ 0 đến 100' }
+              { required: true, message: 'Vui lòng nhập độ tin cậy' }
             ]}
           >
             <Input 

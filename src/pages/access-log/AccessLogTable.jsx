@@ -123,7 +123,7 @@ const AccessLogTable = () => {
         };
         const labels = {
           pending: 'Chờ xác minh',
-          verified: 'Đã xác minh',
+          approved: 'Đã xác minh',
           rejected: 'Từ chối'
         };
         return (
