@@ -18,37 +18,48 @@ import {
     rejectWorkingHoursRequest,
     deleteWorkingHoursRequest,
 } from '../../store/workingHoursRequestSlice';
+import { render } from '@testing-library/react';
 
 const statusOptions = [
-    { label: 'Tất cả', value: undefined },
-    { label: 'Pending', value: 'pending' },
-    { label: 'Approved', value: 'approved' },
-    { label: 'Rejected', value: 'rejected' },
+    { label: 'Chờ phê duyệt', value: 'pending' },
+    { label: 'Đã phê duyệt', value: 'approved' },
+    { label: 'Đã từ chối', value: 'rejected' },
 ];
 
 const requestTypeOptions = [
-    { label: 'Tất cả', value: undefined },
-    { label: 'Exit', value: 'exit' },
-    { label: 'Enter', value: 'enter' },
+    { label: 'Cả hai', value: 'both' },
+    { label: 'Ra', value: 'exit' },
+    { label: 'Vào', value: 'enter' },
 ];
 
 const statusTag = (status) => {
     if (!status) return null;
     const map = {
-        pending: { color: 'orange', text: 'Pending' },
-        approved: { color: 'green', text: 'Approved' },
-        rejected: { color: 'red', text: 'Rejected' },
+        pending: { color: 'orange', text: 'Chờ phê duyệt' },
+        approved: { color: 'green', text: 'Đã phê duyệt' },
+        rejected: { color: 'red', text: 'Đã từ chối' },
     };
     const s = map[status] || { color: 'default', text: status };
     return <Tag color={s.color}>{s.text}</Tag>;
 };
+
+const requestTypeTag = (requestType) => {
+    if(!requestType) return null;
+    const map = {
+        both: {text: 'Cả hai'},
+        exit: {text: 'Ra'},
+        enter: {text: 'Vào'}
+    }
+    const r = map[requestType] || {text: requestType};
+    return r.text;
+}
 
 const columns = (onApprove, onReject, onDelete) => [
     { title: 'Người yêu cầu', dataIndex: ['requestedBy', 'name'], key: 'requestedBy' },
     { title: 'Mã nhân viên', dataIndex: ['requestedBy', 'employeeId'], key: 'employeeId' },
     { title: 'Số điện thoại', dataIndex: ['requestedBy', 'phone'], key: 'phone' },
     { title: 'Biển số', dataIndex: 'licensePlate', key: 'licensePlate' },
-    { title: 'Loại yêu cầu', dataIndex: 'requestType', key: 'requestType' },
+    { title: 'Loại yêu cầu', dataIndex: 'requestType', key: 'requestType', render: requestTypeTag },
     { title: 'Thời gian dự kiến', dataIndex: 'plannedDateTime', key: 'plannedDateTime', render: (d) => formatDate(d) },
     { title: 'Trạng thái', dataIndex: 'status', key: 'status', render: statusTag },
     { title: 'Ghi chú', dataIndex: 'reason', key: 'reason' },
@@ -71,14 +82,6 @@ const columns = (onApprove, onReject, onDelete) => [
                     </Tooltip>
                 );
             }
-            
-            // Luôn hiển thị nút xóa
-            actions.push(
-                <Tooltip title="Xóa" key="delete">
-                    <Button danger icon={<DeleteOutlined />} onClick={() => onDelete(record)} />
-                </Tooltip>
-            );
-            
             return actions.length > 0 ? <Space>{actions}</Space> : null;
         },
     },
