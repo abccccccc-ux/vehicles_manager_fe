@@ -34,7 +34,11 @@ const Login = () => {
 
         dispatch(loginSuccess(res.data));
         message.success('Đăng nhập thành công');
-        navigate('/dashboard');
+        
+        // Redirect đến route phù hợp với role
+        const { getDefaultRouteForRole } = await import('../../utils/routeUtils');
+        const defaultRoute = getDefaultRouteForRole(res.data.user?.role);
+        navigate(defaultRoute);
       } else {
         message.error(res?.message || 'Đăng nhập thất bại');
       }

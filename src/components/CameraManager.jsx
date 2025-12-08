@@ -39,9 +39,9 @@ const CameraManager = ({ cameras = [], onCameraSelect, selectedCameraId }) => {
     setLoading(true);
     
     if (isStreaming) {
-      videoStreamService.unsubscribeFromCameraStream(camera.id);
+      videoStreamService.unsubscribeFromCameraStream(camera.cameraId);
     } else {
-      videoStreamService.subscribeToCameraStream(camera.id, 'medium');
+      videoStreamService.subscribeToCameraStream(camera.cameraId, 'medium');
     }
     
     setTimeout(() => setLoading(false), 1000);
@@ -118,13 +118,13 @@ const CameraManager = ({ cameras = [], onCameraSelect, selectedCameraId }) => {
           </div>
         ) : (
           cameras.map(camera => {
-            const status = getCameraStatus(camera.id);
-            const isSelected = selectedCameraId === camera.id;
+            const status = getCameraStatus(camera.cameraId);
+            const isSelected = selectedCameraId === camera.cameraId;
             const isStreaming = status === 'streaming';
             
             return (
               <div 
-                key={camera.id}
+                key={camera.cameraId}
                 className={`camera-item ${isSelected ? 'selected' : ''} ${status}`}
                 onClick={() => handleCameraClick(camera)}
               >
@@ -137,11 +137,11 @@ const CameraManager = ({ cameras = [], onCameraSelect, selectedCameraId }) => {
                   </div>
                   
                   <div className="camera-details">
-                    <small>ID: {camera.id}</small>
+                    <small>ID: {camera.cameraId}</small>
                     {camera.location && <small>📍 {camera.location}</small>}
-                    {streamStats[camera.id] && (
+                    {streamStats[camera.cameraId] && (
                       <small>
-                        Quality: {streamStats[camera.id].quality || 'medium'}
+                        Quality: {streamStats[camera.cameraId].quality || 'medium'}
                       </small>
                     )}
                   </div>
@@ -172,7 +172,7 @@ const CameraManager = ({ cameras = [], onCameraSelect, selectedCameraId }) => {
               onClick={() => {
                 setLoading(true);
                 cameras.forEach(camera => {
-                  videoStreamService.subscribeToCameraStream(camera.id, 'medium');
+                  videoStreamService.subscribeToCameraStream(camera.cameraId, 'medium');
                 });
                 setTimeout(() => setLoading(false), 2000);
               }}
@@ -186,7 +186,7 @@ const CameraManager = ({ cameras = [], onCameraSelect, selectedCameraId }) => {
               onClick={() => {
                 setLoading(true);
                 cameras.forEach(camera => {
-                  videoStreamService.unsubscribeFromCameraStream(camera.id);
+                  videoStreamService.unsubscribeFromCameraStream(camera.cameraId);
                 });
                 setTimeout(() => setLoading(false), 1000);
               }}
