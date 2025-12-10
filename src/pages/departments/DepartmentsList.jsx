@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Tag, Row, Col, Button, notification, Space } from 'antd';
+import { Card, Table, Tag, Row, Col, Button, notification, message } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchInput from '../../components/Search/SearchInput';
 import SearchFilter from '../../components/Search/SearchFilter';
 import showDeleteConfirm from '../../components/DeleteConfirm';
 import { deleteDepartment } from '../../store/departmentSlice';
-// inline AlertMessage replaced by antd notification (bottomRight)
 import DepartmentDetailDialog from './DepartmentDetailDialog';
 import DepartmentEditDialog from './DepartmentEditDialog';
 import CreateDepartmentDialog from './CreateDepartmentDialog';
@@ -59,7 +58,7 @@ const DepartmentsList = () => {
   }, [dispatch, search, isActive, pagination.current, pagination.pageSize]);
 
   useEffect(() => {
-    if (error) notification.error({ message: 'Lỗi', description: error, placement: 'bottomRight' });
+    if (error) message.error(error.message || 'Đã có lỗi xảy ra');
   }, [error]);
 
   // keep localSearch in sync if search is updated elsewhere
@@ -130,7 +129,6 @@ const DepartmentsList = () => {
                       notification.error({ message: 'Lỗi', description: res.error.message || 'Xóa thất bại', placement: 'bottomRight' });
                     } else {
                       notification.success({ message: 'Thành công', description: res.payload?.message || 'Đã xóa đơn vị', placement: 'bottomRight' });
-                      // re-fetch current page
                       dispatch(fetchDepartments({ search, isActive, page: pagination.current, limit: pagination.pageSize }));
                     }
                   } catch (err) {

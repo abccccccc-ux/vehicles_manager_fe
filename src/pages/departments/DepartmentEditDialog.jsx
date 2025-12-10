@@ -48,22 +48,18 @@ const DepartmentEditDialog = ({ visible, departmentId, onClose }) => {
             const payload = {
                 name: values.name,
                 description: values.description || '',
-                managerId: values.manager || null,
+                manager: values.manager || null,
                 status: values.isActive ? 'active' : 'inactive',
             };
 
-            const result = await dispatch(updateDepartment({ departmentId, departmentData: payload }));
+            await dispatch(updateDepartment({ departmentId, departmentData: payload })).unwrap();
 
-            if (result.payload) {
-                message.success('Cập nhật phòng ban thành công');
-                onClose();
-                // refresh current list page
-                dispatch(fetchDepartments({ page: 1, limit: 10 }));
-            } else {
-                message.error(result.error?.message || 'Cập nhật thất bại');
-            }
+            message.success('Cập nhật thành công');
+            onClose();
+            dispatch(fetchDepartments({ page: 1, limit: 10 }));
         } catch (err) {
-            message.error(err.message || 'Cập nhật thất bại');
+            const errMsg = err?.message || (typeof err === 'string' ? err : err?.message) || 'Cập nhật thất bại';
+            // message.error(errMsg);
         }
     };
 
