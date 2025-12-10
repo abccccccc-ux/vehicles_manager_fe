@@ -18,6 +18,7 @@ import {
   SnippetsOutlined,
   ExceptionOutlined,
   AlertOutlined,
+  VideoCameraOutlined,
 } from "@ant-design/icons";
 
 const Sidebar = () => {
@@ -86,6 +87,12 @@ const Sidebar = () => {
       icon: <CarOutlined />,
       label: <Link to="/personal-vehicles">Phương tiện cá nhân</Link>,
       permission: PERMISSIONS.PERSONAL_VEHICLES,
+    },
+    {
+      key: "cameras",
+      icon: <VideoCameraOutlined />,
+      label: <Link to="/cameras">Quản lý Camera</Link>,
+      permission: PERMISSIONS.CAMERAS,
     },
     {
       key: "settings",

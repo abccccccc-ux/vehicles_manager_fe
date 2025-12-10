@@ -15,6 +15,7 @@ import WorkingHoursRequestList from './pages/working-hours-requests/WorkingHours
 import PersonalWorkingHoursRequestList from './pages/personal-working-hours-requests/PersonalWorkingHoursRequestList';
 import AccessLogList from './pages/access-logs/AccessLogList';
 import WorkingHoursViolations from './pages/working-hours-violations/WorkingHoursViolations';
+import Cameras from './pages/cameras/Cameras';
 import { PrivateRoute, RoleBasedRoute, RoutePermissionGuard } from './components/PermissionGuard';
 import { PERMISSIONS } from './utils/permissions';
 import { getDefaultRouteForRole } from './utils/routeUtils';
@@ -99,6 +100,14 @@ const routes = [
     path: '/personal-vehicles', 
     element: <RoleBasedRoute requiredPermission={PERMISSIONS.PERSONAL_VEHICLES}>
       <PersonalVehiclesList />
+    </RoleBasedRoute> 
+  },
+
+  // Quản lý camera - chỉ SuperAdmin
+  { 
+    path: '/cameras', 
+    element: <RoleBasedRoute requiredPermission={PERMISSIONS.CAMERAS}>
+      <Cameras />
     </RoleBasedRoute> 
   },
   
