@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout as logoutAction } from '../store/authSlice';
 import { logout as logoutApi } from '../api/authApi';
+import { hasPermission, PERMISSIONS } from '../utils/permissions';
 import {
   DashboardOutlined,
   CarOutlined,
@@ -24,64 +25,67 @@ const Sidebar = () => {
   const location = useLocation();
   const role = user?.role;
 
-  // Danh sách items
+  // Danh sách items với permission mapping
   const allItems = [
     {
       key: "dashboard",
       icon: <DashboardOutlined />,
       label: <Link to="/dashboard">Dashboard</Link>,
+      permission: PERMISSIONS.DASHBOARD,
     },
     {
       key: "vehicles",
       icon: <CarOutlined />,
       label: <Link to="/vehicles">Phương tiện</Link>,
-      role: "super_admin",
+      permission: PERMISSIONS.VEHICLES,
     },
     {
       key: "access-logs",
       icon: <HistoryOutlined />,
       label: <Link to="/access-logs">Lịch sử ra/vào</Link>,
-      role: "super_admin",
+      permission: PERMISSIONS.ACCESS_LOGS,
     },
     {
       key: "users",
       icon: <UserOutlined />,
       label: <Link to="/users">Người dùng</Link>,
-      role: "super_admin",
+      permission: PERMISSIONS.USERS,
     },
     {
       key: "departments",
       icon: <TeamOutlined />,
       label: <Link to="/departments">Đơn vị</Link>,
-      role: "super_admin",
+      permission: PERMISSIONS.DEPARTMENT,
     },
     {
       key: "working-hours",
       icon: <ClockCircleOutlined />,
       label: <Link to="/working-hours">Giờ làm việc</Link>,
-      role: "super_admin",
+      permission: PERMISSIONS.WORKING_HOURS,
     },
     {
       key: "working-hours-requests",
       icon: <SnippetsOutlined />,
       label: <Link to="/working-hours-requests">Phê duyệt Yêu cầu ra vào</Link>,
-      role: "super_admin",
+      permission: PERMISSIONS.APPROVE_REQUESTS,
     },
     {
       key: "working-hours-violations",
       icon: <AlertOutlined />,
       label: <Link to="/working-hours-violations">Vi phạm giờ làm việc</Link>,
-      role: "super_admin",
+      permission: PERMISSIONS.WORKING_HOURS_VIOLATIONS,
     },
     {
       key: "personal-working-hours-requests",
       icon: <ExceptionOutlined />,
       label: <Link to="/personal-working-hours-requests">Yêu cầu ra vào</Link>,
+      permission: PERMISSIONS.WORKING_HOURS_REQUESTS,
     },
     {
       key: "personal-vehicles",
       icon: <CarOutlined />,
       label: <Link to="/personal-vehicles">Phương tiện cá nhân</Link>,
+      permission: PERMISSIONS.PERSONAL_VEHICLES,
     },
     {
       key: "settings",
@@ -102,15 +106,29 @@ const Sidebar = () => {
     },
   ];
 
-  // Lọc menu theo role
-  const filterByRole = (item) => {
-    if (!item.role) return true;
-    return item.role === role;
+  // Lọc menu theo permission
+  const filterByPermission = (item) => {
+    // Nếu không có permission requirement thì hiển thị
+    if (!item.permission) return true;
+    // Kiểm tra user có permission không
+    const hasAccess = hasPermission(role, item.permission);
+    
+    // Debug log
+    if (item.key === 'users') {
+      console.log('Debug Users menu:', {
+        role,
+        permission: item.permission,
+        hasAccess,
+        user
+      });
+    }
+    
+    return hasAccess;
   };
 
   const processItems = (items) =>
     items
-      .filter(filterByRole)
+      .filter(filterByPermission)
       .map((item) =>
         item.children
           ? { ...item, children: processItems(item.children) }

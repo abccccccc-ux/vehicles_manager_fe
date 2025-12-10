@@ -231,9 +231,7 @@ class VideoStreamService {
     let y = padding + fontSize;
 
     const info = [
-      `Quality: ${metadata.quality}`,
       `Resolution: ${metadata.width}x${metadata.height}`,
-      `Clients: ${metadata.clients}`,
       `Frame: ${metadata.frameNumber || 0}`
     ];
 

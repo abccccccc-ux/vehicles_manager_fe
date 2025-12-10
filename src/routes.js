@@ -1,6 +1,6 @@
 
-import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import Dashboard from './pages/Dashboard';
 import Vehicles from './pages/vehicles/Vehicles';
 import Login from './pages/auth/Login';
@@ -15,38 +15,105 @@ import WorkingHoursRequestList from './pages/working-hours-requests/WorkingHours
 import PersonalWorkingHoursRequestList from './pages/personal-working-hours-requests/PersonalWorkingHoursRequestList';
 import AccessLogList from './pages/access-logs/AccessLogList';
 import WorkingHoursViolations from './pages/working-hours-violations/WorkingHoursViolations';
+import { PrivateRoute, RoleBasedRoute, RoutePermissionGuard } from './components/PermissionGuard';
+import { PERMISSIONS } from './utils/permissions';
+import { getDefaultRouteForRole } from './utils/routeUtils';
 
-// Route bảo vệ
-const PrivateRoute = ({ children }) => {
-  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
-};
+// Route được thay thế bằng components từ PermissionGuard
 
-// Route chỉ cho admin
-const AdminRoute = ({ children }) => {
-  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
-  const user = useSelector(state => state.auth.user);
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (!user || user.role !== 'super_admin') return <Navigate to="/" replace />;
-  return children;
+// Component để redirect thông minh dựa trên role
+const SmartRedirect = () => {
+  const { isAuthenticated, user } = useSelector(state => state.auth);
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  const defaultRoute = getDefaultRouteForRole(user?.role);
+  return <Navigate to={defaultRoute} replace />;
 };
 
 const routes = [
-  { path: '/', element: <Navigate to="/login" replace /> },
+  { path: '/', element: <SmartRedirect /> },
   { path: '/login', element: <Login /> },
-  { path: '/dashboard', element: <PrivateRoute><Dashboard /></PrivateRoute> },
-  { path: '/vehicles', element: <PrivateRoute><Vehicles /></PrivateRoute> },
+  
+  // Dashboard - chỉ SuperAdmin và Supervisor
+  { 
+    path: '/dashboard', 
+    element: <RoleBasedRoute requiredPermission={PERMISSIONS.DASHBOARD} fallbackPath="/vehicles">
+      <Dashboard />
+    </RoleBasedRoute> 
+  },
+  
+  // Phương tiện - tất cả roles
+  { 
+    path: '/vehicles', 
+    element: <RoutePermissionGuard route="/vehicles">
+      <Vehicles />
+    </RoutePermissionGuard> 
+  },
+  
+  // Lịch sử ra/vào - tất cả roles
   { path: '/history', element: <PrivateRoute><History /></PrivateRoute> },
-  { path: '/users', element: <AdminRoute><Users /></AdminRoute> },
-  { path: '/change-password', element: <PrivateRoute><ChangePassword /></PrivateRoute>},
+  { 
+    path: '/access-logs', 
+    element: <RoutePermissionGuard route="/access-logs">
+      <AccessLogList />
+    </RoutePermissionGuard> 
+  },
+  
+  // Người dùng - SuperAdmin, Admin, User (không bao gồm Supervisor)
+  { 
+    path: '/users', 
+    element: <RoutePermissionGuard route="/users">
+      <Users />
+    </RoutePermissionGuard> 
+  },
+  
+  // Phê duyệt yêu cầu ra/vào - chỉ SuperAdmin và Admin
+  { 
+    path: '/working-hours-requests', 
+    element: <RoleBasedRoute requiredPermission={PERMISSIONS.APPROVE_REQUESTS}>
+      <WorkingHoursRequestList />
+    </RoleBasedRoute> 
+  },
+  
+  // Vi phạm giờ làm việc - SuperAdmin, Admin, User
+  { 
+    path: '/working-hours-violations', 
+    element: <RoleBasedRoute requiredPermission={PERMISSIONS.WORKING_HOURS_VIOLATIONS}>
+      <WorkingHoursViolations />
+    </RoleBasedRoute> 
+  },
+  
+  // Yêu cầu ra vào - SuperAdmin, Admin, User
+  { 
+    path: '/personal-working-hours-requests', 
+    element: <RoleBasedRoute requiredPermission={PERMISSIONS.WORKING_HOURS_REQUESTS}>
+      <PersonalWorkingHoursRequestList />
+    </RoleBasedRoute> 
+  },
+  
+  // Phương tiện cá nhân - SuperAdmin, Admin, User
+  { 
+    path: '/personal-vehicles', 
+    element: <RoleBasedRoute requiredPermission={PERMISSIONS.PERSONAL_VEHICLES}>
+      <PersonalVehiclesList />
+    </RoleBasedRoute> 
+  },
+  
+  // Cài đặt - tất cả roles
+  { 
+    path: '/change-password', 
+    element: <PrivateRoute>
+      <ChangePassword />
+    </PrivateRoute> 
+  },
+  
+  // Các route khác vẫn giữ nguyên logic cũ
   { path: '/departments', element: <PrivateRoute><Departments/></PrivateRoute>},
   { path: '/working-hours', element: <PrivateRoute><WorkingHours/></PrivateRoute>},
-  { path: '/personal-vehicles', element: <PrivateRoute><PersonalVehiclesList/></PrivateRoute>},
   { path: '/security', element: <PrivateRoute><SecurityDashboard/></PrivateRoute>},
-  { path: '/working-hours-requests', element: <PrivateRoute><WorkingHoursRequestList/></PrivateRoute>},
-  { path: '/personal-working-hours-requests', element: <PrivateRoute><PersonalWorkingHoursRequestList/></PrivateRoute>},
-  { path: '/access-logs', element: <PrivateRoute><AccessLogList/></PrivateRoute>},
-  { path: '/working-hours-violations', element: <PrivateRoute><WorkingHoursViolations/></PrivateRoute>},
 ];
 
 export default routes;

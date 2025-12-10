@@ -6,7 +6,6 @@ const CameraViewer = ({
   cameraId, 
   cameraName,
   quality = 'medium',
-  autoStart = true,
   showControls = false,
   showMetadata = false,
   onStreamStatus,
@@ -14,22 +13,31 @@ const CameraViewer = ({
   className = ''
 }) => {
   const canvasRef = useRef(null);
+  const isStreamingRef = useRef(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const [streamStats, setStreamStats] = useState(null);
   const [error, setError] = useState(null);
 
+  // Keep ref in sync with state
+  useEffect(() => {
+    isStreamingRef.current = isStreaming;
+  }, [isStreaming]);
+
   // Stream status handler
   const handleStreamStatus = useCallback((data) => {
     if (data.cameraId === cameraId) {
-      console.log(`🎥 Stream status for ${cameraId}:`, data.status);
+      console.log(`🎥 [${cameraId}] Stream status event:`, data.status);
       
       if (data.status === 'started' || data.status === 'already_streaming') {
+        console.log(`✅ [${cameraId}] Setting isStreaming = true`);
         setIsStreaming(true);
         setError(null);
       } else if (data.status === 'stopped') {
+        console.log(`⏹️ [${cameraId}] Setting isStreaming = false`);
         setIsStreaming(false);
       } else if (data.status === 'error') {
+        console.log(`❌ [${cameraId}] Stream error:`, data.message);
         setError(data.message || 'Stream error');
         setIsStreaming(false);
       }
@@ -42,7 +50,6 @@ const CameraViewer = ({
 
   // Connection status handler
   const handleConnectionStatus = useCallback((status) => {
-    console.log(`📡 Connection status: ${status}`);
     setConnectionStatus(status);
   }, []);
 
@@ -60,17 +67,21 @@ const CameraViewer = ({
 
   // Frame update handler
   const handleFrameUpdate = useCallback((frameData) => {
+    // If we're receiving frames, the stream is definitely active
+    if (!isStreamingRef.current) {
+      console.log(`🎬 [${cameraId}] Frame received but isStreaming=false, correcting state`);
+      setIsStreaming(true);
+    }
+    
     setStreamStats({
       timestamp: frameData.timestamp,
       frameNumber: frameData.frameNumber,
       metadata: frameData.metadata
     });
-  }, []);
+  }, [cameraId]);
 
   // Setup effect
   useEffect(() => {
-    console.log(`🎥 Setting up camera viewer for: ${cameraId}`);
-
     // Connect to service if not connected
     if (!videoStreamService.isConnectedToServer()) {
       videoStreamService.connect();
@@ -89,12 +100,19 @@ const CameraViewer = ({
         autoResize: true,
         showMetadata: showMetadata,
         onFrameUpdate: handleFrameUpdate,
-        onStreamStarted: () => setIsStreaming(true),
-        onStreamStopped: () => setIsStreaming(false)
+        onStreamStarted: () => {
+          console.log(`🎬 [${cameraId}] Canvas onStreamStarted callback`);
+          setIsStreaming(true);
+        },
+        onStreamStopped: () => {
+          console.log(`🛑 [${cameraId}] Canvas onStreamStopped callback`);
+          setIsStreaming(false);
+        }
       });
     }
 
     return () => {
+      console.log(`🧹 [${cameraId}] Cleaning up event listeners`);
       // Cleanup
       videoStreamService.off('connected', handleConnectionStatus);
       videoStreamService.off('disconnected', handleConnectionStatus);
@@ -102,36 +120,31 @@ const CameraViewer = ({
       videoStreamService.off('stream_status', handleStreamStatus);
       videoStreamService.off('recognition_error', handleError);
       
-      // Stop streaming
-      if (isStreaming) {
-        videoStreamService.unsubscribeFromCameraStream(cameraId);
-      }
+      // Stop streaming when component unmounts
+      videoStreamService.unsubscribeFromCameraStream(cameraId);
     };
-  }, [cameraId, showMetadata, handleConnectionStatus, handleStreamStatus, handleError, handleFrameUpdate, isStreaming]);
+  }, [cameraId, showMetadata, handleConnectionStatus, handleStreamStatus, handleError, handleFrameUpdate]);
 
-  // Auto start effect
+  // Auto start stream when connected
   useEffect(() => {
-    if (connectionStatus === 'connected' && autoStart && !isStreaming && !error) {
-      startStream();
-    }
-  }, [connectionStatus, autoStart, isStreaming]);
-
-  const startStream = useCallback(() => {
-    console.log(`▶️ Starting stream for camera: ${cameraId} (${quality})`);
-    setError(null);
+    console.log(`🔄 [${cameraId}] Auto-start check:`, {
+      connectionStatus,
+      isStreaming,
+      error: !!error
+    });
     
-    const success = videoStreamService.subscribeToCameraStream(cameraId, quality);
-    if (!success) {
-      setError('Failed to start stream - not connected to server');
+    if (connectionStatus === 'connected' && !isStreaming && !error) {
+      console.log(`🚀 [${cameraId}] Subscribing to camera stream`);
+      const success = videoStreamService.subscribeToCameraStream(cameraId, quality);
+      console.log(`📡 [${cameraId}] Subscribe result:`, success);
+      
+      if (!success) {
+        setError('Failed to start stream - not connected to server');
+      }
     }
-  }, [cameraId, quality]);
+  }, [connectionStatus, isStreaming, error, cameraId, quality]);
 
-  const stopStream = useCallback(() => {
-    console.log(`⏹️ Stopping stream for camera: ${cameraId}`);
-    videoStreamService.unsubscribeFromCameraStream(cameraId);
-    setIsStreaming(false);
-    setStreamStats(null);
-  }, [cameraId]);
+
 
   // Camera control functions
   const controlCamera = useCallback((command, value = 1) => {
@@ -159,6 +172,15 @@ const CameraViewer = ({
     return <span className={statusClass}>{statusText}</span>;
   };
 
+  // Debug render state
+  console.log(`📊 [${cameraId}] Render state:`, {
+    isStreaming,
+    error: !!error,
+    connectionStatus,
+    streamStats: !!streamStats,
+    showWaitingOverlay: !isStreaming && !error && connectionStatus === 'connected'
+  });
+
   return (
     <div className={`camera-viewer ${className}`}>
       {/* Header */}
@@ -166,25 +188,6 @@ const CameraViewer = ({
         <div className="camera-info">
           <h3 className="camera-name">{cameraName || `Camera ${cameraId}`}</h3>
           <StatusBadge />
-        </div>
-        
-        <div className="camera-actions">
-          {!isStreaming ? (
-            <button 
-              onClick={startStream}
-              disabled={connectionStatus !== 'connected'}
-              className="btn-start"
-            >
-              ▶️ Start
-            </button>
-          ) : (
-            <button 
-              onClick={stopStream}
-              className="btn-stop"
-            >
-              ⏹️ Stop
-            </button>
-          )}
         </div>
       </div>
 
@@ -208,21 +211,24 @@ const CameraViewer = ({
             <div className="overlay-content">
               <span className="error-icon">❌</span>
               <p>{error}</p>
-              <button onClick={startStream} className="btn-retry">
-                🔄 Retry
-              </button>
             </div>
           </div>
         )}
         
-        {!isStreaming && !error && connectionStatus === 'connected' && (
-          <div className="stream-overlay waiting-overlay">
-            <div className="overlay-content">
-              <span className="waiting-icon">⏳</span>
-              <p>Waiting for stream...</p>
+        {!isStreaming && !error && connectionStatus === 'connected' && (() => {
+          console.log(`⏳ [${cameraId}] Showing waiting overlay - Debug state check`);
+          return (
+            <div className="stream-overlay waiting-overlay">
+              <div className="overlay-content">
+                <span className="waiting-icon">⏳</span>
+                <p>Waiting for stream...</p>
+                <small style={{fontSize: '0.8em', opacity: 0.7}}>
+                  Debug: streaming={isStreaming.toString()}, error={(!!error).toString()}
+                </small>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
         
         {connectionStatus === 'disconnected' && (
           <div className="stream-overlay disconnected-overlay">
@@ -248,36 +254,6 @@ const CameraViewer = ({
           </div>
           <div className="stats-row">
             <span>Last Update: {new Date(streamStats.timestamp).toLocaleTimeString()}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Camera Controls */}
-      {showControls && isStreaming && (
-        <div className="camera-controls">
-          <div className="control-section">
-            <h4>Pan/Tilt</h4>
-            <div className="ptz-controls">
-              <div className="vertical-controls">
-                <button className="control-btn" onClick={() => controlCamera('tilt_up')}>⬆️</button>
-              </div>
-              <div className="horizontal-controls">
-                <button className="control-btn" onClick={() => controlCamera('pan_left')}>⬅️</button>
-                <button className="control-btn home-btn" onClick={() => controlCamera('home')}>🏠</button>
-                <button className="control-btn" onClick={() => controlCamera('pan_right')}>➡️</button>
-              </div>
-              <div className="vertical-controls">
-                <button className="control-btn" onClick={() => controlCamera('tilt_down')}>⬇️</button>
-              </div>
-            </div>
-          </div>
-          
-          <div className="control-section">
-            <h4>Zoom</h4>
-            <div className="zoom-controls">
-              <button className="control-btn" onClick={() => controlCamera('zoom_in')}>🔍+</button>
-              <button className="control-btn" onClick={() => controlCamera('zoom_out')}>🔍-</button>
-            </div>
           </div>
         </div>
       )}
