@@ -18,6 +18,7 @@ export const PERMISSIONS = {
   PERSONAL_VEHICLES: 'personal_vehicles', // Phương tiện cá nhân
   WORKING_HOURS: 'working_hours', // Giờ làm việc
   DEPARTMENT: 'department', // Đơn vị
+  CAMERAS: 'cameras', // Quản lý camera
   SETTINGS: 'settings' // Cài đặt/Đổi mật khẩu
 };
 
@@ -34,6 +35,7 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.PERSONAL_VEHICLES,
     PERMISSIONS.WORKING_HOURS,
     PERMISSIONS.DEPARTMENT,
+    PERMISSIONS.CAMERAS,
     PERMISSIONS.SETTINGS
   ],
   [ROLES.ADMIN]: [
