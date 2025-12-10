@@ -165,6 +165,7 @@ const DepartmentsList = () => {
             onChange={(val) => dispatch(setIsActive(val))}
             options={statusOptions}
             placeholder="Trạng thái"
+            style={{ minWidth: 150}}
           />
         </Col>
         <Col xs={24} sm={12} md={8} lg={12} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
