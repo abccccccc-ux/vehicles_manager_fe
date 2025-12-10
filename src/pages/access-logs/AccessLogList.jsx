@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 import { Card, Typography, Space, Button, Tooltip } from 'antd';
-import { ReloadOutlined, EyeOutlined } from '@ant-design/icons';
+import { ReloadOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import AccessLogTable from '../access-log/AccessLogTable';
 import { fetchAccessLogs } from '../../store/accessLogSlice';

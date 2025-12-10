@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Input, Select, Space, Row, Col, Button, DatePicker, Tag } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAccessLogById } from '../../api/accessLogApi';
@@ -8,7 +8,6 @@ import {
   fetchAccessLogs, 
   setSearch, 
   setStatus, 
-  setGateId, 
   setAction, 
   setStartDate, 
   setEndDate, 
