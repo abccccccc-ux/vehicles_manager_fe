@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Table, Tag } from 'antd';
 import { notification } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -12,8 +12,6 @@ import SearchFilter from '../../components/Search/SearchFilter';
 import useDebounce from '../../hooks/useDebounce';
 import { useDispatch } from 'react-redux';
 import { deleteUser } from '../../store/userSlice';
-import { useSelector } from 'react-redux';
-import { Navigate } from 'react-router-dom';
 import MainLayout from '../../layouts/MainLayout';
 import AlertMessage from '../../components/AlertMessage';
 
@@ -139,7 +137,6 @@ const Users = () => {
   const [deletingId, setDeletingId] = useState(null);
   const dispatch = useDispatch();
 
-  const currentUser = useSelector((state) => state.auth.user);
 
   const fetchUsers = async () => {
     setLoading(true);
