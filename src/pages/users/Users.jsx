@@ -37,28 +37,36 @@ const Users = () => {
       key: 'phone',
     },
     {
-      title: 'Role',
+      title: 'Quyền',
       dataIndex: 'role',
       key: 'role',
       render: (role) => {
         let color = 'blue';
         if (role === 'super_admin') color = 'purple';
+        if (role === 'supervisor') color = 'orange';
+        if (role === 'admin') color = 'yellow';
         return (
           <Tag color={color} className="capitalize">
-            {role}
+            {
+              (role === "super_admin") ? "Quản trị viên"
+                : (role === "user") ? "Nhân viên"
+                  : (role === "admin") ? "Trưởng đơn vị"
+                    : (role === "supervisor") ? "Trực ban học viện"
+                      : null
+            }
           </Tag>
         );
       },
     },
     {
-      title: 'Active',
+      title: 'Trạng thái',
       dataIndex: 'isActive',
       key: 'isActive',
       render: (active) =>
         active ? (
-          <Tag color="green">Active</Tag>
+          <Tag color="green">Hoạt động</Tag>
         ) : (
-          <Tag color="red">Inactive</Tag>
+          <Tag color="red">Không hoạt động</Tag>
         ),
     },
     {
@@ -178,26 +186,25 @@ const Users = () => {
           <SearchFilter
             value={role}
             onChange={(v) => setRole(v)}
-            placeholder="Chọn role"
+            placeholder="Chọn quyền"
             style={{ width: 180 }}
             options={[
-              { label: 'User', value: 'user' },
-              { label: 'Admin', value: 'admin' },
-              { label: 'Super Admin', value: 'super_admin' },
+              { label: 'Nhân viên', value: 'user' },
+              { label: 'Trưởng đơn vị', value: 'admin' },
+              { label: 'Trực ban học viện', value: 'supervisor'},
+              { label: 'Quản trị viên', value: 'super_admin' },
             ]}
           />
           <SearchFilter
             value={isActive}
             onChange={(v) => {
-              // Select passes booleans when options' value is boolean
-              // when cleared it becomes undefined
               setIsActive(typeof v === 'string' ? (v === 'true') : v);
             }}
             placeholder="Trạng thái"
-            style={{ width: 140 }}
+            style={{ width: 160 }}
             options={[
-              { label: 'Active', value: true },
-              { label: 'Inactive', value: false },
+              { label: 'Hoạt động', value: true },
+              { label: 'Không hoạt động', value: false },
             ]}
           />
         </div>

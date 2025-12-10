@@ -193,6 +193,7 @@ const WorkingHoursRequestList = () => {
                             onChange={onStatusChange}
                             options={statusOptions}
                             placeholder="Trạng thái"
+                            style={{ minWidth: 132 }}
                         />
                     </Col>
 
