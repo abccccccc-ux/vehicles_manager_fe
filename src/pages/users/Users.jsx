@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Table, Tag, Spin } from 'antd';
+import { Button, Table, Tag } from 'antd';
 import { notification } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import showDeleteConfirm from '../../components/DeleteConfirm';
@@ -167,11 +167,6 @@ const Users = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, role, isActive, page]);
 
-  // Điều hướng không đủ quyền (đặt sau khi đã gọi Hook xong)
-  if (!currentUser || currentUser.role !== 'super_admin') {
-    return <Navigate to="/" replace />;
-  }
-
   return (
     <MainLayout>
       <h2 className="text-xl font-bold mb-4">Danh sách người dùng</h2>
@@ -215,33 +210,28 @@ const Users = () => {
         </div>
       </div>
       <div style={{ margin: 16 }} className="bg-white rounded-xl shadow-sm p-4">
-        {loading ? (
-          <div className="flex justify-center items-center h-40">
-            <Spin size="large" />
-          </div>
-        ) : (
-          <Table
-            columns={columns}
-            dataSource={users}
-            bordered
-            pagination={{
-              current: pagination.currentPage || page,
-              pageSize: pagination.itemsPerPage || limit,
-              total: pagination.totalItems || 0,
-              showSizeChanger: false,
-            }}
-            rowClassName={() => 'hover:bg-gray-50 cursor-pointer'}
-            onRow={(record) => ({
-              onClick: () => {
-                setSelectedUserId(record._id);
-                setShowUserDetails(true);
-              },
-            })}
-            onChange={(pagination) => {
-              if (pagination && pagination.current) setPage(pagination.current);
-            }}
-          />
-        )}
+        <Table
+          columns={columns}
+          dataSource={users}
+          loading={loading}
+          bordered
+          pagination={{
+            current: pagination.currentPage || page,
+            pageSize: pagination.itemsPerPage || limit,
+            total: pagination.totalItems || 0,
+            showSizeChanger: false,
+          }}
+          rowClassName={() => 'hover:bg-gray-50 cursor-pointer'}
+          onRow={(record) => ({
+            onClick: () => {
+              setSelectedUserId(record._id);
+              setShowUserDetails(true);
+            },
+          })}
+          onChange={(pagination) => {
+            if (pagination && pagination.current) setPage(pagination.current);
+          }}
+        />
       </div>
       {alert && <AlertMessage type={alert.type} message={alert.message} />}
       <CreateUserDialog

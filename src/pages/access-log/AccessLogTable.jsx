@@ -193,11 +193,6 @@ const AccessLogTable = () => {
     dispatch(setStatus(val));
   };
 
-  const onGateIdChange = (val) => {
-    setGateIdLocal(val);
-    dispatch(setGateId(val));
-  };
-
   const onActionChange = (val) => {
     setActionLocal(val);
     dispatch(setAction(val));
@@ -242,7 +237,7 @@ const AccessLogTable = () => {
         </Col>
         <Col xs={24} sm={12} md={6} lg={4}>
           <Select 
-            value={status} 
+            // value={status} 
             onChange={onStatusChange} 
             style={{ width: '100%' }} 
             allowClear 
@@ -255,7 +250,7 @@ const AccessLogTable = () => {
         </Col>
         <Col xs={24} sm={12} md={6} lg={4}>
           <Select 
-            value={action} 
+            // value={action} 
             onChange={onActionChange} 
             style={{ width: '100%' }} 
             allowClear 
@@ -263,19 +258,6 @@ const AccessLogTable = () => {
           >
             <Option value="entry">Vào</Option>
             <Option value="exit">Ra</Option>
-          </Select>
-        </Col>
-        <Col xs={24} sm={12} md={6} lg={4}>
-          <Select 
-            value={gateId} 
-            onChange={onGateIdChange} 
-            style={{ width: '100%' }} 
-            allowClear 
-            placeholder="Cổng"
-          >
-            <Option value="GATE_001">Cổng chính</Option>
-            <Option value="GATE_002">Cổng phụ</Option>
-            {/* Add more gates as needed */}
           </Select>
         </Col>
         <Col xs={24} sm={12} md={8} lg={6}>
