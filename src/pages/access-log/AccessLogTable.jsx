@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Input, Select, Space, Row, Col, Button, DatePicker, Tag } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAccessLogById } from '../../api/accessLogApi';
@@ -8,7 +8,6 @@ import {
   fetchAccessLogs, 
   setSearch, 
   setStatus, 
-  setGateId, 
   setAction, 
   setStartDate, 
   setEndDate, 
@@ -193,11 +192,6 @@ const AccessLogTable = () => {
     dispatch(setStatus(val));
   };
 
-  const onGateIdChange = (val) => {
-    setGateIdLocal(val);
-    dispatch(setGateId(val));
-  };
-
   const onActionChange = (val) => {
     setActionLocal(val);
     dispatch(setAction(val));
@@ -242,7 +236,7 @@ const AccessLogTable = () => {
         </Col>
         <Col xs={24} sm={12} md={6} lg={4}>
           <Select 
-            value={status} 
+            // value={status} 
             onChange={onStatusChange} 
             style={{ width: '100%' }} 
             allowClear 
@@ -255,7 +249,7 @@ const AccessLogTable = () => {
         </Col>
         <Col xs={24} sm={12} md={6} lg={4}>
           <Select 
-            value={action} 
+            // value={action} 
             onChange={onActionChange} 
             style={{ width: '100%' }} 
             allowClear 
@@ -263,19 +257,6 @@ const AccessLogTable = () => {
           >
             <Option value="entry">Vào</Option>
             <Option value="exit">Ra</Option>
-          </Select>
-        </Col>
-        <Col xs={24} sm={12} md={6} lg={4}>
-          <Select 
-            value={gateId} 
-            onChange={onGateIdChange} 
-            style={{ width: '100%' }} 
-            allowClear 
-            placeholder="Cổng"
-          >
-            <Option value="GATE_001">Cổng chính</Option>
-            <Option value="GATE_002">Cổng phụ</Option>
-            {/* Add more gates as needed */}
           </Select>
         </Col>
         <Col xs={24} sm={12} md={8} lg={6}>

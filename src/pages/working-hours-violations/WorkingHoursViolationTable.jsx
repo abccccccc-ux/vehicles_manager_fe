@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Input, Select, Space, Row, Col, Button, DatePicker, Tag } from 'antd';
+import { useEffect, useState } from 'react';
+import { Table, Input, Select, Row, Col, DatePicker } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { getWorkingHoursViolationDetails } from '../../api/workingHoursViolationApi';
 import WorkingHoursViolationDetailsDialog from './WorkingHoursViolationDetailsDialog';
@@ -8,15 +8,11 @@ import {
   fetchWorkingHoursViolations, 
   setSearch, 
   setViolationType,
-  setSeverity,
-  setStatus, 
   setStartDate, 
   setEndDate, 
   setPagination, 
   setSelectedViolation, 
-  setDetailLoading,
-  clearFilters 
-} from '../../store/workingHoursViolationSlice';
+  setDetailLoading} from '../../store/workingHoursViolationSlice';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -76,7 +72,7 @@ const WorkingHoursViolationTable = () => {
       title: 'Loại vi phạm', 
       dataIndex: 'violationType', 
       key: 'violationType',
-      render: (type, record) => {
+      render: (type) => {
         const violationTypes = {
           'late_entry': 'Vào',
           'early_exit': 'Ra',
@@ -103,7 +99,7 @@ const WorkingHoursViolationTable = () => {
       title: 'Giờ cho phép', 
       dataIndex: 'allowedTime', 
       key: 'allowedTime',
-      render: (allowedTime, record) => {
+      render: (allowedTime) => {
         if (allowedTime) {
           // Nếu allowedTime là giờ (HH:mm format)
           if (allowedTime.includes(':') && allowedTime.length <= 5) {
@@ -207,16 +203,6 @@ const WorkingHoursViolationTable = () => {
     dispatch(setViolationType(val));
   };
 
-  const onSeverityChange = (val) => {
-    setSeverityLocal(val);
-    dispatch(setSeverity(val));
-  };
-
-  const onStatusChange = (val) => {
-    setStatusLocal(val);
-    dispatch(setStatus(val));
-  };
-
   const onDateRangeChange = (dates) => {
     setDateRange(dates);
     if (dates && dates[0] && dates[1]) {
@@ -230,15 +216,6 @@ const WorkingHoursViolationTable = () => {
 
   const handleTableChange = (pag) => {
     dispatch(setPagination({ current: pag.current, pageSize: pag.pageSize }));
-  };
-
-  const handleResetFilters = () => {
-    setSearchLocal('');
-    setViolationTypeLocal('');
-    setSeverityLocal('');
-    setStatusLocal('');
-    setDateRange([null, null]);
-    dispatch(clearFilters());
   };
 
   return (
@@ -276,17 +253,6 @@ const WorkingHoursViolationTable = () => {
           />
         </Col>
       </Row>
-
-      <Row style={{ marginBottom: 16 }}>
-        <Col span={24} style={{ textAlign: 'right' }}>
-          <Space>
-            <Button onClick={handleResetFilters}>
-              Reset
-            </Button>
-          </Space>
-        </Col>
-      </Row>
-
       <Table
         bordered
         columns={columns}
