@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Tag, Row, Col, Button, notification } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Card, Table, Tag, Row, Col, Button, notification, Tooltip } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import SearchInput from '../../components/Search/SearchInput';
 import SearchFilter from '../../components/Search/SearchFilter';
 import showDeleteConfirm from '../../components/DeleteConfirm';
 import useRebounce from '../../hooks/useRebounce';
 import cameraApi from '../../api/cameraApi';
 import CameraEditModal from './CameraEditModal';
+import { safeDisplayPassword } from '../../utils/cryptoUtils';
 
 const statusOptions = [
   { label: 'Hoạt động', value: true },
@@ -33,6 +34,7 @@ const CamerasList = () => {
   const [deletingId, setDeletingId] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingCamera, setEditingCamera] = useState(null);
+  const [visiblePasswords, setVisiblePasswords] = useState({});
 
   // debounced dispatcher for search to avoid rapid requests while typing
   const debouncedSearch = useRebounce((val) => {
@@ -102,7 +104,7 @@ const CamerasList = () => {
       } else {
         setPagination((prev) => ({
           ...prev,
-          total: cameraData.length,
+          total: cameraData.length
         }));
       }
 
@@ -249,7 +251,7 @@ const CamerasList = () => {
                 onOk: async () => {
                   try {
                     setDeletingId(record.cameraId);
-                    await handleDelete(record.cameraId);
+                    await handleDelete(record._id);
                     setDeletingId(null);
                   } catch (err) {
                     setDeletingId(null);
@@ -268,7 +270,7 @@ const CamerasList = () => {
     <Card 
       title="Quản lý Camera"
     >
-      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+      <Row gutter={[16, 16]} style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Col xs={24} sm={12} md={8} lg={6}>
           <SearchInput
             value={localSearch}
@@ -279,23 +281,7 @@ const CamerasList = () => {
             placeholder="Tìm kiếm tên, ID camera..."
           />
         </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <SearchFilter
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={statusOptions}
-            placeholder="Trạng thái"
-          />
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <SearchFilter
-            value={positionFilter}
-            onChange={setPositionFilter}
-            options={positionOptions}
-            placeholder="Vị trí"
-          />
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+        <Col xs={24} sm={12} md={12} lg={12} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
           <Button
             type="primary"
             icon={<PlusOutlined />}

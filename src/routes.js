@@ -16,6 +16,7 @@ import PersonalWorkingHoursRequestList from './pages/personal-working-hours-requ
 import AccessLogList from './pages/access-logs/AccessLogList';
 import WorkingHoursViolations from './pages/working-hours-violations/WorkingHoursViolations';
 import Cameras from './pages/cameras/Cameras';
+import CryptoTest from './demo/CryptoTest';
 import { PrivateRoute, RoleBasedRoute, RoutePermissionGuard } from './components/PermissionGuard';
 import { PERMISSIONS } from './utils/permissions';
 import { getDefaultRouteForRole } from './utils/routeUtils';
@@ -108,6 +109,14 @@ const routes = [
     path: '/cameras', 
     element: <RoleBasedRoute requiredPermission={PERMISSIONS.CAMERAS}>
       <Cameras />
+    </RoleBasedRoute> 
+  },
+  
+  // Demo crypto test - chỉ SuperAdmin
+  { 
+    path: '/crypto-test', 
+    element: <RoleBasedRoute requiredPermission={PERMISSIONS.CAMERAS}>
+      <CryptoTest />
     </RoleBasedRoute> 
   },
   
