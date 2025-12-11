@@ -49,7 +49,7 @@ const DepartmentEditDialog = ({ visible, departmentId, onClose }) => {
                 name: values.name,
                 description: values.description || '',
                 manager: values.manager || null,
-                status: values.isActive ? 'active' : 'inactive',
+                isActive: values.isActive,
             };
 
             await dispatch(updateDepartment({ departmentId, departmentData: payload })).unwrap();
