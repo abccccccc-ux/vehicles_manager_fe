@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BellOutlined, SettingOutlined, CheckOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNotificationContext } from './NotificationProvider';
 import './NotificationCenter.css';
-import { Badge, Popover, Button, Switch, Divider, Space, Typography } from 'antd';
+import { Badge, Popover, Button, Switch, Space, Typography } from 'antd';
 import NotificationList from './NotificationList';
 
 const NotificationCenter = () => {
@@ -16,7 +16,6 @@ const NotificationCenter = () => {
     markAsRead,
     markAllAsRead,
     removeNotification,
-    clearAll,
     requestPermission,
     updateSettings
   } = useNotificationContext();
@@ -101,34 +100,9 @@ const NotificationCenter = () => {
           <div><Typography.Text>Âm thanh thông báo</Typography.Text></div>
           <div><Switch checked={settings.soundNotifications} onChange={(val) => updateSettings({ ...settings, soundNotifications: val })} /></div>
         </div>
-
-        <Divider />
-
-        <div className="setting-section">
-          <h5>Loại thông báo</h5>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {Object.entries(settings.enabledTypes || {}).map(([type, enabled]) => (
-              <Space key={type} style={{ justifyContent: 'space-between', width: '100%' }}>
-                <Typography.Text>{getTypeLabel(type)}</Typography.Text>
-                <Switch checked={enabled} onChange={(val) => updateSettings({ ...settings, enabledTypes: { ...settings.enabledTypes, [type]: val } })} />
-              </Space>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
-
-  const getTypeLabel = (type) => {
-    switch (type) {
-      case 'vehicle_detected': return 'Phát hiện xe';
-      case 'access_request': return 'Yêu cầu truy cập';
-      case 'working_hours_request': return 'Yêu cầu làm thêm giờ';
-      case 'camera_status': return 'Trạng thái camera';
-      case 'system_alert': return 'Cảnh báo hệ thống';
-      default: return type;
-    }
-  };
 
   const panelContent = (
     <div style={{ width: 360 }}>

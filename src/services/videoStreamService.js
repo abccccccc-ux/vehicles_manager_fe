@@ -231,8 +231,6 @@ class VideoStreamService {
     let y = padding + fontSize;
 
     const info = [
-      `Resolution: ${metadata.width}x${metadata.height}`,
-      `Frame: ${metadata.frameNumber || 0}`
     ];
 
     info.forEach((text, index) => {
