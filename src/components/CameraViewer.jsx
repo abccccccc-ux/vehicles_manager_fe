@@ -144,11 +144,17 @@ const CameraViewer = ({
     }
   }, [connectionStatus, isStreaming, error, cameraId, quality]);
 
-
-
-  // Camera control functions
-  const controlCamera = useCallback((command, value = 1) => {
-    videoStreamService.controlCamera(cameraId, command, value);
+  const forceReconnectWebSocket = useCallback(() => {
+    console.log(`🔄 [${cameraId}] Force reconnecting WebSocket...`);
+    
+    if (videoStreamService.socket) {
+      // Disconnect and reconnect socket
+      videoStreamService.socket.disconnect();
+      
+      setTimeout(() => {
+        videoStreamService.socket.connect();
+      }, 1000);
+    }
   }, [cameraId]);
 
   // Status badge component
@@ -188,6 +194,24 @@ const CameraViewer = ({
         <div className="camera-info">
           <h3 className="camera-name">{cameraName || `Camera ${cameraId}`}</h3>
           <StatusBadge />
+        </div>
+        <div className="camera-controls">
+          <button 
+            onClick={forceReconnectWebSocket}
+            className="restart-btn"
+            title="Restart stream"
+            style={{
+              padding: '4px 8px',
+              background: '#3742fa',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '12px'
+            }}
+          >
+            🔄 Restart
+          </button>
         </div>
       </div>
 
