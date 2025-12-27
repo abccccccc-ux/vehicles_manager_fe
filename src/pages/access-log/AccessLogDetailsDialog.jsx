@@ -344,14 +344,14 @@ const AccessLogDetailsDialog = ({ open, onClose, accessLog, loading }) => {
                                       src={`${process.env.REACT_APP_IMAGE_BASE_URL}${accessLog.log.recognitionData.videoUrl}`} 
                                       type="video/mp4" 
                                     />
-                                    <source 
+                                    {/* <source 
                                       src={`${process.env.REACT_APP_IMAGE_BASE_URL}${accessLog.log.recognitionData.videoUrl}`} 
                                       type="video/webm" 
                                     />
                                     <source 
                                       src={`${process.env.REACT_APP_IMAGE_BASE_URL}${accessLog.log.recognitionData.videoUrl}`} 
                                       type="video/ogg" 
-                                    />
+                                    /> */}
                                     Trình duyệt của bạn không hỗ trợ video HTML5.
                                   </video>
                                 </div>

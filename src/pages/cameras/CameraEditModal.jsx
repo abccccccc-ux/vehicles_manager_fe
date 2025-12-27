@@ -300,53 +300,6 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess }) => {
         <Form.Item name="description" label="Mô tả">
           <TextArea rows={3} placeholder="Mô tả camera..." />
         </Form.Item>
-
-        <Row gutter={16}>
-          <Col span={8}>
-            <Form.Item
-              name="recognitionEnabled"
-              label="Kích hoạt nhận diện"
-              valuePropName="checked"
-            >
-              <Switch />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="threshold"
-              label="Ngưỡng tin cậy"
-              rules={[
-                { required: true, message: "Vui lòng nhập ngưỡng tin cậy" },
-              ]}
-            >
-              <InputNumber
-                min={0}
-                max={1}
-                step={0.01}
-                style={{ width: "100%" }}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="autoApprove"
-              label="Tự động phê duyệt"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập ngưỡng tự động phê duyệt",
-                },
-              ]}
-            >
-              <InputNumber
-                min={0}
-                max={1}
-                step={0.01}
-                style={{ width: "100%" }}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
       </Form>
     </Modal>
   );
