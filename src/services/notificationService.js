@@ -1,6 +1,24 @@
 import { io } from 'socket.io-client';
 import accessLogService from './accessLogService';
 
+// Notification types matching backend spec
+export const NOTIFICATION_TYPES = {
+  WORKING_HOURS_REQUEST: 'working_hours_request',
+  WORKING_HOURS_REQUEST_UPDATE: 'working_hours_request_update',
+  VEHICLE_VERIFICATION: 'vehicle_verification',
+  VEHICLE_VERIFIED: 'vehicle_verified',
+  VEHICLE_ACCESS: 'vehicle_access'
+};
+
+// All subscribable notification types
+export const ALL_NOTIFICATION_TYPES = [
+  NOTIFICATION_TYPES.WORKING_HOURS_REQUEST,
+  NOTIFICATION_TYPES.WORKING_HOURS_REQUEST_UPDATE,
+  NOTIFICATION_TYPES.VEHICLE_VERIFICATION,
+  NOTIFICATION_TYPES.VEHICLE_VERIFIED,
+  NOTIFICATION_TYPES.VEHICLE_ACCESS
+];
+
 class NotificationService {
   constructor() {
     this.socket = null;
@@ -11,6 +29,10 @@ class NotificationService {
     this.maxNotifications = 100;
     this.settings = this.loadSettings();
     this.userInfo = null;
+    this.reconnectAttempts = 0;
+    this.maxReconnectAttempts = 5;
+    this.subscribedVehicles = [];
+    this.subscribedGates = [];
   }
 
   // Kết nối socket cho notifications
@@ -103,8 +125,9 @@ class NotificationService {
       console.error('❌ Cannot authenticate: socket not connected');
       return;
     }
+    console.log("🚀 ~ NotificationService ~ authenticateSocket ~ this.userInfo:", this.userInfo)
 
-    const authData = {
+    const authData = {      
       userId: this.userInfo?.id || this.userInfo?.userId || 'unknown',
       role: this.userInfo?.role || 'user',
       departmentId: this.userInfo?.departmentId || this.userInfo?.department?.id,
@@ -116,7 +139,7 @@ class NotificationService {
   }
 
   // Subscribe tới notifications sau khi authentication thành công
-  subscribeToNotifications() {
+  subscribeToNotifications(types = ALL_NOTIFICATION_TYPES) {
     if (!this.socket || !this.isAuthenticated) {
       console.error('❌ Cannot subscribe: socket not authenticated');
       return;
@@ -125,11 +148,31 @@ class NotificationService {
     console.log('🔔 Subscribing to notification events...');
     console.log('🔔 Socket ID:', this.socket.id);
     console.log('🔔 User Info:', this.userInfo);
+    console.log('🔔 Subscription types:', types);
 
-    // Debug: Listen to all events
-    this.socket.onAny((eventName, ...args) => {
-      console.log('🔔 Socket received event:', eventName, args);
+    // Emit subscribe_notifications event to server with types array
+    this.socket.emit('subscribe_notifications', {
+      types: types
     });
+
+    // Listen for subscription confirmation
+    this.socket.on('notifications_subscribed', (data) => {
+      console.log('✅ Successfully subscribed to notifications:', data);
+      this.emit('subscription_success', data);
+    });
+
+    // Listen for subscription errors
+    this.socket.on('subscription_error', (error) => {
+      console.error('❌ Subscription error:', error);
+      this.emit('subscription_error', error);
+    });
+
+    // Debug: Listen to all events (only in development)
+    if (process.env.NODE_ENV === 'development') {
+      this.socket.onAny((eventName, ...args) => {
+        console.log('🔔 Socket received event:', eventName, args);
+      });
+    }
 
     // Lắng nghe event notification chung từ server
     this.socket.on('notification', (data) => {
@@ -152,19 +195,19 @@ class NotificationService {
         case 'working_hours_request_update':
           this.handleNotification({
             type: 'working_hours_request_update',
-            title: 'Cập nhật yêu cầu giờ làm việc',
-            message: `Yêu cầu của bạn đã được ${data.data?.status === 'approved' ? 'phê duyệt' : 'từ chối'} bởi ${data.data?.approverName}`,
+            title: data.title || 'Cập nhật yêu cầu giờ làm việc',
+            message: data.message || `Yêu cầu của bạn đã được ${data.data?.status === 'approved' ? 'phê duyệt' : 'từ chối'} bởi ${data.data?.approverName}`,
             data: data.data,
             timestamp: new Date(data.timestamp),
             priority: data.priority || 'medium'
           });
           break;
 
-        case 'access_log_verification':
+        case 'vehicle_verification':
           this.handleNotification({
-            type: 'access_log_verification',
-            title: data.title || 'Xác minh log ra/vào',
-            message: data.message || `Xe ${data.data?.licensePlate} tại cổng ${data.data?.gateName} cần xác minh - Độ tin cậy: ${Math.round((data.data?.confidence || 0) * 100)}%`,
+            type: 'vehicle_verification',
+            title: data.title || 'Xác minh xe',
+            message: data.message || `Xe ${data.data?.licensePlate} ${data.data?.action === 'entry' ? 'vào' : 'ra'} tại ${data.data?.gateName} cần xác minh`,
             data: data.data,
             timestamp: new Date(data.timestamp),
             priority: data.priority || 'high',
@@ -172,23 +215,11 @@ class NotificationService {
           });
           break;
 
-        case 'unknown_vehicle_access':
+        case 'vehicle_verified':
           this.handleNotification({
-            type: 'unknown_vehicle_access',
-            title: data.title || '⚠️ Xe lạ phát hiện',
-            message: data.message || `Xe lạ ${data.data?.licensePlate} ${data.data?.action === 'entry' ? 'vào' : 'ra'} tại ${data.data?.gateName || data.data?.gateId} - Cần kiểm tra ngay`,
-            data: data.data,
-            timestamp: new Date(data.timestamp),
-            priority: data.priority || 'high',
-            actionable: true
-          });
-          break;
-
-        case 'access_log_verified':
-          this.handleNotification({
-            type: 'access_log_verified',
-            title: data.title || 'Log đã được xác minh',
-            message: data.message || `Log ra/vào của xe ${data.data?.licensePlate} đã được ${data.data?.verifierName} xác minh: ${data.data?.verificationResult}`,
+            type: 'vehicle_verified',
+            title: data.title || 'Xe đã xác minh',
+            message: data.message || `Xe ${data.data?.licensePlate} đã được ${data.data?.verificationStatus === 'approved' ? 'phê duyệt' : 'từ chối'}`,
             data: data.data,
             timestamp: new Date(data.timestamp),
             priority: data.priority || 'medium'
@@ -198,12 +229,12 @@ class NotificationService {
         case 'vehicle_access':
           this.handleNotification({
             type: 'vehicle_access',
-            title: 'Xe ra/vào',
-            message: `Xe ${data.data?.licensePlate || 'không xác định'} đã ${data.data?.direction === 'in' ? 'vào' : 'ra'} cổng ${data.data?.gateName || data.data?.gateId}`,
+            title: data.title || 'Xe ra/vào',
+            message: data.message || `Xe ${data.data?.licensePlate || 'không xác định'} đã ${data.data?.direction === 'in' || data.data?.action === 'entry' ? 'vào' : 'ra'} cổng ${data.data?.gateName || data.data?.gateId}`,
             data: data.data,
             timestamp: new Date(data.timestamp),
-            priority: data.priority || 'medium',
-            actionable: true
+            priority: data.priority || 'low',
+            actionable: false
           });
           
           // Emit specific event for vehicle access để có thể hook vào từ components
@@ -397,10 +428,9 @@ class NotificationService {
       enabledTypes: {
         working_hours_request: true,
         working_hours_request_update: true,
-        access_log_verification: true,
-        access_log_verified: true,
-        vehicle_access: true,
-        unknown_vehicle_access: true
+        vehicle_verification: true,
+        vehicle_verified: true,
+        vehicle_access: true
       }
     };
   }
@@ -471,6 +501,47 @@ class NotificationService {
     }, 1000);
   }
 
+  // Subscribe theo dõi cập nhật xe real-time (optional)
+  subscribeToVehicleUpdates(vehicleIds = [], gateIds = []) {
+    if (!this.socket || !this.isAuthenticated) {
+      console.error('❌ Cannot subscribe to vehicle updates: socket not authenticated');
+      return false;
+    }
+
+    console.log('🚗 Subscribing to vehicle updates...');
+    console.log('🚗 Vehicle IDs:', vehicleIds);
+    console.log('🚗 Gate IDs:', gateIds);
+
+    this.subscribedVehicles = vehicleIds;
+    this.subscribedGates = gateIds;
+
+    this.socket.emit('subscribe_vehicle_updates', {
+      vehicleIds: vehicleIds,
+      gateIds: gateIds
+    });
+
+    return true;
+  }
+
+  // Hủy subscribe vehicle updates
+  unsubscribeFromVehicleUpdates() {
+    if (!this.socket || !this.isConnected) {
+      return false;
+    }
+
+    console.log('🚗 Unsubscribing from vehicle updates...');
+    
+    this.socket.emit('unsubscribe_vehicle_updates', {
+      vehicleIds: this.subscribedVehicles,
+      gateIds: this.subscribedGates
+    });
+
+    this.subscribedVehicles = [];
+    this.subscribedGates = [];
+
+    return true;
+  }
+
   // Ngắt kết nối
   disconnect() {
     if (this.socket) {
@@ -480,6 +551,9 @@ class NotificationService {
       this.isConnected = false;
       this.isAuthenticated = false;
       this.userInfo = null;
+      this.reconnectAttempts = 0;
+      this.subscribedVehicles = [];
+      this.subscribedGates = [];
     }
   }
 }

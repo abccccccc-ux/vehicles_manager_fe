@@ -22,9 +22,15 @@ export const markAllAsReadApi = async () => {
   return response.data;
 };
 
+export const fetchUnreadCount = async () => {
+  const response = await axiosClient.get('/notifications/unread-count');
+  return response.data; // { success, data: { count: number } }
+};
+
 export default {
   fetchNotifications,
   markNotificationRead,
   deleteNotification,
   markAllAsReadApi,
+  fetchUnreadCount,
 };
