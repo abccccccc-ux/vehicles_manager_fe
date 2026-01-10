@@ -1,9 +1,30 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { List, Avatar, Button, Typography, Empty, Space } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { List, Avatar, Button, Typography, Empty, Space, Tag } from 'antd';
+import { DeleteOutlined, CarOutlined, ClockCircleOutlined, SafetyCertificateOutlined, WarningOutlined, BellOutlined } from '@ant-design/icons';
 import { fetchNotifications, markNotificationRead, deleteNotification } from '../api/notificationApi';
 
 const { Text } = Typography;
+
+// Map notification types to icons and colors based on backend spec
+const getTypeConfig = (type) => {
+  const configs = {
+    working_hours_request: { icon: <ClockCircleOutlined />, color: '#1890ff', label: 'Giờ làm việc' },
+    working_hours_request_update: { icon: <ClockCircleOutlined />, color: '#52c41a', label: 'Cập nhật GH' },
+    vehicle_verification: { icon: <SafetyCertificateOutlined />, color: '#fa8c16', label: 'Xác minh xe' },
+    vehicle_verified: { icon: <SafetyCertificateOutlined />, color: '#52c41a', label: 'Đã xác minh' },
+    vehicle_access: { icon: <CarOutlined />, color: '#1890ff', label: 'Ra/Vào' },
+  };
+  return configs[type] || { icon: <BellOutlined />, color: '#666', label: 'Thông báo' };
+};
+
+const getPriorityColor = (priority) => {
+  switch (priority) {
+    case 'high': return '#ff4d4f';
+    case 'medium': return '#fa8c16';
+    case 'low': return '#52c41a';
+    default: return '#1890ff';
+  }
+};
 
 const humanDateLabel = (date) => {
   const d = new Date(date);
@@ -104,25 +125,75 @@ const NotificationList = ({
               dataSource={grouped[dateKey]}
               itemLayout="horizontal"
               split={false}
-              renderItem={(item) => (
-                <List.Item
-                  key={item._id}
-                  style={{
-                    background: item.isRead ? 'transparent' : '#f0f8ff',
-                    borderLeft: item.isRead ? 'none' : '4px solid #1890ff',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => handleOpen(item)}
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpen(item); } }}
-                >
-                  <List.Item.Meta
-                    avatar={<Avatar style={{ background: 'transparent' }}>{item.type ? item.type.charAt(0).toUpperCase() : 'N'}</Avatar>}
-                    title={<div style={{ fontWeight: 600 }}>{item.title}</div>}
-                    description={<div><div style={{ color: '#666' }}>{item.message}</div><Text type="secondary" style={{ fontSize: 12 }}>{new Date(item.sentAt || item.createdAt).toLocaleString()}</Text></div>}
-                  />
-                </List.Item>
-              )}
+              renderItem={(item) => {
+                const typeConfig = getTypeConfig(item.type);
+                const priorityColor = getPriorityColor(item.priority);
+                
+                return (
+                  <List.Item
+                    key={item._id}
+                    style={{
+                      background: item.isRead ? 'transparent' : '#f0f8ff',
+                      borderLeft: item.isRead ? 'none' : `4px solid ${priorityColor}`,
+                      cursor: 'pointer',
+                      padding: '12px',
+                      marginBottom: '4px',
+                      borderRadius: '6px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onClick={() => handleOpen(item)}
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpen(item); } }}
+                    actions={[
+                      <Button 
+                        key="delete"
+                        type="text" 
+                        danger 
+                        size="small"
+                        icon={<DeleteOutlined />} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemove(item._id);
+                        }}
+                      />
+                    ]}
+                  >
+                    <List.Item.Meta
+                      avatar={
+                        <Avatar 
+                          style={{ 
+                            background: typeConfig.color,
+                            color: '#fff'
+                          }}
+                        >
+                          {typeConfig.icon}
+                        </Avatar>
+                      }
+                      title={
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontWeight: 600 }}>{item.title}</span>
+                          {item.priority === 'high' && (
+                            <Tag color="error" style={{ fontSize: '10px', margin: 0 }}>Quan trọng</Tag>
+                          )}
+                        </div>
+                      }
+                      description={
+                        <div>
+                          <div style={{ color: '#666', marginBottom: '4px' }}>{item.message}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Tag color="default" style={{ fontSize: '10px', margin: 0 }}>
+                              {typeConfig.label}
+                            </Tag>
+                            <Text type="secondary" style={{ fontSize: 11 }}>
+                              {new Date(item.sentAt || item.createdAt).toLocaleString('vi-VN')}
+                            </Text>
+                          </div>
+                        </div>
+                      }
+                    />
+                  </List.Item>
+                );
+              }}
             />
           </div>
         ))

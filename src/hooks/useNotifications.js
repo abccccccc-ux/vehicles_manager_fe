@@ -130,6 +130,29 @@ export const useNotifications = () => {
     return notificationService.isSocketAuthenticated();
   }, []);
 
+  // Subscribe to vehicle updates (optional)
+  const subscribeToVehicleUpdates = useCallback((vehicleIds = [], gateIds = []) => {
+    return notificationService.subscribeToVehicleUpdates(vehicleIds, gateIds);
+  }, []);
+
+  // Unsubscribe from vehicle updates
+  const unsubscribeFromVehicleUpdates = useCallback(() => {
+    return notificationService.unsubscribeFromVehicleUpdates();
+  }, []);
+
+  // Sync unread count with server
+  const syncUnreadCount = useCallback(async () => {
+    try {
+      const { fetchUnreadCount } = await import('../api/notificationApi');
+      const result = await fetchUnreadCount();
+      if (result.success && result.data?.count !== undefined) {
+        setUnreadCount(result.data.count);
+      }
+    } catch (error) {
+      console.error('Failed to sync unread count:', error);
+    }
+  }, []);
+
   return {
     // State
     notifications,
@@ -149,6 +172,9 @@ export const useNotifications = () => {
     connect,
     reconnect,
     disconnect,
-    checkAuth
+    checkAuth,
+    subscribeToVehicleUpdates,
+    unsubscribeFromVehicleUpdates,
+    syncUnreadCount
   };
 };

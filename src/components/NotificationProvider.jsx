@@ -1,4 +1,4 @@
-import React, { useEffect, createContext, useContext } from 'react';
+import React, { useEffect, createContext, useContext, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useNotifications } from '../hooks/useNotifications';
 import HighPriorityNotificationPopup from './HighPriorityNotificationPopup';
@@ -13,9 +13,13 @@ export const useNotificationContext = () => {
   return context;
 };
 
+// Sync interval in milliseconds (60 seconds)
+const UNREAD_SYNC_INTERVAL = 60000;
+
 export const NotificationProvider = ({ children }) => {
   const { user, tokens, isAuthenticated } = useSelector((state) => state.auth);
   const notifications = useNotifications();
+  const syncIntervalRef = useRef(null);
 
   // Auto connect khi user đã đăng nhập
   useEffect(() => {
@@ -23,8 +27,8 @@ export const NotificationProvider = ({ children }) => {
       console.log('🔔 Auto-connecting notification service for user:', user.username);
       
       const userInfo = {
-        id: user.id,
-        userId: user.id,
+        id: user._id,
+        userId: user._id,
         username: user.username,
         role: user.role,
         departmentId: user.departmentId,
@@ -56,16 +60,32 @@ export const NotificationProvider = ({ children }) => {
     }
   }, [notifications.authError]);
 
-  // Log connection status
+  // Log connection status và sync unread count
   useEffect(() => {
     if (notifications.isConnected && notifications.isAuthenticated) {
       console.log('✅ Notification service fully connected and authenticated');
+      
+      // Sync unread count when connected
+      notifications.syncUnreadCount();
+      
+      // Setup periodic sync
+      syncIntervalRef.current = setInterval(() => {
+        notifications.syncUnreadCount();
+      }, UNREAD_SYNC_INTERVAL);
     } else if (notifications.isConnected && !notifications.isAuthenticated) {
       console.log('⚠️ Notification service connected but not authenticated');
     } else {
       console.log('❌ Notification service disconnected');
     }
-  }, [notifications.isConnected, notifications.isAuthenticated]);
+
+    // Cleanup interval on disconnect or unmount
+    return () => {
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current);
+        syncIntervalRef.current = null;
+      }
+    };
+  }, [notifications.isConnected, notifications.isAuthenticated, notifications]);
 
   return (
     <NotificationContext.Provider value={notifications}>
