@@ -23,7 +23,7 @@ export const markAllAsReadApi = async () => {
 };
 
 export const fetchUnreadCount = async () => {
-  const response = await axiosClient.get('/notifications/unread-count');
+  const response = await axiosClient.get('/notifications/unread/count');
   return response.data; // { success, data: { count: number } }
 };
 

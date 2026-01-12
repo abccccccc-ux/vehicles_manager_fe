@@ -31,7 +31,7 @@ export const NotificationProvider = ({ children }) => {
         userId: user._id,
         username: user.username,
         role: user.role,
-        departmentId: user.departmentId,
+        departmentId: user.department?._id,
         department: user.department
       };
 

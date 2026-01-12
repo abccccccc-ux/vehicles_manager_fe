@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, Select, InputNumber, Switch, Row, Col, notification } from 'antd';
 import cameraApi from '../../api/cameraApi';
+import { decryptPassword } from '../../utils/crypto';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -21,7 +22,7 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess }) => {
         port: camera.technical?.port,
         protocol: camera.technical?.protocol,
         username: camera.technical?.username,
-        password: "", // Don't pre-fill password for security
+        password: decryptPassword(camera.technical?.password),
         fps: camera.technical?.fps,
         width: camera.technical?.resolution?.width,
         height: camera.technical?.resolution?.height,
