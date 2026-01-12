@@ -157,7 +157,7 @@ class VideoStreamService {
     const videoElement = this.videoStreams.get(cameraId);
 
     if (!videoElement) {
-      // console.log(`⚠️ No video element registered for camera: ${cameraId}`);
+      console.log(`⚠️ No video element registered for camera: ${cameraId}. Registered cameras:`, Array.from(this.videoStreams.keys()));
       return;
     }
 

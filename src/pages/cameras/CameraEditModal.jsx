@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, Select, InputNumber, Switch, Row, Col, notification } from 'antd';
+import { Modal, Form, Input, Select, InputNumber, Switch, Row, Col, notification, Button, Divider } from 'antd';
+import { AimOutlined } from '@ant-design/icons';
 import cameraApi from '../../api/cameraApi';
 import { decryptPassword } from '../../utils/crypto';
 
 const { Option } = Select;
 const { TextArea } = Input;
 
-const CameraEditModal = ({ visible, camera, onClose, onSuccess }) => {
+const CameraEditModal = ({ visible, camera, onClose, onSuccess, onOpenRoiEditor }) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -81,6 +82,7 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess }) => {
         } else {
           notification.success({ message: "Đã cập nhật camera thành công", placement: 'bottomRight' });
         }
+        onSuccess(null, false); // Not a new camera
       } else {
         // Create new camera
         response = await cameraApi.createCamera(cameraData);
@@ -89,9 +91,12 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess }) => {
         } else {
           notification.success({ message: "Đã thêm camera thành công", placement: 'bottomRight' });
         }
+        // Pass both cameraId (for streaming) and mongoId (for API)
+        const newMongoId = response?.data?._id || cameraData._id;
+        const newCameraId = response?.data?.cameraId || cameraData.cameraId;
+        // onSuccess(mongoId, isNewCamera, cameraName, cameraIdForStreaming)
+        onSuccess(newMongoId, true, cameraData.name, newCameraId);
       }
-
-      onSuccess();
     } catch (error) {
       console.error("Error submitting camera:", error);
       console.error("Error response:", error.response?.data);
@@ -348,6 +353,31 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess }) => {
             </Form.Item>
           </Col>
         </Row>
+
+        {/* ROI Configuration Button - Only show when editing existing camera */}
+        {camera && (
+          <>
+            <Divider style={{ margin: '16px 0' }} />
+            <Row>
+              <Col span={24}>
+                <Button
+                  type="dashed"
+                  icon={<AimOutlined />}
+                  onClick={() => {
+                    onClose();
+                    if (onOpenRoiEditor) {
+                      // Pass cameraId for streaming, name, _id for API, and recognition data
+                      onOpenRoiEditor(camera.cameraId, camera.name, camera._id, camera.recognition);
+                    }
+                  }}
+                  style={{ width: '100%' }}
+                >
+                  Cấu hình vùng phát hiện (ROI)
+                </Button>
+              </Col>
+            </Row>
+          </>
+        )}
       </Form>
     </Modal>
   );
