@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Tag, Row, Col, Button, notification } from 'antd';
+import { Card, Table, Tag, Row, Col, Button, notification, Modal } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import SearchInput from '../../components/Search/SearchInput';
 import SearchFilter from '../../components/Search/SearchFilter';
@@ -7,6 +7,7 @@ import showDeleteConfirm from '../../components/DeleteConfirm';
 import useRebounce from '../../hooks/useRebounce';
 import cameraApi from '../../api/cameraApi';
 import CameraEditModal from './CameraEditModal';
+import RoiEditorModal from './RoiEditorModal';
 
 const statusOptions = [
   { label: 'Hoạt động', value: true },
@@ -33,6 +34,13 @@ const CamerasList = () => {
   const [deletingId, setDeletingId] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingCamera, setEditingCamera] = useState(null);
+  
+  // ROI Editor state
+  const [showRoiEditor, setShowRoiEditor] = useState(false);
+  const [roiCameraId, setRoiCameraId] = useState(null); // cameraId for streaming
+  const [roiCameraMongoId, setRoiCameraMongoId] = useState(null); // _id for API
+  const [roiCameraName, setRoiCameraName] = useState('');
+  const [roiCameraRecognition, setRoiCameraRecognition] = useState(null); // recognition data
 
   // debounced dispatcher for search to avoid rapid requests while typing
   const debouncedSearch = useRebounce((val) => {
@@ -324,9 +332,56 @@ const CamerasList = () => {
           setShowEditModal(false);
           setEditingCamera(null);
         }}
-        onSuccess={() => {
+        onSuccess={(mongoId, isNewCamera, cameraName, cameraIdForStreaming) => {
           setShowEditModal(false);
           setEditingCamera(null);
+          fetchCameras();
+          
+          // Show ROI configuration dialog for new cameras
+          if (isNewCamera && mongoId) {
+            Modal.confirm({
+              title: 'Cấu hình vùng phát hiện',
+              content: 'Bạn có muốn cấu hình vùng phát hiện (ROI) cho camera này ngay bây giờ?',
+              okText: 'Có, cấu hình ngay',
+              cancelText: 'Để sau',
+              onOk: () => {
+                setRoiCameraId(cameraIdForStreaming); // For streaming
+                setRoiCameraMongoId(mongoId); // For API
+                setRoiCameraName(cameraName || cameraIdForStreaming);
+                setShowRoiEditor(true);
+              }
+            });
+          }
+        }}
+        onOpenRoiEditor={(cameraId, cameraName, mongoId, recognition) => {
+          setRoiCameraId(cameraId); // For streaming
+          setRoiCameraMongoId(mongoId); // For API
+          setRoiCameraName(cameraName || cameraId);
+          setRoiCameraRecognition(recognition); // For preserving enabled/confidence
+          setShowRoiEditor(true);
+        }}
+      />
+      
+      {/* ROI Editor Modal */}
+      <RoiEditorModal
+        visible={showRoiEditor}
+        cameraId={roiCameraId}
+        cameraMongoId={roiCameraMongoId}
+        cameraName={roiCameraName}
+        cameraRecognition={roiCameraRecognition}
+        onClose={() => {
+          setShowRoiEditor(false);
+          setRoiCameraId(null);
+          setRoiCameraMongoId(null);
+          setRoiCameraName('');
+          setRoiCameraRecognition(null);
+        }}
+        onSuccess={() => {
+          setShowRoiEditor(false);
+          setRoiCameraId(null);
+          setRoiCameraMongoId(null);
+          setRoiCameraName('');
+          setRoiCameraRecognition(null);
           fetchCameras();
         }}
       />
