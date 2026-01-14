@@ -46,9 +46,22 @@ const NotificationCenter = () => {
     }
     
     // Handle actionable notifications
-    if (notification.actionable) {
+    // Check if notification is actionable (either explicitly set or based on type)
+    const isActionable = notification.actionable || isActionableNotificationType(notification.type);
+    
+    if (isActionable) {
       handleActionableNotification(notification);
     }
+  };
+
+  // Helper function to determine if a notification type is actionable
+  const isActionableNotificationType = (type) => {
+    const actionableTypes = [
+      'working_hours_request',
+      'vehicle_verification',
+      'access_request'
+    ];
+    return actionableTypes.includes(type);
   };
 
   const handleActionableNotification = (notification) => {
