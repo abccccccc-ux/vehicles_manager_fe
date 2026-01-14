@@ -62,10 +62,14 @@ const CreatePersonalWorkingHoursRequest = ({ visible, onCancel, onCreated }) => 
         form.resetFields();
         onCreated && onCreated(result.data?.request);
       } else {
-        message.error(result?.errors[0].message || 'Tạo yêu cầu không thành công');
+        // Xử lý trường hợp result không success
+        const errorMsg = result?.message || result?.errors?.[0]?.message || 'Tạo yêu cầu không thành công';
+        message.error(errorMsg);
       }
     } catch (err) {
-      message.error(err || 'Lỗi khi tạo yêu cầu');
+      // err đã được xử lý thành string từ slice
+      const errorMsg = typeof err === 'string' ? err : err?.message || 'Lỗi khi tạo yêu cầu';
+      message.error(errorMsg);
     }
   };
 
