@@ -240,15 +240,11 @@ const CameraViewer = ({
         )}
         
         {!isStreaming && !error && connectionStatus === 'connected' && (() => {
-          console.log(`⏳ [${cameraId}] Showing waiting overlay - Debug state check`);
           return (
             <div className="stream-overlay waiting-overlay">
               <div className="overlay-content">
                 <span className="waiting-icon">⏳</span>
                 <p>Waiting for stream...</p>
-                <small style={{fontSize: '0.8em', opacity: 0.7}}>
-                  Debug: streaming={isStreaming.toString()}, error={(!!error).toString()}
-                </small>
               </div>
             </div>
           );
