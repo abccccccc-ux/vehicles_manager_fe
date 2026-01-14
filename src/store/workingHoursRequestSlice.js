@@ -35,7 +35,12 @@ export const createWorkingHoursRequest = createAsyncThunk(
       const response = await workingHoursRequestApi.createWorkingHoursRequest(body);
       return response;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.errors[0].message || err.message || 'Lỗi khi tạo yêu cầu');
+      // Xử lý nhiều dạng error từ backend
+      const errorMessage = err.response?.data?.message || 
+                          err.response?.data?.errors?.[0]?.message || 
+                          err.message || 
+                          'Lỗi khi tạo yêu cầu';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -48,7 +53,12 @@ export const updateWorkingHoursRequest = createAsyncThunk(
       const response = await workingHoursRequestApi.updateWorkingHoursRequest(id, body);
       return response;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.errors[0].message || err.message || 'Lỗi khi cập nhật yêu cầu');
+      // Xử lý nhiều dạng error từ backend
+      const errorMessage = err.response?.data?.message || 
+                          err.response?.data?.errors?.[0]?.message || 
+                          err.message || 
+                          'Lỗi khi cập nhật yêu cầu';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -58,7 +68,7 @@ export const approveWorkingHoursRequest = createAsyncThunk(
   'workingHoursRequests/approve',
   async ({ id, approvalNote }, { rejectWithValue }) => {
     try {
-      const body = approvalNote ? { approvalNote } : undefined;
+      const body = approvalNote ? { approvalNote } : {};
       const response = await workingHoursRequestApi.approveWorkingHoursRequest(id, body);
       return response;
     } catch (err) {
