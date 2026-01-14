@@ -76,7 +76,7 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess, onOpenRoiEditor 
 
       if (camera) {
         // Update existing camera
-        response = await cameraApi.updateCamera(camera.cameraId, cameraData);
+        response = await cameraApi.updateCamera(camera._id, cameraData);
         if (response && response.success) {
           notification.success({ message: response.message || "Đã cập nhật camera thành công", placement: 'bottomRight' });
         } else {
