@@ -24,12 +24,18 @@ const MainLayout = ({ children }) => {
         style={{
           background: '#fff',
           overflow: 'auto',
+          position: 'fixed',
+          left: 0,
+          top: 48,
+          bottom: 0,
+          height: 'calc(100vh - 48px)',
+          zIndex: 100,
         }}
       >
         <Sidebar />
       </Sider>
 
-      <Layout className="main-layout" style={{ minHeight: '100vh' }}>
+      <Layout className="main-layout" style={{ minHeight: '100vh', marginLeft: collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}>
         <Navbar />
 
         <Content style={{ padding: 24, height: '100%' }}>
