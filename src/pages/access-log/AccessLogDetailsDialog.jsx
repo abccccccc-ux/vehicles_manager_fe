@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, Descriptions, Tag, Image, Spin, Row, Col, Card, Tabs } from 'antd';
 import { CloseOutlined, EyeOutlined, CarOutlined, UserOutlined, VideoCameraOutlined, PictureOutlined } from '@ant-design/icons';
+import VideoDownloadButton from '../../components/VideoDownloadButton';
 
 const AccessLogDetailsDialog = ({ open, onClose, accessLog, loading }) => {
   if (!accessLog && !loading) return null;
@@ -330,30 +331,10 @@ const AccessLogDetailsDialog = ({ open, onClose, accessLog, loading }) => {
                                   <p style={{ fontSize: '12px', color: '#666', marginBottom: 8 }}>
                                     Đường dẫn: {accessLog.log.recognitionData.videoUrl}
                                   </p>
-                                  <video
-                                    width="100%"
-                                    controls
-                                    preload="metadata"
-                                    style={{ border: '1px solid #d9d9d9', borderRadius: 4, maxHeight: '300px' }}
-                                    poster={accessLog.log.recognitionData.processedImage ? 
-                                      `${process.env.REACT_APP_IMAGE_BASE_URL}${accessLog.log.recognitionData.processedImage}` : 
-                                      undefined
-                                    }
-                                  >
-                                    <source 
-                                      src={`${process.env.REACT_APP_IMAGE_BASE_URL}${accessLog.log.recognitionData.videoUrl}`} 
-                                      type="video/mp4" 
-                                    />
-                                    <source 
-                                      src={`${process.env.REACT_APP_IMAGE_BASE_URL}${accessLog.log.recognitionData.videoUrl}`} 
-                                      type="video/webm" 
-                                    />
-                                    <source 
-                                      src={`${process.env.REACT_APP_IMAGE_BASE_URL}${accessLog.log.recognitionData.videoUrl}`} 
-                                      type="video/ogg" 
-                                    />
-                                    Trình duyệt của bạn không hỗ trợ video HTML5.
-                                  </video>
+                                  <VideoDownloadButton
+                                    videoUrl={accessLog.log.recognitionData.videoUrl}
+                                    accessLogId={accessLog.log._id}
+                                  />
                                 </div>
                               </Tabs.TabPane>
                             )}
