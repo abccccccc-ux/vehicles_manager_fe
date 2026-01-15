@@ -181,10 +181,6 @@ const NotificationCenter = () => {
           </Button>
         </Badge>
       </Popover>
-
-      <div className={`connection-status ${isConnected && isAuthenticated ? 'authenticated' : isConnected ? 'connected' : 'disconnected'}`}>
-        {isConnected && isAuthenticated ? '🟢' : isConnected ? '🟡' : '🔴'}
-      </div>
     </div>
   );
 };
