@@ -8,18 +8,25 @@ import {
   CheckCircleOutlined
 } from '@ant-design/icons';
 import { useNotificationContext } from './NotificationProvider';
+import AccessLogVerificationModal from './AccessLogVerificationModal';
 import './HighPriorityNotificationPopup.css';
 
 const { Title, Text } = Typography;
 
-const HighPriorityNotificationPopup = ({ __mockContext }) => {
+const HighPriorityNotificationPopup = () => {
   const realContext = useNotificationContext();
-  const { notifications, markAsRead } = __mockContext || realContext;
+  const { notifications, markAsRead } = realContext;
+  console.log("🚀 ~ HighPriorityNotificationPopup ~ notifications:", notifications)
   const [currentNotification, setCurrentNotification] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [verificationModalVisible, setVerificationModalVisible] = useState(false);
+  const [accessLogForVerification, setAccessLogForVerification] = useState(null);
 
   // Lắng nghe notifications có priority high
   useEffect(() => {
+    // Không hiển thị popup mới nếu đang mở modal xác minh
+    if (verificationModalVisible) return;
+    
     const highPriorityNotifications = notifications.filter(
       n => n.priority === 'high' && !n.read && !n.dismissed
     );
@@ -29,7 +36,7 @@ const HighPriorityNotificationPopup = ({ __mockContext }) => {
       setCurrentNotification(highPriorityNotifications[0]);
       setIsVisible(true);
     }
-  }, [notifications, currentNotification]);
+  }, [notifications, currentNotification, verificationModalVisible]);
 
   const getNotificationIcon = (type) => {
     switch (type) {
@@ -65,33 +72,34 @@ const HighPriorityNotificationPopup = ({ __mockContext }) => {
     }
   };
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     if (currentNotification) {
-      markAsRead(currentNotification.id);
+      await markAsRead(currentNotification._id || currentNotification.id);
       handleNotificationAction('accept');
       closePopup();
     }
   };
 
-  const handleReject = () => {
+  const handleReject = async () => {
     if (currentNotification) {
-      markAsRead(currentNotification.id);
+      await markAsRead(currentNotification._id || currentNotification.id);
       handleNotificationAction('reject');
       closePopup();
     }
   };
 
-  const handleView = () => {
+  const handleView = async () => {
     if (currentNotification) {
-      markAsRead(currentNotification.id);
+      await markAsRead(currentNotification._id || currentNotification.id);
       handleNotificationAction('view');
       closePopup();
     }
   };
 
-  const handleDismiss = () => {
+  const handleDismiss = async () => {
+    console.log("🚀 ~ handleDismiss ~ currentNotification:", currentNotification)
     if (currentNotification) {
-      markAsRead(currentNotification.id);
+      await markAsRead(currentNotification._id || currentNotification.id);
       closePopup();
     }
   };
@@ -109,14 +117,24 @@ const HighPriorityNotificationPopup = ({ __mockContext }) => {
     switch (type) {
       case 'vehicle_verification':
         if (action === 'view') {
-          // Navigate to vehicle verification page
-          const url = `/access-logs?licensePlate=${data?.licensePlate}&verification=pending`;
-          if (window.location.pathname !== '/access-logs') {
-            window.location.href = url;
-          } else {
-            window.history.pushState({}, '', url);
-            window.dispatchEvent(new CustomEvent('navigate-to-verification', { detail: { licensePlate: data?.licensePlate } }));
-          }
+          // Mở popup xác minh thay vì điều hướng
+          const accessLogData = {
+            accessLogId: data?.accessLogId,
+            licensePlate: data?.licensePlate,
+            gateName: data?.gateName,
+            gateId: data?.gateId,
+            action: data?.action,
+            createdAt: data?.createdAt,
+            verificationStatus: 'pending',
+            confidence: data?.confidence || 0.85,
+            media: data?.media,
+            vehicle: data?.vehicle,
+            owner: data?.owner,
+            guestInfo: data?.guestInfo,
+            isVehicleRegistered: data?.isVehicleRegistered
+          };
+          setAccessLogForVerification(accessLogData);
+          setVerificationModalVisible(true);
         }
         break;
         
@@ -148,20 +166,30 @@ const HighPriorityNotificationPopup = ({ __mockContext }) => {
   };
 
   const closePopup = () => {
+    // Lưu cả _id và id trước khi set null để tránh race condition
+    const closedNotificationMongoId = currentNotification?._id;
+    const closedNotificationLocalId = currentNotification?.id;
+    
     setIsVisible(false);
     setCurrentNotification(null);
 
     // Kiểm tra xem còn notification high priority nào không
+    // Tăng thời gian chờ để markAsRead kịp cập nhật trạng thái
     setTimeout(() => {
       const remainingHighPriority = notifications.filter(
-        n => n.priority === 'high' && !n.read && !n.dismissed && n.id !== currentNotification?.id
+        n => n.priority === 'high' && 
+             !n.read && 
+             !n.dismissed && 
+             // So sánh bằng cả _id và id để đảm bảo không hiển thị lại notification vừa đóng
+             n._id !== closedNotificationMongoId &&
+             n.id !== closedNotificationLocalId
       );
       
       if (remainingHighPriority.length > 0) {
         setCurrentNotification(remainingHighPriority[0]);
         setIsVisible(true);
       }
-    }, 500);
+    }, 1000); // Tăng từ 500ms lên 1000ms để markAsRead kịp xử lý
   };
 
   const renderActionButtons = () => {
@@ -226,10 +254,28 @@ const HighPriorityNotificationPopup = ({ __mockContext }) => {
   };
 
   if (!currentNotification) {
-    return null;
+    // Vẫn render AccessLogVerificationModal nếu đang mở
+    return (
+      <AccessLogVerificationModal
+        visible={verificationModalVisible}
+        onClose={() => {
+          setVerificationModalVisible(false);
+          setAccessLogForVerification(null);
+        }}
+        accessLogData={accessLogForVerification}
+        onVerificationComplete={(status) => {
+          setVerificationModalVisible(false);
+          setAccessLogForVerification(null);
+          window.dispatchEvent(new CustomEvent('vehicle-verification-complete', { 
+            detail: { status, accessLogId: accessLogForVerification?.accessLogId } 
+          }));
+        }}
+      />
+    );
   }
 
   return (
+    <>
     <Modal
       title={
         <Space align="center">
@@ -317,6 +363,25 @@ const HighPriorityNotificationPopup = ({ __mockContext }) => {
         </div>
       </div>
     </Modal>
+
+    {/* Modal xác minh Access Log */}
+    <AccessLogVerificationModal
+      visible={verificationModalVisible}
+      onClose={() => {
+        setVerificationModalVisible(false);
+        setAccessLogForVerification(null);
+      }}
+      accessLogData={accessLogForVerification}
+      onVerificationComplete={(status) => {
+        setVerificationModalVisible(false);
+        setAccessLogForVerification(null);
+        // Emit event để thông báo đã xác minh xong
+        window.dispatchEvent(new CustomEvent('vehicle-verification-complete', { 
+          detail: { status, accessLogId: accessLogForVerification?.accessLogId } 
+        }));
+      }}
+    />
+    </>
   );
 };
 

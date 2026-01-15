@@ -182,6 +182,8 @@ class NotificationService {
       switch (data.type) {
         case 'working_hours_request':
           this.handleNotification({
+            _id: data._id || data.notificationId,
+            notificationId: data.notificationId || data._id,
             type: 'working_hours_request',
             title: 'Yêu cầu giờ làm việc',
             message: `${data.data?.username || data.data?.requesterName} yêu cầu ra/vào - Biển số: ${data.data?.licensePlate}`,
@@ -194,6 +196,8 @@ class NotificationService {
 
         case 'working_hours_request_update':
           this.handleNotification({
+            _id: data._id || data.notificationId,
+            notificationId: data.notificationId || data._id,
             type: 'working_hours_request_update',
             title: data.title || 'Cập nhật yêu cầu giờ làm việc',
             message: data.message || `Yêu cầu của bạn đã được ${data.data?.status === 'approved' ? 'phê duyệt' : 'từ chối'} bởi ${data.data?.approverName}`,
@@ -205,6 +209,8 @@ class NotificationService {
 
         case 'vehicle_verification':
           this.handleNotification({
+            _id: data._id || data.notificationId,
+            notificationId: data.notificationId || data._id,
             type: 'vehicle_verification',
             title: data.title || 'Xác minh xe',
             message: data.message || `Xe ${data.data?.licensePlate} ${data.data?.action === 'entry' ? 'vào' : 'ra'} tại ${data.data?.gateName} cần xác minh`,
@@ -217,6 +223,8 @@ class NotificationService {
 
         case 'vehicle_verified':
           this.handleNotification({
+            _id: data._id || data.notificationId,
+            notificationId: data.notificationId || data._id,
             type: 'vehicle_verified',
             title: data.title || 'Xe đã xác minh',
             message: data.message || `Xe ${data.data?.licensePlate} đã được ${data.data?.verificationStatus === 'approved' ? 'phê duyệt' : 'từ chối'}`,
@@ -228,6 +236,8 @@ class NotificationService {
 
         case 'vehicle_access':
           this.handleNotification({
+            _id: data._id || data.notificationId,
+            notificationId: data.notificationId || data._id,
             type: 'vehicle_access',
             title: data.title || 'Xe ra/vào',
             message: data.message || `Xe ${data.data?.licensePlate || 'không xác định'} đã ${data.data?.direction === 'in' || data.data?.action === 'entry' ? 'vào' : 'ra'} cổng ${data.data?.gateName || data.data?.gateId}`,
@@ -256,6 +266,8 @@ class NotificationService {
           console.log('🔔 Unknown notification type:', data.type);
           // Vẫn hiển thị notification chung cho các type không biết
           this.handleNotification({
+            _id: data._id || data.notificationId,
+            notificationId: data.notificationId || data._id,
             type: data.type,
             title: data.title || 'Thông báo',
             message: data.message || 'Bạn có thông báo mới',
@@ -265,16 +277,66 @@ class NotificationService {
           });
       }
     });
+
+    // Lắng nghe event verification_completed để xoá notification trùng lặp
+    this.socket.on('verification_completed', (data) => {
+      console.log('🔔 Verification completed event received:', data);
+      
+      const accessLogId = data.accessLogId || data.data?.accessLogId || data._id;
+      
+      if (accessLogId) {
+        // Tìm và xoá tất cả notification có cùng accessLogId
+        const beforeCount = this.notifications.length;
+        this.notifications = this.notifications.filter(n => {
+          const notifAccessLogId = n.data?.accessLogId;
+          // Xoá notification nếu có cùng accessLogId VÀ là loại vehicle_verification
+          if (notifAccessLogId === accessLogId && n.type === 'vehicle_verification') {
+            console.log('🗑️ Removing duplicate notification for accessLogId:', accessLogId);
+            return false;
+          }
+          return true;
+        });
+        
+        const removedCount = beforeCount - this.notifications.length;
+        if (removedCount > 0) {
+          console.log(`✅ Removed ${removedCount} duplicate notification(s) for accessLogId: ${accessLogId}`);
+          this.emit('notifications_updated', this.notifications);
+        }
+      }
+    });
   }
 
   // Xử lý notification mới
   handleNotification(notification) {
-    const id = Date.now() + Math.random();
+    // Ưu tiên sử dụng _id từ MongoDB nếu có, fallback sang local ID
+    const id = notification._id || notification.notificationId || (Date.now() + Math.random());
     const notificationWithId = {
       ...notification,
       id,
+      _id: notification._id || notification.notificationId, // Giữ lại MongoDB ID
       read: false
     };
+
+    // Kiểm tra notification trùng lặp bằng _id hoặc accessLogId
+    const isDuplicate = this.notifications.some(n => {
+      // Trùng _id từ MongoDB
+      if (notificationWithId._id && n._id === notificationWithId._id) {
+        console.log('🔄 Skipping duplicate notification by _id:', notificationWithId._id);
+        return true;
+      }
+      // Trùng accessLogId cho vehicle_verification
+      if (notification.type === 'vehicle_verification' && 
+          notificationWithId.data?.accessLogId && 
+          n.data?.accessLogId === notificationWithId.data?.accessLogId) {
+        console.log('🔄 Skipping duplicate notification by accessLogId:', notificationWithId.data?.accessLogId);
+        return true;
+      }
+      return false;
+    });
+
+    if (isDuplicate) {
+      return; // Không thêm notification trùng lặp
+    }
 
     // Kiểm tra cài đặt để xem có hiển thị notification này không
     if (this.shouldShowNotification(notification.type)) {
@@ -335,20 +397,25 @@ class NotificationService {
 
   // Đánh dấu notification đã đọc
   async markAsRead(notificationId) {
+    // Cập nhật local state NGAY LẬP TỨC để UI phản hồi nhanh
+    const notification = this.notifications.find(
+      n => n.id === notificationId || n._id === notificationId
+    );
+    if (notification && !notification.read) {
+      notification.read = true;
+      this.emit('notification_updated', notification);
+      console.log('✅ Marked notification as read locally:', notificationId);
+    }
+
     try {
       // Gọi API để đánh dấu trên server
       const { markNotificationRead } = await import('../api/notificationApi');
       await markNotificationRead(notificationId);
       
-      console.log('✅ Marked notification as read:', notificationId);
+      console.log('✅ Synced notification read status to server:', notificationId);
     } catch (error) {
-      console.error('❌ Failed to mark notification as read:', error);
-      // Vẫn cập nhật local state trong trường hợp lỗi API
-      const notification = this.notifications.find(n => n.id === notificationId);
-      if (notification) {
-        notification.read = true;
-        this.emit('notification_updated', notification);
-      }
+      console.error('❌ Failed to sync notification read status to server:', error);
+      // Local state đã được cập nhật rồi, không cần làm gì thêm
     }
   }
 
