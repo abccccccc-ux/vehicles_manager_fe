@@ -24,6 +24,7 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess, onOpenRoiEditor 
         protocol: camera.technical?.protocol,
         username: camera.technical?.username,
         password: decryptPassword(camera.technical?.password),
+        streamUrl: camera.technical?.streamUrl,
         fps: camera.technical?.fps,
         width: camera.technical?.resolution?.width,
         height: camera.technical?.resolution?.height,
@@ -53,6 +54,7 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess, onOpenRoiEditor 
         protocol: values.protocol,
         username: values.username,
         password: values.password,
+        streamUrl: values.streamUrl,
         fps: values.fps,
         resolution: {
           width: values.width,
@@ -272,6 +274,14 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess, onOpenRoiEditor 
             </Form.Item>
           </Col>
         </Row>
+
+        <Form.Item
+          name="streamUrl"
+          label="Stream URL"
+          tooltip="URL stream của camera (tùy chọn). Ví dụ: rtsp://username:password@192.168.1.64:554/stream"
+        >
+          <Input placeholder="rtsp://username:password@ip:port/stream" />
+        </Form.Item>
 
         <Row gutter={16}>
           <Col span={8}>
