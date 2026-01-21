@@ -19,7 +19,8 @@ const AccessLogDetailsDialog = ({ open, onClose, accessLog, loading }) => {
     const labels = {
       pending: 'Chờ xác minh',
       verified: 'Đã xác minh',
-      rejected: 'Từ chối'
+      rejected: 'Từ chối',
+      auto_approved: 'Tự động phê duyệt'
     };
     return labels[status] || status;
   };

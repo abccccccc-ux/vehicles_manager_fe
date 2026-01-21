@@ -7,7 +7,7 @@ import useDebounce from '../../hooks/useDebounce';
 import { 
   fetchAccessLogs, 
   setSearch, 
-  setStatus, 
+  setVerificationStatus, 
   setAction, 
   setStartDate, 
   setEndDate, 
@@ -30,7 +30,7 @@ const AccessLogTable = () => {
     detailLoading, 
     pagination, 
     search: storeSearch, 
-    status: storeStatus, 
+    verificationStatus: storeVerificationStatus, 
     gateId: storeGateId, 
     action: storeAction,
     startDate: storeStartDate,
@@ -42,7 +42,7 @@ const AccessLogTable = () => {
   // Local UI state for controlled inputs
   const [search, setSearchLocal] = useState(storeSearch || '');
   const debouncedSearch = useDebounce(search, 400);
-  const [status, setStatusLocal] = useState(storeStatus || '');
+  const [verificationStatus, setVerificationStatusLocal] = useState(storeVerificationStatus || '');
   const [gateId, setGateIdLocal] = useState(storeGateId || '');
   const [action, setActionLocal] = useState(storeAction || '');
   const [dateRange, setDateRange] = useState([
@@ -138,7 +138,7 @@ const AccessLogTable = () => {
   useEffect(() => {
     const params = {
       search: debouncedSearch || undefined,
-      status: status || undefined,
+      verificationStatus: verificationStatus || undefined,
       gateId: gateId || undefined,
       action: action || undefined,
       startDate: storeStartDate || undefined,
@@ -150,7 +150,7 @@ const AccessLogTable = () => {
   }, [
     dispatch, 
     debouncedSearch, 
-    status, 
+    verificationStatus, 
     gateId, 
     action, 
     storeStartDate, 
@@ -187,9 +187,9 @@ const AccessLogTable = () => {
     dispatch(setSearch(debouncedSearch || ''));
   }, [debouncedSearch, dispatch]);
 
-  const onStatusChange = (val) => {
-    setStatusLocal(val);
-    dispatch(setStatus(val));
+  const onVerificationStatusChange = (val) => {
+    setVerificationStatusLocal(val);
+    dispatch(setVerificationStatus(val));
   };
 
   const onActionChange = (val) => {
@@ -214,7 +214,7 @@ const AccessLogTable = () => {
 
   const handleResetFilters = () => {
     setSearchLocal('');
-    setStatusLocal('');
+    setVerificationStatusLocal('');
     setGateIdLocal('');
     setActionLocal('');
     setDateRange([null, null]);
@@ -236,15 +236,16 @@ const AccessLogTable = () => {
         </Col>
         <Col xs={24} sm={12} md={6} lg={4}>
           <Select 
-            // value={status} 
-            onChange={onStatusChange} 
+            value={verificationStatus} 
+            onChange={onVerificationStatusChange} 
             style={{ width: '100%' }} 
             allowClear 
             placeholder="Trạng thái xác minh"
           >
             <Option value="pending">Chờ xác minh</Option>
-            <Option value="verified">Đã xác minh</Option>
+            <Option value="approved">Đã xác minh</Option>
             <Option value="rejected">Từ chối</Option>
+            <Option value="auto_approved">Tự động xác minh</Option>
           </Select>
         </Col>
         <Col xs={24} sm={12} md={6} lg={4}>

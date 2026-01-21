@@ -29,7 +29,7 @@ const accessLogSlice = createSlice({
     },
     // Filters
     search: '',
-    status: '',
+    verificationStatus: '',
     gateId: '',
     action: '',
     startDate: '',
@@ -50,8 +50,8 @@ const accessLogSlice = createSlice({
       // Reset to first page when search changes
       state.pagination.current = 1;
     },
-    setStatus: (state, action) => {
-      state.status = action.payload;
+    setVerificationStatus: (state, action) => {
+      state.verificationStatus = action.payload;
       // Reset to first page when filter changes
       state.pagination.current = 1;
     },
@@ -77,7 +77,7 @@ const accessLogSlice = createSlice({
     },
     clearFilters: (state) => {
       state.search = '';
-      state.status = '';
+      state.verificationStatus = '';
       state.gateId = '';
       state.action = '';
       state.startDate = '';
@@ -129,7 +129,7 @@ export const {
   setDetailLoading,
   setPagination,
   setSearch,
-  setStatus,
+  setVerificationStatus,
   setGateId,
   setAction,
   setStartDate,
