@@ -578,7 +578,9 @@ const AccessLogVerificationModal = ({
   );
 
   const renderMediaSection = () => {
-    if (!accessLogData?.media) return null;
+    // Đọc từ recognitionData thay vì media
+    const recognitionData = accessLogData?.recognitionData;
+    if (!recognitionData) return null;
     
     return (
       <Card 
@@ -592,14 +594,14 @@ const AccessLogVerificationModal = ({
         }
       >
         <Row gutter={[16, 16]}>
-          {accessLogData.media.originalImage && (
-            <Col span={8}>
+          {recognitionData.originalImage && (
+            <Col span={12}>
               <div className="media-item">
                 <Text strong>Ảnh gốc</Text>
                 <br />
                 <Image
-                  width={100}
-                  src={accessLogData.media.originalImage}
+                  width={200}
+                  src={recognitionData.originalImage}
                   placeholder="Đang tải..."
                   fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FmuHkKJAIuxI2xIB2A2w2wI6Ag4CNcAMcBG6AHQFvgJ0BG2BH4AAcgQNwAA7AgXAEjsAB+P0/tU71dM+0pKlp9bT0Pq+BQu/prsJby3rOW6/qipRSSilN7Q/3E="
                 />
@@ -607,29 +609,14 @@ const AccessLogVerificationModal = ({
             </Col>
           )}
           
-          {accessLogData.media.processedImage && (
-            <Col span={8}>
+          {recognitionData.processedImage && (
+            <Col span={12}>
               <div className="media-item">
                 <Text strong>Ảnh đã xử lý</Text>
                 <br />
                 <Image
-                  width={100}
-                  src={accessLogData.media.processedImage}
-                  placeholder="Đang tải..."
-                  fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FmuHkKJAIuxI2xIB2A2w2wI6Ag4CNcAMcBG6AHQFvgJ0BG2BH4AAcgQNwAA7AgXAEjsAB+P0/tU71dM+0pKlp9bT0Pq+BQu/prsJby3rOW6/qipRSSilN7Q/3E="
-                />
-              </div>
-            </Col>
-          )}
-          
-          {accessLogData.media.croppedPlateImage && (
-            <Col span={8}>
-              <div className="media-item">
-                <Text strong>Biển số cắt</Text>
-                <br />
-                <Image
-                  width={100}
-                  src={accessLogData.media.croppedPlateImage}
+                  width={200}
+                  src={recognitionData.processedImage}
                   placeholder="Đang tải..."
                   fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FmuHkKJAIuxI2xIB2A2w2wI6Ag4CNcAMcBG6AHQFvgJ0BG2BH4AAcgQNwAA7AgXAEjsAB+P0/tU71dM+0pKlp9bT0Pq+BQu/prsJby3rOW6/qipRSSilN7Q/3E="
                 />
@@ -638,20 +625,28 @@ const AccessLogVerificationModal = ({
           )}
         </Row>
         
-        {accessLogData.media.videoUrl && (
+        {recognitionData.videoUrl && (
           <div style={{ marginTop: 16, textAlign: 'center' }}>
             <Text strong>Video ghi lại:</Text>
             <br />
             <video 
-              width="300" 
+              width="400" 
               controls 
               className="verification-video"
               style={{ marginTop: 8 }}
-              poster={accessLogData.media.videoThumbnail}
             >
-              <source src={accessLogData.media.videoUrl} type="video/mp4" />
+              <source src={recognitionData.videoUrl} type="video/mp4" />
               Trình duyệt không hỗ trợ video.
             </video>
+          </div>
+        )}
+
+        {recognitionData.boundingBox && (
+          <div style={{ marginTop: 16 }}>
+            <Text type="secondary" style={{ fontSize: '12px' }}>
+              Vị trí biển số: x={recognitionData.boundingBox.x}, y={recognitionData.boundingBox.y}, 
+              width={recognitionData.boundingBox.width}, height={recognitionData.boundingBox.height}
+            </Text>
           </div>
         )}
       </Card>
