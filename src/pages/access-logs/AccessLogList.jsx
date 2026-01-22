@@ -1,22 +1,44 @@
 import { useEffect } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-import { Card, Typography, Space, Button, Tooltip } from 'antd';
+import { Card, Typography, Space, Button, Tooltip, message } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import AccessLogTable from '../access-log/AccessLogTable';
 import { fetchAccessLogs } from '../../store/accessLogSlice';
 import { useAccessLogs } from '../../hooks/useAccessLogs';
+import useSocket from '../../hooks/useSocket';
 
 const { Title, Text } = Typography;
 
 const AccessLogList = () => {
     const dispatch = useDispatch();
     const { refreshAccessLogs } = useAccessLogs();
+    const { socket, isConnected } = useSocket(process.env.REACT_APP_API_URL || 'http://localhost:5000');
 
     useEffect(() => {
         // initial fetch
         dispatch(fetchAccessLogs({ page: 1, limit: 10 }));
     }, [dispatch]);
+
+    // Socket listener cho access log mới
+    useEffect(() => {
+        if (!socket || !isConnected) return;
+
+        const handleAccessLogCreated = (data) => {
+            console.log('🎉 New access log created:', data);
+            
+            // Refresh danh sách
+            dispatch(fetchAccessLogs({ page: 1, limit: 10 }));
+        };
+
+        socket.on('access_log_created', handleAccessLogCreated);
+
+        console.log('👂 Socket listener registered for access_log_created');
+
+        return () => {
+            socket.off('access_log_created', handleAccessLogCreated);
+        };
+    }, [socket, isConnected, dispatch]);
 
     const handleRefresh = () => {
         dispatch(fetchAccessLogs({ page: 1, limit: 10 }));
