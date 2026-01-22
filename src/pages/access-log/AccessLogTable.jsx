@@ -212,15 +212,6 @@ const AccessLogTable = () => {
     dispatch(setPagination({ current: pag.current, pageSize: pag.pageSize }));
   };
 
-  const handleResetFilters = () => {
-    setSearchLocal('');
-    setVerificationStatusLocal('');
-    setGateIdLocal('');
-    setActionLocal('');
-    setDateRange([null, null]);
-    dispatch(clearFilters());
-  };
-
   return (
     <>
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
@@ -268,16 +259,6 @@ const AccessLogTable = () => {
             placeholder={['Từ ngày', 'Đến ngày']}
             format="DD/MM/YYYY"
           />
-        </Col>
-      </Row>
-
-      <Row style={{ marginBottom: 16 }}>
-        <Col span={24} style={{ textAlign: 'right' }}>
-          <Space>
-            <Button onClick={handleResetFilters}>
-              Reset
-            </Button>
-          </Space>
         </Col>
       </Row>
 
