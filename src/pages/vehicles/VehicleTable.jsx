@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Select, Space, Row, Col, Button, message } from 'antd';
-import { CloudUploadOutlined, DownloadOutlined } from '@ant-design/icons';
+import { Table, Input, Select, Space, Row, Col, Button } from 'antd';
+import { CloudUploadOutlined, PlusOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { getVehicleByLicensePlate, downloadVehicleTemplate } from '../../api/vehicleApi';
+import { getVehicleByLicensePlate } from '../../api/vehicleApi';
 import VehicleDetailsDialog from './VehicleDetailsDialog';
 import BulkUploadModal from './BulkUploadModal';
+import AdminAddVehicleModal from './AdminAddVehicleModal';
 import useDebounce from '../../hooks/useDebounce';
 import { fetchVehicles, setSearch, setVehicleType, setStatus, setPagination, setSelectedVehicle, setDetailLoading } from '../../store/vehicleSlice';
 
@@ -24,9 +25,10 @@ const { Option } = Select;
 const VehicleTable = () => {
   const dispatch = useDispatch();
   const { list, loading, selectedVehicle, detailLoading, pagination, search: storeSearch, vehicleType: storeVehicleType, status: storeStatus } = useSelector(state => state.vehicle);
+  const { user } = useSelector(state => state.auth);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
-  const [downloadingTemplate, setDownloadingTemplate] = useState(false);
+  const [addVehicleModalOpen, setAddVehicleModalOpen] = useState(false);
 
   // Local UI state for controlled inputs
   const [search, setSearchLocal] = useState(storeSearch || '');
@@ -93,17 +95,19 @@ const VehicleTable = () => {
     dispatch(setPagination({ current: pag.current, pageSize: pag.pageSize }));
   };
 
-  const handleDownloadTemplate = async () => {
-    setDownloadingTemplate(true);
-    try {
-      await downloadVehicleTemplate();
-      message.success('Tải template thành công');
-    } catch (error) {
-      message.error('Lỗi khi tải template');
-    } finally {
-      setDownloadingTemplate(false);
-    }
+  const handleAddVehicleSuccess = () => {
+    // Refresh danh sách xe sau khi thêm thành công
+    const params = {
+      search: debouncedSearch || undefined,
+      vehicleType: vehicleType || undefined,
+      status: status || undefined,
+      page: pagination.current,
+      limit: pagination.pageSize,
+    };
+    dispatch(fetchVehicles(params));
   };
+
+  const isAdmin = user?.role === 'admin';
 
   return (
     <>
@@ -132,13 +136,14 @@ const VehicleTable = () => {
         </Col>
         <Col xs={24} sm={12} md={24} lg={4} style={{ textAlign: 'right' }}>
           <Space>
-            <Button
-              icon={<DownloadOutlined />}
-              loading={downloadingTemplate}
-              onClick={handleDownloadTemplate}
-            >
-              Tải template
-            </Button>
+            {isAdmin && (
+              <Button
+                icon={<PlusOutlined />}
+                onClick={() => setAddVehicleModalOpen(true)}
+              >
+                Thêm xe mới
+              </Button>
+            )}
             <Button
               type="primary"
               icon={<CloudUploadOutlined />}
@@ -178,6 +183,12 @@ const VehicleTable = () => {
       <BulkUploadModal
         open={bulkUploadModalOpen}
         onClose={() => setBulkUploadModalOpen(false)}
+      />
+
+      <AdminAddVehicleModal
+        open={addVehicleModalOpen}
+        onClose={() => setAddVehicleModalOpen(false)}
+        onSuccess={handleAddVehicleSuccess}
       />
     </>
   );
