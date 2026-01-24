@@ -7,6 +7,7 @@ import Login from './pages/auth/Login';
 import History from './pages/History';
 import Users from './pages/users/Users';
 import ChangePassword from './pages/settings/ChangePassword';
+import Profile from './pages/settings/Profile';
 import Departments from './pages/departments/Departments';
 import WorkingHours from './pages/working-hours/WorkingHours';
 import PersonalVehiclesList from './pages/personal-vehicles/PersonalVehiclesList';
@@ -116,6 +117,12 @@ const routes = [
     path: '/change-password', 
     element: <PrivateRoute>
       <ChangePassword />
+    </PrivateRoute> 
+  },
+  { 
+    path: '/profile', 
+    element: <PrivateRoute>
+      <Profile />
     </PrivateRoute> 
   },
   
