@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
 import { Modal, Form, Select, DatePicker, Input, Button, Spin, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import vehicleApi from '../../api/vehicleApi';
@@ -20,7 +21,7 @@ const CreatePersonalWorkingHoursRequest = ({ visible, onCancel, onCreated }) => 
     const fetch = async () => {
       setLoadingVehicles(true);
       try {
-        const res = await vehicleApi.getMyVehicles({ limit: 100 });
+        const res = await vehicleApi.getVehicles({ limit: 100 });
         if (res && res.success) {
           // res.data may be array or object with items
           const items = Array.isArray(res.data) ? res.data : (res.data?.vehicles || res.data?.items || []);
@@ -38,16 +39,18 @@ const CreatePersonalWorkingHoursRequest = ({ visible, onCancel, onCreated }) => 
   }, [visible]);
 
   const onFinish = async (values) => {
-    // values: requestType, licensePlate, plannedDateTime (dayjs), plannedEndDateTime (dayjs), reason
+    // values: requestType, licensePlate, plannedEntryTime (dayjs), plannedExitTime (dayjs), reason
     const body = {
       requestType: values.requestType,
-      plannedDateTime: values.plannedDateTime.toISOString(),
       licensePlate: values.licensePlate,
     };
 
-    // only include 'plannedEndDateTime' when provided
-    if (values.plannedEndDateTime) {
-      body.plannedEndDateTime = values.plannedEndDateTime.toISOString();
+    if (values.plannedExitTime) {
+      body.plannedExitTime = values.plannedExitTime.toISOString();
+    }
+
+    if (values.plannedEntryTime) {
+      body.plannedEntryTime = values.plannedEntryTime.toISOString();
     }
 
     // only include 'reason' when it's not empty (avoid sending empty string)
@@ -105,16 +108,38 @@ const CreatePersonalWorkingHoursRequest = ({ visible, onCancel, onCreated }) => 
           )}
         </Form.Item>
 
-        <Form.Item
-          name="plannedDateTime"
-          label="Thời gian bắt đầu"
-          rules={[{ required: true, message: 'Chọn thời gian bắt đầu' }]}
-        >
-          <DatePicker showTime style={{ width: '100%' }} format="YYYY-MM-DD HH:mm" />
+        {/* Thời gian Ra (Exit): hiển thị khi Ra (exit) hoặc Cả hai (both) */}
+        <Form.Item noStyle shouldUpdate={(prev, curr) => prev.requestType !== curr.requestType}>
+          {({ getFieldValue }) => {
+            const requestType = getFieldValue('requestType');
+            const showExitTime = requestType === 'exit' || requestType === 'both';
+            return showExitTime ? (
+              <Form.Item
+                name="plannedExitTime"
+                label="Thời gian ra (dự kiến)"
+                rules={[{ required: true, message: 'Chọn thời gian ra' }]}
+              >
+                <DatePicker showTime style={{ width: '100%' }} format="YYYY-MM-DD HH:mm" />
+              </Form.Item>
+            ) : null;
+          }}
         </Form.Item>
 
-        <Form.Item name="plannedEndDateTime" label="Thời gian kết thúc">
-          <DatePicker showTime style={{ width: '100%' }} format="YYYY-MM-DD HH:mm" />
+        {/* Thời gian Vào (Entry): hiển thị khi Vào (entry) hoặc Cả hai (both) */}
+        <Form.Item noStyle shouldUpdate={(prev, curr) => prev.requestType !== curr.requestType}>
+          {({ getFieldValue }) => {
+            const requestType = getFieldValue('requestType');
+            const showEntryTime = requestType === 'entry' || requestType === 'both';
+            return showEntryTime ? (
+              <Form.Item
+                name="plannedEntryTime"
+                label="Thời gian vào (dự kiến)"
+                rules={[{ required: true, message: 'Chọn thời gian vào' }]}
+              >
+                <DatePicker showTime style={{ width: '100%' }} format="YYYY-MM-DD HH:mm" />
+              </Form.Item>
+            ) : null;
+          }}
         </Form.Item>
 
         <Form.Item name="reason" label="Lý do">

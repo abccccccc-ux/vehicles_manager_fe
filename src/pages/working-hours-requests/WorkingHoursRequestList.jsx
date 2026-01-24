@@ -60,7 +60,8 @@ const columns = (onApprove, onReject, onDelete) => [
     { title: 'Số điện thoại', dataIndex: ['requestedBy', 'phone'], key: 'phone' },
     { title: 'Biển số', dataIndex: 'licensePlate', key: 'licensePlate' },
     { title: 'Loại yêu cầu', dataIndex: 'requestType', key: 'requestType', render: requestTypeTag },
-    { title: 'Thời gian dự kiến', dataIndex: 'plannedDateTime', key: 'plannedDateTime', render: (d) => formatDate(d) },
+    { title: 'Thời gian vào dự kiến', dataIndex: 'plannedEntryTime', key: 'plannedEntryTime', render: (d) => formatDate(d) },
+    { title: 'Thời gian ra dự kiến', dataIndex: 'plannedExitTime', key: 'plannedExitTime', render: (d) => formatDate(d) },
     { title: 'Trạng thái', dataIndex: 'status', key: 'status', render: statusTag },
     { title: 'Ghi chú', dataIndex: 'reason', key: 'reason' },
     {
@@ -187,13 +188,13 @@ const WorkingHoursRequestList = () => {
                         <SearchInput value={licensePlate} onChange={setLicensePlate} placeholder="Tìm tên / biển số" />
                     </Col>
 
-                    <Col xs={24} sm={12} md={8} lg={6}>
+                    <Col xs={24} sm={12} md={8} lg={3}>
                         <SearchFilter
                             value={filters?.status}
                             onChange={onStatusChange}
                             options={statusOptions}
                             placeholder="Trạng thái"
-                            style={{ minWidth: 132 }}
+                            style={{ width: '100%' }}
                         />
                     </Col>
 
