@@ -19,6 +19,7 @@ import {
   ExceptionOutlined,
   AlertOutlined,
   VideoCameraOutlined,
+  IdcardOutlined,
 } from "@ant-design/icons";
 
 const Sidebar = () => {
@@ -100,6 +101,11 @@ const Sidebar = () => {
       label: "Cài đặt",
       children: [
         {
+          key: "profile",
+          icon: <IdcardOutlined />,
+          label: <Link to="/profile">Thông tin cá nhân</Link>,
+        },
+        {
           key: "change-password",
           icon: <LockOutlined />,
           label: <Link to="/change-password">Đổi mật khẩu</Link>,
@@ -152,7 +158,8 @@ const Sidebar = () => {
     //Thêm các route của item con vào đây
     if (
       location.pathname.startsWith("/register-vehicle") ||
-      location.pathname.startsWith("/change-password")
+      location.pathname.startsWith("/change-password") ||
+      location.pathname.startsWith("/profile")
     ) {
       setOpenKeys(["settings"]);
     } else {
