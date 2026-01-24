@@ -62,8 +62,8 @@ const EditPersonalWorkingHoursRequest = ({
     form.setFieldsValue({
       requestType: request.requestType,
       licensePlate: request.licensePlate,
-      plannedDateTime: request.plannedDateTime ? dayjs(request.plannedDateTime) : null,
-      plannedEndDateTime: request.plannedEndDateTime ? dayjs(request.plannedEndDateTime) : null,
+      plannedEntryTime: request.plannedEntryTime ? dayjs(request.plannedEntryTime) : null,
+      plannedExitTime: request.plannedExitTime ? dayjs(request.plannedExitTime) : null,
       reason: request.reason || "",
     });
   }, [visible, request, form]);
@@ -76,13 +76,17 @@ const EditPersonalWorkingHoursRequest = ({
 
     const body = {
       requestType: values.requestType,
-      plannedDateTime: values.plannedDateTime.toISOString(),
       licensePlate: values.licensePlate,
     };
 
-    // only include 'plannedEndDateTime' when provided
-    if (values.plannedEndDateTime) {
-      body.plannedEndDateTime = values.plannedEndDateTime.toISOString();
+    // only include 'plannedEntryTime' when provided
+    if (values.plannedEntryTime) {
+      body.plannedEntryTime = values.plannedEntryTime.toISOString();
+    }
+
+    // only include 'plannedExitTime' when provided
+    if (values.plannedExitTime) {
+      body.plannedExitTime = values.plannedExitTime.toISOString();
     }
 
     // only include 'reason' when it's not empty
@@ -164,31 +168,39 @@ const EditPersonalWorkingHoursRequest = ({
           )}
         </Form.Item>
 
-        <Form.Item
-          name="plannedDateTime"
-          label="Thời gian bắt đầu"
-          rules={[{ required: true, message: "Chọn thời gian bắt đầu" }]}
-        >
-          <DatePicker
-            showTime
-            style={{ width: "100%" }}
-            format="YYYY-MM-DD HH:mm"
-          />
+        {/* Thời gian Ra (Exit): hiển thị khi Ra (exit) hoặc Cả hai (both) */}
+        <Form.Item noStyle shouldUpdate={(prev, curr) => prev.requestType !== curr.requestType}>
+          {({ getFieldValue }) => {
+            const currentRequestType = getFieldValue('requestType') || requestType; // fallback to state if needed
+            const showExitTime = currentRequestType === 'exit' || currentRequestType === 'both';
+            return showExitTime ? (
+              <Form.Item
+                name="plannedExitTime"
+                label="Thời gian ra (dự kiến)"
+                rules={[{ required: true, message: 'Chọn thời gian ra' }]}
+              >
+                <DatePicker showTime style={{ width: '100%' }} format="YYYY-MM-DD HH:mm" />
+              </Form.Item>
+            ) : null;
+          }}
         </Form.Item>
 
-        {requestType === "both" && (
-          <Form.Item
-            name="plannedEndDateTime"
-            label="Thời gian kết thúc"
-            rules={[{ required: true, message: "Chọn thời gian kết thúc" }]}
-          >
-            <DatePicker
-              showTime
-              style={{ width: "100%" }}
-              format="YYYY-MM-DD HH:mm"
-            />
-          </Form.Item>
-        )}
+        {/* Thời gian Vào (Entry): hiển thị khi Vào (entry) hoặc Cả hai (both) */}
+        <Form.Item noStyle shouldUpdate={(prev, curr) => prev.requestType !== curr.requestType}>
+          {({ getFieldValue }) => {
+            const currentRequestType = getFieldValue('requestType') || requestType;
+            const showEntryTime = currentRequestType === 'entry' || currentRequestType === 'both';
+            return showEntryTime ? (
+              <Form.Item
+                name="plannedEntryTime"
+                label="Thời gian vào (dự kiến)"
+                rules={[{ required: true, message: 'Chọn thời gian vào' }]}
+              >
+                <DatePicker showTime style={{ width: '100%' }} format="YYYY-MM-DD HH:mm" />
+              </Form.Item>
+            ) : null;
+          }}
+        </Form.Item>
 
         <Form.Item name="reason" label="Lý do">
           <Input.TextArea rows={3} />

@@ -122,15 +122,15 @@ const PersonalWorkingHoursRequestList = () => {
             }
         },
         {
-            title: 'Thời gian bắt đầu',
-            dataIndex: 'plannedDateTime',
-            key: 'plannedDateTime',
+            title: 'Thời gian vào dự kiến',
+            dataIndex: 'plannedEntryTime',
+            key: 'plannedEntryTime',
             render: (d) => d ? new Date(d).toLocaleString('vi-VN') : '-',
         },
         {
-            title: 'Thời gian kết thúc',
-            dataIndex: 'plannedEndDateTime',
-            key: 'plannedEndDateTime',
+            title: 'Thời gian ra dự kiến',
+            dataIndex: 'plannedExitTime',
+            key: 'plannedExitTime',
             render: (d) => d ? new Date(d).toLocaleString('vi-VN') : '-',
         },
         {
@@ -210,7 +210,7 @@ const PersonalWorkingHoursRequestList = () => {
 
     return (
         <MainLayout>
-            <h2>Danh sách yêu cầu ra/vào cá nhân</h2>
+            <h2>Danh sách yêu cầu ra/vào</h2>
 
             <Space direction="vertical" style={{ width: '100%', marginBottom: 16 }}>
                 <Space wrap>
