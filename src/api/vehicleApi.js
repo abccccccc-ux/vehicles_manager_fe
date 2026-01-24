@@ -14,6 +14,20 @@ export const getVehicleByLicensePlate = async (licensePlate) => {
   return response.data;
 };
 
+// Lấy thông tin xe theo ID
+export const getVehicleById = async (id) => {
+  const response = await axiosClient.get(`/vehicles/${id}`);
+  // Trả về { success, message, data: vehicle }
+  if (response.data.success) {
+    return {
+      success: true,
+      message: response.data.message,
+      data: response.data.data.vehicle,
+    };
+  }
+  return response.data;
+};
+
 export const getVehicles = async (params = {}) => {
   // params: { search, vehicleType, status, page, limit, departmentId }
   const response = await axiosClient.get('/vehicles', { params });
@@ -34,6 +48,12 @@ export const createVehicle = async (body) => {
 
 export const updateVehicle = async (id, body) => {
   const response = await axiosClient.put(`/vehicles/${id}`, body);
+  return response.data;
+};
+
+// Xóa xe
+export const deleteVehicle = async (id) => {
+  const response = await axiosClient.delete(`/vehicles/${id}`);
   return response.data;
 };
 
@@ -67,6 +87,6 @@ export const downloadVehicleTemplate = async () => {
   return { success: true, message: 'Tải template thành công' };
 };
 
-const vehicleApi = { getVehicleByLicensePlate, getVehicles, createVehicle, getMyVehicles, updateVehicle, bulkUploadVehicles, downloadVehicleTemplate };
+const vehicleApi = { getVehicleByLicensePlate, getVehicleById, getVehicles, createVehicle, getMyVehicles, updateVehicle, deleteVehicle, bulkUploadVehicles, downloadVehicleTemplate };
 
 export default vehicleApi;
