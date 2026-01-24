@@ -1,24 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Select, Space, Row, Col, Button } from 'antd';
-import { CloudUploadOutlined, PlusOutlined } from '@ant-design/icons';
+import { Table, Input, Select, Space, Row, Col, Button, message, Modal } from 'antd';
+import { CloudUploadOutlined, PlusOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { getVehicleByLicensePlate } from '../../api/vehicleApi';
+import { getVehicleById, deleteVehicle } from '../../api/vehicleApi';
 import VehicleDetailsDialog from './VehicleDetailsDialog';
 import BulkUploadModal from './BulkUploadModal';
 import AdminAddVehicleModal from './AdminAddVehicleModal';
 import useDebounce from '../../hooks/useDebounce';
 import { fetchVehicles, setSearch, setVehicleType, setStatus, setPagination, setSelectedVehicle, setDetailLoading } from '../../store/vehicleSlice';
-
-const columns = [
-  { title: 'Biển số', dataIndex: 'licensePlate', key: 'licensePlate' },
-  { title: 'Tên xe', dataIndex: 'name', key: 'name' },
-  { title: 'Loại xe', dataIndex: 'vehicleType', key: 'vehicleType' },
-  { title: 'Màu', dataIndex: 'color', key: 'color' },
-  { title: 'Chủ xe', dataIndex: ['owner', 'name'], key: 'owner' },
-  { title: 'Ngày đăng ký', dataIndex: 'registrationDate', key: 'registrationDate', render: (date) => new Date(date).toLocaleString('vi-VN') },
-  { title: 'Trạng thái', dataIndex: 'isActive', key: 'isActive', render: (active) => active ? 'Hoạt động' : 'Ngừng' },
-];
-
+import { isHighLevelAdmin } from '../../utils/permissions';
 
 const { Option } = Select;
 
@@ -41,7 +31,7 @@ const VehicleTable = () => {
     const params = {
       search: debouncedSearch || undefined,
       vehicleType: vehicleType || undefined,
-      status: status || undefined,
+      isActive: status || undefined,
       page: pagination.current,
       limit: pagination.pageSize,
     };
@@ -51,13 +41,13 @@ const VehicleTable = () => {
   const handleRowClick = async (record) => {
     dispatch(setDetailLoading(true));
     try {
-      const res = await getVehicleByLicensePlate(record.licensePlate);
+      const res = await getVehicleById(record._id);
       if (res.success) {
         dispatch(setSelectedVehicle(res.data));
         setDialogOpen(true);
       }
     } catch (err) {
-      // handle error
+      message.error('Không thể tải thông tin xe');
     }
     dispatch(setDetailLoading(false));
   };
@@ -100,12 +90,78 @@ const VehicleTable = () => {
     const params = {
       search: debouncedSearch || undefined,
       vehicleType: vehicleType || undefined,
-      status: status || undefined,
+      isActive: status || undefined,
       page: pagination.current,
       limit: pagination.pageSize,
     };
     dispatch(fetchVehicles(params));
   };
+
+  const handleDeleteSuccess = () => {
+    // Refresh danh sách xe sau khi xóa thành công
+    const params = {
+      search: debouncedSearch || undefined,
+      vehicleType: vehicleType || undefined,
+      isActive: status || undefined,
+      page: pagination.current,
+      limit: pagination.pageSize,
+    };
+    dispatch(fetchVehicles(params));
+  };
+
+  const handleDelete = (record) => {
+    Modal.confirm({
+      title: 'Xác nhận xóa phương tiện',
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc chắn muốn xóa phương tiện "${record.licensePlate}" không? Hành động này không thể hoàn tác.`,
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      onOk: async () => {
+        try {
+          const response = await deleteVehicle(record._id);
+          if (response.success) {
+            message.success('Xóa phương tiện thành công');
+            handleDeleteSuccess();
+          } else {
+            message.error(response.message || 'Xóa phương tiện thất bại');
+          }
+        } catch (error) {
+          message.error(error.response?.data?.message || 'Có lỗi xảy ra khi xóa phương tiện');
+        }
+      },
+    });
+  };
+
+  const canDelete = user && isHighLevelAdmin(user.role);
+
+  const columns = [
+    { title: 'Biển số', dataIndex: 'licensePlate', key: 'licensePlate' },
+    { title: 'Tên xe', dataIndex: 'name', key: 'name' },
+    { title: 'Loại xe', dataIndex: 'vehicleType', key: 'vehicleType' },
+    { title: 'Màu', dataIndex: 'color', key: 'color' },
+    { title: 'Chủ xe', dataIndex: ['owner', 'name'], key: 'owner' },
+    { title: 'Ngày đăng ký', dataIndex: 'registrationDate', key: 'registrationDate', render: (date) => new Date(date).toLocaleString('vi-VN') },
+    { title: 'Trạng thái', dataIndex: 'isActive', key: 'isActive', render: (active) => active ? 'Hoạt động' : 'Ngừng' },
+    ...(canDelete ? [{
+      title: 'Hành động',
+      key: 'action',
+      width: 120,
+      align: 'center',
+      render: (_, record) => (
+        <Button
+          danger
+          size="small"
+          icon={<DeleteOutlined />}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete(record);
+          }}
+        >
+        </Button>
+      ),
+    }] : []),
+  ];
 
   const isAdmin = user?.role === 'admin';
 
@@ -130,8 +186,8 @@ const VehicleTable = () => {
         </Col>
         <Col xs={24} sm={12} md={6} lg={4}>
           <Select onChange={onStatusChange} style={{ width: '100%' }} allowClear placeholder="Trạng thái">
-            <Option value="active">Hoạt động</Option>
-            <Option value="inactive">Ngừng</Option>
+            <Option value="true">Hoạt động</Option>
+            <Option value="false">Ngừng hoạt động</Option>
           </Select>
         </Col>
         <Col xs={24} sm={12} md={24} lg={4} style={{ textAlign: 'right' }}>
@@ -178,6 +234,7 @@ const VehicleTable = () => {
         onClose={handleCloseDialog}
         vehicle={selectedVehicle}
         loading={detailLoading}
+        onDeleteSuccess={handleDeleteSuccess}
       />
 
       <BulkUploadModal

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-import { Card, Table, Row, Col, Button, Tag, Space, notification, Tooltip } from 'antd';
-import { ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, Table, Row, Col, Button, Tag, Space, notification, Tooltip, Modal } from 'antd';
+import { ReloadOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import VehicleDetailsDialog from '../vehicles/VehicleDetailsDialog';
 import RegisterVehicleDialog from './RegisterVehicle';
@@ -35,6 +35,43 @@ const PersonalVehiclesList = () => {
     }, [error]);
     // alert state removed: using antd notification instead
 
+    const handleDeleteVehicle = (record) => {
+        Modal.confirm({
+            title: 'Xác nhận xóa phương tiện',
+            icon: <ExclamationCircleOutlined />,
+            content: `Bạn có chắc chắn muốn xóa phương tiện "${record.licensePlate}" không? Hành động này không thể hoàn tác.`,
+            okText: 'Xóa',
+            okType: 'danger',
+            cancelText: 'Hủy',
+            onOk: async () => {
+                try {
+                    const response = await vehicleApi.deleteVehicle(record._id);
+                    if (response.success) {
+                        notification.success({ 
+                            message: 'Thành công', 
+                            description: 'Xóa phương tiện thành công', 
+                            placement: 'bottomRight' 
+                        });
+                        // Refresh danh sách
+                        load(1, pagination.pageSize, search);
+                    } else {
+                        notification.error({ 
+                            message: 'Lỗi', 
+                            description: response.message || 'Xóa phương tiện thất bại', 
+                            placement: 'bottomRight' 
+                        });
+                    }
+                } catch (error) {
+                    notification.error({ 
+                        message: 'Lỗi', 
+                        description: error.response?.data?.message || 'Có lỗi xảy ra khi xóa phương tiện', 
+                        placement: 'bottomRight' 
+                    });
+                }
+            },
+        });
+    };
+
     const columns = [
         { title: 'Biển số', dataIndex: 'licensePlate', key: 'licensePlate' },
         { title: 'Tên xe', dataIndex: 'name', key: 'name' },
@@ -65,7 +102,7 @@ const PersonalVehiclesList = () => {
                             icon={<DeleteOutlined />}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                // Xử lý xóa sẽ làm sau theo yêu cầu
+                                handleDeleteVehicle(record);
                             }}
                         />
                     </Tooltip>
@@ -85,10 +122,10 @@ const PersonalVehiclesList = () => {
     };
 
     const handleRowClick = async (record) => {
-        // When clicking a row, fetch latest vehicle details by license plate
+        // When clicking a row, fetch latest vehicle details by ID
         dispatch(setDetailLoading(true));
         try {
-            const res = await vehicleApi.getVehicleByLicensePlate(record.licensePlate);
+            const res = await vehicleApi.getVehicleById(record._id);
             if (res && res.success) {
                 dispatch(setSelectedVehicle(res.data));
                 setShowDetail(true);
