@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Table, Input, Select, Space, Row, Col, Button, DatePicker, Tag } from 'antd';
+import { Table, Input, Select, Row, Col, DatePicker, Tag } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAccessLogById } from '../../api/accessLogApi';
 import AccessLogDetailsDialog from './AccessLogDetailsDialog';
@@ -13,9 +13,7 @@ import {
   setEndDate, 
   setPagination, 
   setSelectedAccessLog, 
-  setDetailLoading,
-  clearFilters 
-} from '../../store/accessLogSlice';
+  setDetailLoading} from '../../store/accessLogSlice';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -227,7 +225,6 @@ const AccessLogTable = () => {
         </Col>
         <Col xs={24} sm={12} md={6} lg={4}>
           <Select 
-            value={verificationStatus} 
             onChange={onVerificationStatusChange} 
             style={{ width: '100%' }} 
             allowClear 

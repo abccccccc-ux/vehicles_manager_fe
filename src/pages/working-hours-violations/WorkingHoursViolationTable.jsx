@@ -233,7 +233,6 @@ const WorkingHoursViolationTable = () => {
         </Col>
         <Col xs={24} sm={12} md={6} lg={4}>
           <Select 
-            value={violationType} 
             onChange={onViolationTypeChange} 
             style={{ width: '100%' }} 
             allowClear 
