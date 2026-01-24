@@ -12,8 +12,8 @@ const cameraApi = {
   },
 
   // Lấy tất cả camera
-  getAllCameras: () => {
-    return axiosClient.get('/cameras');
+  getAllCameras: (params) => {
+    return axiosClient.get('/cameras', { params });
   },
 
   // Thêm camera mới

@@ -119,13 +119,13 @@ const VehicleTable = () => {
           />
         </Col>
         <Col xs={24} sm={12} md={8} lg={4}>
-          <Select value={vehicleType} onChange={onVehicleTypeChange} style={{ width: '100%' }} allowClear placeholder="Loại xe">
+          <Select onChange={onVehicleTypeChange} style={{ width: '100%' }} allowClear placeholder="Loại xe">
             <Option value="car">Xe ô tô</Option>
             <Option value="motorbike">Xe máy</Option>
           </Select>
         </Col>
         <Col xs={24} sm={12} md={6} lg={4}>
-          <Select value={status} onChange={onStatusChange} style={{ width: '100%' }} allowClear placeholder="Trạng thái">
+          <Select onChange={onStatusChange} style={{ width: '100%' }} allowClear placeholder="Trạng thái">
             <Option value="active">Hoạt động</Option>
             <Option value="inactive">Ngừng</Option>
           </Select>

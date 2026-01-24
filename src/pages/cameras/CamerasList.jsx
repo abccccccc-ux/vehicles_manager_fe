@@ -9,11 +9,6 @@ import cameraApi from '../../api/cameraApi';
 import CameraEditModal from './CameraEditModal';
 import RoiEditorModal from './RoiEditorModal';
 
-const statusOptions = [
-  { label: 'Hoạt động', value: true },
-  { label: 'Tạm dừng', value: false },
-];
-
 const positionOptions = [
   { label: 'Lối vào', value: 'entry' },
   { label: 'Lối ra', value: 'exit' },
@@ -23,7 +18,6 @@ const CamerasList = () => {
   const [cameras, setCameras] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState(undefined);
   const [positionFilter, setPositionFilter] = useState(undefined);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -52,7 +46,7 @@ const CamerasList = () => {
   // fetch data when search, filter, or pagination changes
   useEffect(() => {
     fetchCameras();
-  }, [search, statusFilter, positionFilter, pagination.current, pagination.pageSize]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [search, positionFilter, pagination.current, pagination.pageSize]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // keep localSearch in sync if search is updated elsewhere
   useEffect(() => {
@@ -66,9 +60,10 @@ const CamerasList = () => {
         page: pagination.current,
         limit: pagination.pageSize,
         search: search || undefined,
-        status: statusFilter !== undefined ? statusFilter : undefined,
         position: positionFilter || undefined,
       };
+      console.log("🚀 ~ fetchCameras ~ params.search:", params.search, search);
+
       const response = await cameraApi.getAllCameras(params);
       console.log("API Response:", response);
 
@@ -285,14 +280,6 @@ const CamerasList = () => {
               debouncedSearch(val);
             }}
             placeholder="Tìm kiếm tên, ID camera..."
-          />
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <SearchFilter
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={statusOptions}
-            placeholder="Trạng thái"
           />
         </Col>
         <Col xs={24} sm={12} md={8} lg={6}>
