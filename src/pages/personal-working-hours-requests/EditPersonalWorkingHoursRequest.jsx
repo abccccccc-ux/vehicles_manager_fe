@@ -202,7 +202,7 @@ const EditPersonalWorkingHoursRequest = ({
           }}
         </Form.Item>
 
-        <Form.Item name="reason" label="Lý do">
+        <Form.Item name="reason" label="Lý do" rules={[{ required: true, message: 'Nhập lý do' }]}>
           <Input.TextArea rows={3} />
         </Form.Item>
 

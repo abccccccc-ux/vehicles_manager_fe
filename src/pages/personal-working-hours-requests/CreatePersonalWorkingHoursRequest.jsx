@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
 import { Modal, Form, Select, DatePicker, Input, Button, Spin, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import vehicleApi from '../../api/vehicleApi';
@@ -39,11 +38,21 @@ const CreatePersonalWorkingHoursRequest = ({ visible, onCancel, onCreated }) => 
   }, [visible]);
 
   const onFinish = async (values) => {
+    console.log("🚀 ~ onFinish ~ values:", values)
+    
+    // Tìm xe được chọn để lấy owner._id
+    const selectedVehicle = vehicles.find(v => v.licensePlate === values.licensePlate);
+    
     // values: requestType, licensePlate, plannedEntryTime (dayjs), plannedExitTime (dayjs), reason
     const body = {
       requestType: values.requestType,
       licensePlate: values.licensePlate,
     };
+
+    // Thêm requestedBy nếu có thông tin owner
+    if (selectedVehicle?.owner?._id) {
+      body.requestedBy = selectedVehicle.owner._id;
+    }
 
     if (values.plannedExitTime) {
       body.plannedExitTime = values.plannedExitTime.toISOString();
@@ -142,7 +151,7 @@ const CreatePersonalWorkingHoursRequest = ({ visible, onCancel, onCreated }) => 
           }}
         </Form.Item>
 
-        <Form.Item name="reason" label="Lý do">
+        <Form.Item name="reason" label="Lý do" rules={[{ required: true, message: 'Nhập lý do' }]}>
           <Input.TextArea rows={3} />
         </Form.Item>
 
