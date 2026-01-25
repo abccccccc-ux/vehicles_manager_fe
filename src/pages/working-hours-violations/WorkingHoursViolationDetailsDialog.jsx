@@ -222,9 +222,9 @@ const WorkingHoursViolationDetailsDialog = ({
                   size="small"
                 >
                   <Descriptions column={1} size="small">
-                    <Descriptions.Item label="ID Xe">
+                    {/* <Descriptions.Item label="ID Xe">
                       <code>{violation.vehicle._id}</code>
-                    </Descriptions.Item>
+                    </Descriptions.Item> */}
                     <Descriptions.Item label="Biển số xe">
                       <strong>{violation.vehicle.licensePlate}</strong>
                     </Descriptions.Item>
@@ -241,9 +241,9 @@ const WorkingHoursViolationDetailsDialog = ({
                     <Descriptions.Item label="Màu xe">
                       {violation.vehicle.color}
                     </Descriptions.Item>
-                    <Descriptions.Item label="ID Chủ xe">
+                    {/* <Descriptions.Item label="ID Chủ xe">
                       <code>{violation.vehicle.owner}</code>
-                    </Descriptions.Item>
+                    </Descriptions.Item> */}
                   </Descriptions>
                 </Card>
               </Col>
@@ -276,13 +276,13 @@ const WorkingHoursViolationDetailsDialog = ({
                     <Descriptions.Item label="Username">
                       {(violation.owner || violation.driver)?.username}
                     </Descriptions.Item>
-                    {(violation.owner || violation.driver)?.department && (
+                    {/* {(violation.owner || violation.driver)?.department && (
                       <Descriptions.Item label="ID Phòng ban">
                         <code>
                           {(violation.owner || violation.driver).department}
                         </code>
                       </Descriptions.Item>
-                    )}
+                    )} */}
                   </Descriptions>
                 </Card>
               </Col>
