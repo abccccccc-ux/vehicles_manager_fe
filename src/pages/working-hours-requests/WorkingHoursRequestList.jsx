@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, Table, Row, Col, Empty, Tag, Space, Button, Tooltip, message } from 'antd';
-import { CheckOutlined, CloseOutlined, DeleteOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import ApproveConfirm from '../../components/ApproveConfirm';
 import RejectConfirm from '../../components/RejectConfirm';
 import showDeleteConfirm from '../../components/DeleteConfirm';
@@ -18,18 +18,19 @@ import {
     rejectWorkingHoursRequest,
     deleteWorkingHoursRequest,
 } from '../../store/workingHoursRequestSlice';
-import { render } from '@testing-library/react';
 
 const statusOptions = [
     { label: 'Chờ phê duyệt', value: 'pending' },
     { label: 'Đã phê duyệt', value: 'approved' },
     { label: 'Đã từ chối', value: 'rejected' },
+    { label: 'Đã hết hạn', value: 'expired' },
+    { label: 'Đã sử dụng', value: 'used' },
 ];
 
 const requestTypeOptions = [
     { label: 'Cả hai', value: 'both' },
     { label: 'Ra', value: 'exit' },
-    { label: 'Vào', value: 'enter' },
+    { label: 'Vào', value: 'entry' },
 ];
 
 const statusTag = (status) => {
@@ -38,6 +39,8 @@ const statusTag = (status) => {
         pending: { color: 'orange', text: 'Chờ phê duyệt' },
         approved: { color: 'green', text: 'Đã phê duyệt' },
         rejected: { color: 'red', text: 'Đã từ chối' },
+        expired: { color: 'red', text: 'Đã hết hạn' },
+        used: { color: 'red', text: 'Đã sử dụng' },
     };
     const s = map[status] || { color: 'default', text: status };
     return <Tag color={s.color}>{s.text}</Tag>;
@@ -48,7 +51,7 @@ const requestTypeTag = (requestType) => {
     const map = {
         both: {text: 'Cả hai'},
         exit: {text: 'Ra'},
-        enter: {text: 'Vào'}
+        entry: {text: 'Vào'}
     }
     const r = map[requestType] || {text: requestType};
     return r.text;
