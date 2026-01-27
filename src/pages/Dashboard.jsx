@@ -1,39 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import MainLayout from '../layouts/MainLayout';
-import VideoPlayer from '../components/VideoPlayer';
-import AlertMessage from '../components/AlertMessage';
+import WebRTCPlayer from '../components/WebRTCPlayer';
 import useCameras from '../hooks/useCameras';
 import { AccessLogTable } from './access-log';
 
 const Dashboard = () => {
-  const [streamAlert, setStreamAlert] = useState('');
-  const [alertType, setAlertType] = useState('info');
   const { cameras, loading, error, refreshCameras } = useCameras();
-
-  const handleStreamStatus = (data) => {
-    console.log('Stream status:', data);
-    if (data.status === 'started') {
-      setStreamAlert(`Camera ${data.cameraId} is now streaming`);
-      setAlertType('success');
-    } else if (data.status === 'error') {
-      setStreamAlert(`Camera ${data.cameraId} error: ${data.message}`);
-      setAlertType('error');
-    }
-  };
 
   const handleStreamError = (error) => {
     console.error('Stream error:', error);
-    setStreamAlert(`Stream error: ${error.error || 'Unknown error'}`);
-    setAlertType('error');
   };
-
-  // Xử lý lỗi từ hook cameras
-  React.useEffect(() => {
-    if (error) {
-      setStreamAlert(error);
-      setAlertType('error');
-    }
-  }, [error]);
 
   return (
     <MainLayout>
@@ -58,26 +34,26 @@ const Dashboard = () => {
 
       {/* Container cho cameras */}
       {cameras.length > 0 ? (
-        <div className={
-          cameras.length === 1 
-            ? "mb-4" // 1 camera: không dùng grid, để VideoPlayer tự responsive
-            : "grid grid-cols-1 md:grid-cols-2 gap-4 mb-4" // Nhiều cameras: 2 cột trên màn hình medium+
-        }
-         style={{ marginBottom: '16px' }}
+        <div 
+          style={
+            cameras.length === 1 
+              ? { marginBottom: '16px' }
+              : {
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+                  gap: '16px',
+                  marginBottom: '16px'
+                }
+          }
         >
           {cameras.map((camera) => (
             <div key={camera._id || camera.id}>
-              <h3 className="text-lg font-semibold mb-2">
-                📹 {camera.name || `Camera ${camera.cameraId}`}
-              </h3>
-              <VideoPlayer 
-                useWebSocket={true}
+              <WebRTCPlayer 
                 cameraId={camera.cameraId || camera._id}
                 cameraName={camera.name || `Camera ${camera.cameraId}`}
-                quality="medium"
-                showControls={true}
-                showMetadata={true}
-                onStreamStatus={handleStreamStatus}
+                mediamtxUrl={process.env.REACT_APP_MEDIAMTX_URL || 'http://localhost:8889'}
+                autoPlay={true}
+                controls={true}
                 onError={handleStreamError}
               />
             </div>
@@ -94,14 +70,6 @@ const Dashboard = () => {
         )
       )}
       <AccessLogTable></AccessLogTable>
-      
-      {/* Stream Alert Messages */}
-      {streamAlert && (
-        <AlertMessage 
-          type={alertType} 
-          message={streamAlert} 
-        />
-      )}
     </MainLayout>
   );
 };
