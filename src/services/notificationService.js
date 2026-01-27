@@ -253,13 +253,16 @@ class NotificationService {
             data: data.data
           });
 
-          // Fetch latest access logs khi có xe access mới
+          // Fetch latest access logs logic removed to avoid loop
+          // Components should handle data refreshing via event listening
+          /*
           try {
             console.log('🚗 Vehicle access detected, fetching latest access logs...');
             accessLogService.fetchLatestAccessLogs();
           } catch (error) {
             console.error('❌ Error fetching access logs after vehicle access:', error);
           }
+          */
           break;
 
         default:
