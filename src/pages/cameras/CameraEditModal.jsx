@@ -13,25 +13,35 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess, onOpenRoiEditor 
   useEffect(() => {
     if (visible && camera) {
       // Edit mode - populate form with camera data
-      form.setFieldsValue({
-        cameraId: camera.cameraId,
-        name: camera.name,
-        gateId: camera.location?.gateId,
-        gateName: camera.location?.gateName,
-        position: camera.location?.position,
-        ipAddress: camera.technical?.ipAddress,
-        port: camera.technical?.port,
-        protocol: camera.technical?.protocol,
-        username: camera.technical?.username,
-        password: decryptPassword(camera.technical?.password),
-        streamUrl: camera.technical?.streamUrl,
-        fps: camera.technical?.fps,
-        width: camera.technical?.resolution?.width,
-        height: camera.technical?.resolution?.height,
-        description: camera.description,
-        recognitionEnabled: camera.recognition?.enabled,
-        threshold: camera.recognition?.confidence?.threshold,
-        autoApprove: camera.recognition?.confidence?.autoApprove,
+        // Handle supportedVehicleTypes: ensure it's an array
+        let vehicleTypes = camera.recognition?.supportedVehicleTypes;
+        if (!vehicleTypes) {
+           vehicleTypes = ['all'];
+        } else if (typeof vehicleTypes === 'string') {
+           vehicleTypes = [vehicleTypes];
+        }
+
+        form.setFieldsValue({
+          cameraId: camera.cameraId,
+          name: camera.name,
+          gateId: camera.location?.gateId,
+          gateName: camera.location?.gateName,
+          position: camera.location?.position,
+          ipAddress: camera.technical?.ipAddress,
+          port: camera.technical?.port,
+          protocol: camera.technical?.protocol,
+          username: camera.technical?.username,
+          password: decryptPassword(camera.technical?.password),
+          streamUrl: camera.technical?.streamUrl,
+          fps: camera.technical?.fps,
+          width: camera.technical?.resolution?.width,
+          height: camera.technical?.resolution?.height,
+          rtspUrl: camera.technical?.rtspUrl,
+          description: camera.description,
+          recognitionEnabled: camera.recognition?.enabled,
+          supportedVehicleTypes: vehicleTypes,
+          threshold: camera.recognition?.confidence?.threshold,
+          autoApprove: camera.recognition?.confidence?.autoApprove,
       });
     } else if (visible && !camera) {
       // Create mode - reset form
@@ -60,10 +70,12 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess, onOpenRoiEditor 
           width: values.width,
           height: values.height,
         },
+        rtspUrl: values.rtspUrl,
       },
       description: values.description,
       recognition: {
         enabled: values.recognitionEnabled,
+        supportedVehicleTypes: values.supportedVehicleTypes,
         confidence: {
           threshold: values.threshold,
           autoApprove: values.autoApprove,
@@ -143,6 +155,7 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess, onOpenRoiEditor 
           width: 1920,
           height: 1080,
           recognitionEnabled: true,
+          supportedVehicleTypes: ['all'],
           threshold: 0.95,
           autoApprove: 0.95,
           position: "entry",
@@ -277,10 +290,18 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess, onOpenRoiEditor 
 
         <Form.Item
           name="streamUrl"
-          label="Stream URL"
+          label="Đường truyền nhận diện"
           tooltip="URL stream của camera (tùy chọn). Ví dụ: rtsp://username:password@192.168.1.64:554/stream"
         >
           <Input placeholder="rtsp://username:password@ip:port/stream" />
+        </Form.Item>
+
+        <Form.Item
+          name="rtspUrl"
+          label="Đường truyền phát trực tiếp"
+          tooltip="Link RTSP gốc từ camera dùng cho xử lý kỹ thuật"
+        >
+          <Input placeholder="rtsp://192.168.1.64:554/..." />
         </Form.Item>
 
         <Row gutter={16}>
@@ -360,6 +381,22 @@ const CameraEditModal = ({ visible, camera, onClose, onSuccess, onOpenRoiEditor 
                 step={0.01}
                 style={{ width: "100%" }}
               />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={24}>
+             <Form.Item
+              name="supportedVehicleTypes"
+              label="Loại phương tiện hỗ trợ"
+              rules={[{ required: true, message: "Vui lòng chọn loại phương tiện" }]}
+            >
+              <Select mode="multiple" placeholder="Chọn loại phương tiện hỗ trợ">
+                <Option value="all">Tất cả (All)</Option>
+                <Option value="car">Ô tô (Car)</Option>
+                <Option value="motorcycle">Xe máy (Motorcycle)</Option>
+              </Select>
             </Form.Item>
           </Col>
         </Row>
