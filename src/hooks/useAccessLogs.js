@@ -23,21 +23,38 @@ export const useAccessLogs = () => {
   }, []);
 
   useEffect(() => {
-    // Handler khi access logs được update từ service
-    const handleAccessLogsUpdated = (data) => {
-      console.log('Access logs updated from service:', data.logs.length);
-      // Service đã update, có thể trigger refresh Redux store nếu cần
-      // dispatch(fetchAccessLogs({}));
+    let debounceTimer;
+
+    // Handler khi access logs được update từ socket
+    const handleVehicleAccess = (data) => {
+      console.log('🚗 Vehicle access notification received in hook');
+      
+      // Debounce fetch để tránh spam API
+      if (debounceTimer) clearTimeout(debounceTimer);
+      
+      debounceTimer = setTimeout(() => {
+        console.log('🔄 Refreshing access logs due to vehicle access...');
+        // dispatch(fetchAccessLogs({})); // Dùng hàm này sẽ reset page về mặc định nếu không truyền params
+        
+        // Refresh giữ nguyên page hiện tại
+        dispatch(fetchAccessLogs({
+          page: pagination.current,
+          limit: pagination.pageSize
+        }));
+      }, 1000);
     };
 
-    // Register listeners for real-time updates
-    accessLogService.on('vehicle_access', handleAccessLogsUpdated);
+    // Register listeners for real-time updates from NotificationService
+    // Vì accessLogService không trực tiếp quản lý socket events
+    const { default: notificationService } = require('../services/notificationService');
+    notificationService.on('vehicle_access', handleVehicleAccess);
 
     // Cleanup
     return () => {
-      accessLogService.off('vehicle_access', handleAccessLogsUpdated);
+      if (debounceTimer) clearTimeout(debounceTimer);
+      notificationService.off('vehicle_access', handleVehicleAccess);
     };
-  }, []);
+  }, [dispatch, pagination.current, pagination.pageSize]);
 
   return {
     accessLogs,
