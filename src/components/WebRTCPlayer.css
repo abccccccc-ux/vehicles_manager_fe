@@ -1,0 +1,277 @@
+.webrtc-player {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f5f5f5;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.webrtc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.webrtc-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.webrtc-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.webrtc-details h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.webrtc-details p {
+  margin: 2px 0 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.webrtc-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Status Badges */
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.status-live {
+  background: #ef4444;
+  color: white;
+}
+
+.status-connecting {
+  background: #fbbf24;
+  color: #1f2937;
+}
+
+.status-offline {
+  background: #6b7280;
+  color: white;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+}
+
+.status-live .status-dot {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+.status-connecting .status-dot {
+  animation: spin 1s linear infinite;
+  background: #1f2937;
+}
+
+/* Restart Button */
+.restart-btn {
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.restart-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Video Container */
+.webrtc-video-container {
+  position: relative;
+  background: #000;
+  padding-bottom: 56.25%; /* 16:9 */
+}
+
+.webrtc-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Overlays */
+.webrtc-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.overlay-content {
+  padding: 24px;
+}
+
+.overlay-icon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.overlay-title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.overlay-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: capitalize;
+}
+
+.overlay-button {
+  margin-top: 16px;
+  padding: 10px 20px;
+  background: #667eea;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.overlay-button:hover {
+  background: #5568d3;
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+}
+
+/* Footer */
+.webrtc-footer {
+  padding: 10px 16px;
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tech-badge {
+  padding: 4px 8px;
+  background: #ede9fe;
+  color: #7c3aed;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.footer-text {
+  color: #6b7280;
+}
+
+.footer-right {
+  color: #9ca3af;
+}
+
+/* Animations */
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-icon {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.overlay-icon.waiting {
+  animation: pulse-icon 2s ease-in-out infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .webrtc-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .webrtc-info {
+    width: 100%;
+  }
+  
+  .webrtc-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .webrtc-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
