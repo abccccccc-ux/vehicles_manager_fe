@@ -12,7 +12,8 @@ export const getWorkingHoursViolations = async (params = {}) => {
     search: params.search || undefined, // tìm kiếm biển số, tên
     status: params.status || undefined,
     violationType: params.violationType || undefined,
-    severity: params.severity || undefined
+    severity: params.severity || undefined,
+    departmentId: params.departmentId || undefined
   };
 
   // Loại bỏ các params undefined

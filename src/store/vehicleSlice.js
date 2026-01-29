@@ -69,6 +69,7 @@ const vehicleSlice = createSlice({
     search: '',
     vehicleType: '', // '' means all, values: 'car'|'motorbike'
     status: '', // '' means all, 'active'|'inactive'
+    departmentId: undefined, // undefined or null means all
     currentRequestId: undefined,
     // bulk upload state
     bulkUploading: false,
@@ -98,6 +99,10 @@ const vehicleSlice = createSlice({
     },
     setStatus(state, action) {
       state.status = action.payload;
+      state.pagination.current = 1;
+    },
+    setDepartmentId(state, action) {
+      state.departmentId = action.payload;
       state.pagination.current = 1;
     },
     setPagination(state, action) {
@@ -225,6 +230,7 @@ export const {
   setSearch,
   setVehicleType,
   setStatus,
+  setDepartmentId,
   setPagination,
   clearError,
   clearBulkUploadResult,

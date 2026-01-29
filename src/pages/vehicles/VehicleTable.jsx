@@ -7,14 +7,15 @@ import VehicleDetailsDialog from './VehicleDetailsDialog';
 import BulkUploadModal from './BulkUploadModal';
 import AdminAddVehicleModal from './AdminAddVehicleModal';
 import useDebounce from '../../hooks/useDebounce';
-import { fetchVehicles, setSearch, setVehicleType, setStatus, setPagination, setSelectedVehicle, setDetailLoading } from '../../store/vehicleSlice';
+import { fetchVehicles, setSearch, setVehicleType, setStatus, setDepartmentId, setPagination, setSelectedVehicle, setDetailLoading } from '../../store/vehicleSlice';
+import departmentApi from '../../api/departmentApi';
 import { isHighLevelAdmin } from '../../utils/permissions';
 
 const { Option } = Select;
 
 const VehicleTable = () => {
   const dispatch = useDispatch();
-  const { list, loading, selectedVehicle, detailLoading, pagination, search: storeSearch, vehicleType: storeVehicleType, status: storeStatus } = useSelector(state => state.vehicle);
+  const { list, loading, selectedVehicle, detailLoading, pagination, search: storeSearch, vehicleType: storeVehicleType, status: storeStatus, departmentId: storeDepartmentId } = useSelector(state => state.vehicle);
   const { user } = useSelector(state => state.auth);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
@@ -25,6 +26,23 @@ const VehicleTable = () => {
   const debouncedSearch = useDebounce(search, 400);
   const [vehicleType, setVehicleTypeLocal] = useState(storeVehicleType || '');
   const [status, setStatusLocal] = useState(storeStatus || '');
+  const [departments, setDepartments] = useState([]);
+  const [departmentId, setDepartmentIdLocal] = useState(storeDepartmentId || undefined);
+
+  // Fetch departments on mount
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await departmentApi.getDepartments();
+        if (res.data?.success) {
+          setDepartments(res.data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch departments', error);
+      }
+    };
+    fetchDepartments();
+  }, []);
 
   // fetch on mount and when filters/pagination change
   useEffect(() => {
@@ -32,11 +50,12 @@ const VehicleTable = () => {
       search: debouncedSearch || undefined,
       vehicleType: vehicleType || undefined,
       isActive: status || undefined,
+      departmentId: departmentId || undefined,
       page: pagination.current,
       limit: pagination.pageSize,
     };
     dispatch(fetchVehicles(params));
-  }, [dispatch, debouncedSearch, vehicleType, status, pagination.current, pagination.pageSize]);
+  }, [dispatch, debouncedSearch, vehicleType, status, departmentId, pagination.current, pagination.pageSize]);
 
   const handleRowClick = async (record) => {
     dispatch(setDetailLoading(true));
@@ -81,6 +100,13 @@ const VehicleTable = () => {
     dispatch(setPagination({ current: 1 }));
   };
 
+  const onDepartmentChange = (val) => {
+    setDepartmentIdLocal(val);
+    dispatch(setDepartmentId(val));
+    // Reset pagination to page 1
+    dispatch(setPagination({ current: 1 }));
+  };
+
   const handleTableChange = (pag) => {
     dispatch(setPagination({ current: pag.current, pageSize: pag.pageSize }));
   };
@@ -91,6 +117,7 @@ const VehicleTable = () => {
       search: debouncedSearch || undefined,
       vehicleType: vehicleType || undefined,
       isActive: status || undefined,
+      departmentId: departmentId || undefined,
       page: pagination.current,
       limit: pagination.pageSize,
     };
@@ -103,6 +130,7 @@ const VehicleTable = () => {
       search: debouncedSearch || undefined,
       vehicleType: vehicleType || undefined,
       isActive: status || undefined,
+      departmentId: departmentId || undefined,
       page: pagination.current,
       limit: pagination.pageSize,
     };
@@ -141,6 +169,11 @@ const VehicleTable = () => {
     { title: 'Loại xe', dataIndex: 'vehicleType', key: 'vehicleType' },
     { title: 'Màu', dataIndex: 'color', key: 'color' },
     { title: 'Chủ xe', dataIndex: ['owner', 'name'], key: 'owner' },
+    {
+      title: 'Đơn vị',
+      key: 'department',
+      render: (_, record) => record.owner?.department?.name || record.owner?.department || '—',
+    },
     { title: 'Ngày đăng ký', dataIndex: 'registrationDate', key: 'registrationDate', render: (date) => new Date(date).toLocaleString('vi-VN') },
     { title: 'Trạng thái', dataIndex: 'isActive', key: 'isActive', render: (active) => active ? 'Hoạt động' : 'Ngừng' },
     ...(canDelete ? [{
@@ -168,7 +201,7 @@ const VehicleTable = () => {
   return (
     <>
       <Row gutter={[16, 16]} style={{ marginBottom: 12 }}>
-        <Col xs={24} sm={12} md={10} lg={8}>
+        <Col xs={24} sm={12} md={10} lg={6}>
           <Input.Search
             placeholder="Tìm biển số, tên, chủ xe..."
             allowClear
@@ -178,10 +211,31 @@ const VehicleTable = () => {
             onSearch={(value) => { setSearchLocal(value); }}
           />
         </Col>
-        <Col xs={24} sm={12} md={8} lg={4}>
+        <Col xs={24} sm={12} md={8} lg={3}>
           <Select onChange={onVehicleTypeChange} style={{ width: '100%' }} allowClear placeholder="Loại xe">
             <Option value="car">Xe ô tô</Option>
             <Option value="motorbike">Xe máy</Option>
+          </Select>
+        </Col>
+        <Col xs={24} sm={12} md={6} lg={4}>
+          <Select
+            onChange={onDepartmentChange}
+            style={{ width: '100%' }}
+            allowClear
+            placeholder="Đơn vị"
+            showSearch
+            filterOption={(input, option) => {
+              const searchText = input.toLowerCase();
+              const name = String(option?.children || '').toLowerCase();
+              const code = String(option?.code || '').toLowerCase();
+              return name.includes(searchText) || code.includes(searchText);
+            }}
+          >
+            {departments.map((dep) => (
+              <Option key={dep._id} value={dep._id} code={dep.code}>
+                {dep.name} - {dep.code}
+              </Option>
+            ))}
           </Select>
         </Col>
         <Col xs={24} sm={12} md={6} lg={4}>
