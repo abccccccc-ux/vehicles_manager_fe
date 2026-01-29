@@ -34,7 +34,7 @@ const AccessLogs = () => {
       page: 1,
       limit: 10
     }));
-    refreshAccessLogs();
+    // refreshAccessLogs();
   };
 
   return (

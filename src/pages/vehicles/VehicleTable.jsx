@@ -10,6 +10,7 @@ import useDebounce from '../../hooks/useDebounce';
 import { fetchVehicles, setSearch, setVehicleType, setStatus, setDepartmentId, setPagination, setSelectedVehicle, setDetailLoading } from '../../store/vehicleSlice';
 import departmentApi from '../../api/departmentApi';
 import { isHighLevelAdmin } from '../../utils/permissions';
+import { formatLicensePlate } from '../../utils/licensePlate';
 
 const { Option } = Select;
 
@@ -164,7 +165,12 @@ const VehicleTable = () => {
   const canDelete = user && isHighLevelAdmin(user.role);
 
   const columns = [
-    { title: 'Biển số', dataIndex: 'licensePlate', key: 'licensePlate' },
+    { 
+      title: 'Biển số', 
+      dataIndex: 'licensePlate', 
+      key: 'licensePlate',
+      render: (text) => <strong>{formatLicensePlate(text)}</strong>
+    },
     { title: 'Tên xe', dataIndex: 'name', key: 'name' },
     { title: 'Loại xe', dataIndex: 'vehicleType', key: 'vehicleType' },
     { title: 'Màu', dataIndex: 'color', key: 'color' },
@@ -214,7 +220,7 @@ const VehicleTable = () => {
         <Col xs={24} sm={12} md={8} lg={3}>
           <Select onChange={onVehicleTypeChange} style={{ width: '100%' }} allowClear placeholder="Loại xe">
             <Option value="car">Xe ô tô</Option>
-            <Option value="motorbike">Xe máy</Option>
+            <Option value="motorcycle">Xe máy</Option>
           </Select>
         </Col>
         <Col xs={24} sm={12} md={6} lg={4}>

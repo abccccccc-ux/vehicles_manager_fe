@@ -4,6 +4,7 @@ import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import { deleteVehicle } from '../../api/vehicleApi';
 import { isHighLevelAdmin } from '../../utils/permissions';
+import { formatLicensePlate } from '../../utils/licensePlate';
 
 const VehicleDetailsDialog = ({ open, onClose, vehicle, loading, onDeleteSuccess }) => {
   const { user } = useSelector(state => state.auth);
@@ -60,12 +61,12 @@ const VehicleDetailsDialog = ({ open, onClose, vehicle, loading, onDeleteSuccess
       open={open} 
       onCancel={onClose} 
       footer={footer} 
-      title={vehicle ? `Chi tiết xe: ${vehicle.licensePlate}` : 'Chi tiết xe'}
+      title={vehicle ? `Chi tiết xe: ${formatLicensePlate(vehicle.licensePlate)}` : 'Chi tiết xe'}
     >
       <Spin spinning={loading} tip="Đang tải...">
         {vehicle && !loading && (
           <Descriptions column={1} bordered>
-            <Descriptions.Item label="Biển số">{vehicle.licensePlate}</Descriptions.Item>
+            <Descriptions.Item label="Biển số">{formatLicensePlate(vehicle.licensePlate)}</Descriptions.Item>
             <Descriptions.Item label="Tên xe">{vehicle.name}</Descriptions.Item>
             <Descriptions.Item label="Loại xe">{vehicle.vehicleType}</Descriptions.Item>
             <Descriptions.Item label="Màu">{vehicle.color}</Descriptions.Item>

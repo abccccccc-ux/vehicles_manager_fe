@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, Descriptions, Tag, Image, Spin, Row, Col, Card, Tabs } from 'antd';
 import { CloseOutlined, EyeOutlined, CarOutlined, UserOutlined, VideoCameraOutlined, PictureOutlined } from '@ant-design/icons';
 import VideoDownloadButton from '../../components/VideoDownloadButton';
+import { formatLicensePlate } from '../../utils/licensePlate';
 
 const AccessLogDetailsDialog = ({ open, onClose, accessLog, loading }) => {
   if (!accessLog && !loading) return null;
@@ -30,7 +31,7 @@ const AccessLogDetailsDialog = ({ open, onClose, accessLog, loading }) => {
   };
 
   const getVehicleTypeLabel = (type) => {
-    return type === 'car' ? 'Xe ô tô' : type === 'motorbike' ? 'Xe máy' : type;
+    return type === 'car' ? 'Xe ô tô' : type === 'motorcycle' ? 'Xe máy' : type;
   };
   console.log(accessLog);
   
@@ -73,7 +74,7 @@ const AccessLogDetailsDialog = ({ open, onClose, accessLog, loading }) => {
                   </Descriptions.Item>
                   <Descriptions.Item label="Biển số">
                     <strong style={{ fontSize: '16px', color: '#1890ff' }}>
-                      {accessLog.log.licensePlate}
+                      {formatLicensePlate(accessLog.log.licensePlate)}
                     </strong>
                   </Descriptions.Item>
                   <Descriptions.Item label="Hành động">

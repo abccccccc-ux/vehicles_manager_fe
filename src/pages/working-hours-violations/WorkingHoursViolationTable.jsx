@@ -5,6 +5,7 @@ import { getWorkingHoursViolationDetails } from '../../api/workingHoursViolation
 import departmentApi from '../../api/departmentApi';
 import WorkingHoursViolationDetailsDialog from './WorkingHoursViolationDetailsDialog';
 import useDebounce from '../../hooks/useDebounce';
+import { formatLicensePlate } from '../../utils/licensePlate';
 import { 
   fetchWorkingHoursViolations, 
   setSearch, 
@@ -80,7 +81,7 @@ const WorkingHoursViolationTable = () => {
       title: 'Biển số', 
       dataIndex: 'licensePlate', 
       key: 'licensePlate',
-      render: (text) => <strong>{text}</strong>
+      render: (text) => <strong>{formatLicensePlate(text)}</strong>
     },
     { 
       title: 'Chủ xe / Người điều khiển', 

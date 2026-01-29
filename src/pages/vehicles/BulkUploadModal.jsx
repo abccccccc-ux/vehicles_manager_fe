@@ -88,7 +88,7 @@ const BulkUploadModal = ({ open, onClose }) => {
       dataIndex: 'vehicleType',
       key: 'vehicleType',
       render: (type) => {
-        const typeMap = { car: 'Xe ô tô', motorbike: 'Xe máy' };
+        const typeMap = { car: 'Xe ô tô', motorcycle: 'Xe máy' };
         return typeMap[type] || type;
       },
     },

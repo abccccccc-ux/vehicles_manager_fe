@@ -10,6 +10,7 @@ import SearchInput from '../../components/Search/SearchInput';
 import { useDispatch, useSelector } from 'react-redux';
 import useDebounce from '../../hooks/useDebounce';
 import { formatDate } from '../../utils/formatDate';
+import { formatLicensePlate } from '../../utils/licensePlate';
 import {
     fetchAllWorkingHoursRequests,
     setPagination,
@@ -61,7 +62,12 @@ const columns = (onApprove, onReject, onDelete) => [
     { title: 'Người yêu cầu', dataIndex: ['requestedBy', 'name'], key: 'requestedBy' },
     { title: 'Mã nhân viên', dataIndex: ['requestedBy', 'employeeId'], key: 'employeeId' },
     { title: 'Số điện thoại', dataIndex: ['requestedBy', 'phone'], key: 'phone' },
-    { title: 'Biển số', dataIndex: 'licensePlate', key: 'licensePlate' },
+    { 
+      title: 'Biển số', 
+      dataIndex: 'licensePlate', 
+      key: 'licensePlate',
+      render: (text) => <strong>{formatLicensePlate(text)}</strong>
+    },
     { title: 'Loại yêu cầu', dataIndex: 'requestType', key: 'requestType', render: requestTypeTag },
     { title: 'Thời gian vào dự kiến', dataIndex: 'plannedEntryTime', key: 'plannedEntryTime', render: (d) => formatDate(d) },
     { title: 'Thời gian ra dự kiến', dataIndex: 'plannedExitTime', key: 'plannedExitTime', render: (d) => formatDate(d) },

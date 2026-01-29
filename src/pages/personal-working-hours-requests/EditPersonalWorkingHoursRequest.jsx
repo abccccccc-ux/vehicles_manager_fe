@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
 import vehicleApi from "../../api/vehicleApi";
 import { updateWorkingHoursRequest } from "../../store/workingHoursRequestSlice";
+import { formatLicensePlate } from "../../utils/licensePlate";
 
 const { Option } = Select;
 
@@ -160,7 +161,7 @@ const EditPersonalWorkingHoursRequest = ({
             >
               {vehicles.map((v) => (
                 <Option key={v._id || v.licensePlate} value={v.licensePlate}>
-                  {v.licensePlate}
+                  {formatLicensePlate(v.licensePlate)}
                   {v.name ? ` - ${v.name}` : ""}
                 </Option>
               ))}
