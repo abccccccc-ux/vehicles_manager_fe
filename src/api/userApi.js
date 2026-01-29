@@ -32,6 +32,18 @@ const userApi = {
   deleteUser: (userId) => {
     return axiosClient.delete(`/users/${userId}`);
   },
+  downloadUserTemplate: () => {
+    return axiosClient.get('/bulk-users/template', { responseType: 'blob' });
+  },
+  bulkUploadUsers: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axiosClient.post('/bulk-users/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
 };
 
 export default userApi;

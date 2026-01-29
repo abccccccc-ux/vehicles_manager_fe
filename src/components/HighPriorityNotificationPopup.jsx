@@ -131,7 +131,8 @@ const HighPriorityNotificationPopup = () => {
             vehicle: data?.vehicle,
             owner: data?.owner,
             guestInfo: data?.guestInfo,
-            isVehicleRegistered: data?.isVehicleRegistered
+            isVehicleRegistered: data?.isVehicleRegistered,
+            recognitionEnabled: data?.recognitionEnabled,
           };
           setAccessLogForVerification(accessLogData);
           setVerificationModalVisible(true);
