@@ -52,7 +52,7 @@ const RegisterVehicleDialog = ({ visible, onClose, onSuccess }) => {
         <Form.Item label="Loại phương tiện" name="vehicleType" rules={[{ required: true, message: 'Vui lòng chọn loại phương tiện' }]}>
           <Select placeholder="Chọn loại phương tiện" showSearch={false}>
             <Option value="car">Ô tô</Option>
-            <Option value="motorbike">Xe máy</Option>
+            <Option value="motorcycle">Xe máy</Option>
             <Option value="bicycle">Xe đạp</Option>
           </Select>
         </Form.Item>

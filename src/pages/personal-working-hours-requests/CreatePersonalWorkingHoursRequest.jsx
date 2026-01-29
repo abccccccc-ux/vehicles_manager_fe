@@ -3,6 +3,7 @@ import { Modal, Form, Select, DatePicker, Input, Button, Spin, message } from 'a
 import { useDispatch, useSelector } from 'react-redux';
 import vehicleApi from '../../api/vehicleApi';
 import { createWorkingHoursRequest } from '../../store/workingHoursRequestSlice';
+import { formatLicensePlate } from '../../utils/licensePlate';
 
 const { Option } = Select;
 
@@ -111,7 +112,9 @@ const CreatePersonalWorkingHoursRequest = ({ visible, onCancel, onCreated }) => 
           ) : (
             <Select showSearch placeholder="Chọn biển số" optionFilterProp="children">
               {vehicles.map((v) => (
-                <Option key={v._id || v.licensePlate} value={v.licensePlate}>{v.licensePlate}{v.name ? ` - ${v.name}` : ''}</Option>
+                <Option key={v._id || v.licensePlate} value={v.licensePlate}>
+                  {formatLicensePlate(v.licensePlate)}{v.name ? ` - ${v.name}` : ''}
+                </Option>
               ))}
             </Select>
           )}

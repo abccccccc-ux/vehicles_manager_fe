@@ -145,7 +145,7 @@ const AdminAddVehicleModal = ({ open, onClose, onSuccess }) => {
         >
           <Select placeholder="Chọn loại phương tiện">
             <Option value="car">Ô tô</Option>
-            <Option value="motorbike">Xe máy</Option>
+            <Option value="motorcycle">Xe máy</Option>
             <Option value="bicycle">Xe đạp</Option>
           </Select>
         </Form.Item>

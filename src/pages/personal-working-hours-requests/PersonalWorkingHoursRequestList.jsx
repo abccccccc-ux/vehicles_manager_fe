@@ -16,6 +16,7 @@ import SearchInput from '../../components/Search/SearchInput';
 import SearchFilter from '../../components/Search/SearchFilter';
 import CreatePersonalWorkingHoursRequest from './CreatePersonalWorkingHoursRequest';
 import EditPersonalWorkingHoursRequest from './EditPersonalWorkingHoursRequest';
+import { formatLicensePlate } from '../../utils/licensePlate';
 
 const STATUS_OPTIONS = [
     { label: "Chờ duyệt", value: "pending" },
@@ -88,7 +89,7 @@ const PersonalWorkingHoursRequestList = () => {
 
     const handleDelete = (record) => {
         showDeleteConfirm({
-            message: `Bạn có chắc chắn muốn xóa yêu cầu với biển số ${record.licensePlate}?`,
+            message: `Bạn có chắc chắn muốn xóa yêu cầu với biển số ${formatLicensePlate(record.licensePlate)}?`,
             onOk: async () => {
                 try {
                     await dispatch(deleteWorkingHoursRequest(record._id)).unwrap();
@@ -107,6 +108,7 @@ const PersonalWorkingHoursRequestList = () => {
             title: 'Biển số',
             dataIndex: 'licensePlate',
             key: 'licensePlate',
+            render: (text) => <strong>{formatLicensePlate(text)}</strong>
         },
         {
             title: 'Loại',

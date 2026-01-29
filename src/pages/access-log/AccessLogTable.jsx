@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getAccessLogById } from '../../api/accessLogApi';
 import AccessLogDetailsDialog from './AccessLogDetailsDialog';
 import useDebounce from '../../hooks/useDebounce';
+import { formatLicensePlate } from '../../utils/licensePlate';
 import { 
   fetchAccessLogs, 
   setSearch, 
@@ -54,7 +55,7 @@ const AccessLogTable = () => {
       title: 'Biển số', 
       dataIndex: 'licensePlate', 
       key: 'licensePlate',
-      render: (text) => <strong>{text}</strong>
+      render: (text) => <strong>{formatLicensePlate(text)}</strong>
     },
     { 
       title: 'Chủ xe', 
@@ -68,7 +69,7 @@ const AccessLogTable = () => {
       key: 'vehicleType',
       render: (text, record) => {
         const type = record.vehicle?.vehicleType;
-        return type === 'car' ? 'Xe ô tô' : type === 'motorbike' ? 'Xe máy' : type || 'N/A';
+        return type === 'car' ? 'Xe ô tô' : type === 'motorcycle' ? 'Xe máy' : type || 'N/A';
       }
     },
     { 

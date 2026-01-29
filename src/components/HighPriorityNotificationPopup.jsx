@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 import { useNotificationContext } from './NotificationProvider';
 import AccessLogVerificationModal from './AccessLogVerificationModal';
+import { formatLicensePlate } from '../utils/licensePlate';
 import './HighPriorityNotificationPopup.css';
 
 const { Title, Text } = Typography;
@@ -323,7 +324,7 @@ const HighPriorityNotificationPopup = () => {
             <div style={{ marginTop: 8 }}>
               {currentNotification.type === 'vehicle_verification' && (
                 <>
-                  <div><Text>Biển số: </Text><Text code>{currentNotification.data.licensePlate}</Text></div>
+                  <div><Text>Biển số: </Text><Text code>{formatLicensePlate(currentNotification.data.licensePlate)}</Text></div>
                   <div><Text>Cổng: </Text><Text code>{currentNotification.data.gateName || currentNotification.data.gateId}</Text></div>
                   <div><Text>Hành động: </Text><Text code>{currentNotification.data.action === 'entry' ? 'Vào' : 'Ra'}</Text></div>
                 </>
@@ -332,14 +333,14 @@ const HighPriorityNotificationPopup = () => {
               {currentNotification.type === 'working_hours_request' && (
                 <>
                   <div><Text>Người yêu cầu: </Text><Text code>{currentNotification.data.requesterName || currentNotification.data.username || currentNotification.data.requestedBy?.name}</Text></div>
-                  <div><Text>Biển số: </Text><Text code>{currentNotification.data.licensePlate}</Text></div>
+                  <div><Text>Biển số: </Text><Text code>{formatLicensePlate(currentNotification.data.licensePlate)}</Text></div>
                   <div><Text>Loại: </Text><Text code>{currentNotification.data.requestType || 'Yêu cầu ra/vào'}</Text></div>
                 </>
               )}
 
               {currentNotification.type === 'vehicle_verified' && (
                 <>
-                  <div><Text>Biển số: </Text><Text code>{currentNotification.data.licensePlate}</Text></div>
+                  <div><Text>Biển số: </Text><Text code>{formatLicensePlate(currentNotification.data.licensePlate)}</Text></div>
                   <div><Text>Kết quả: </Text><Text style={{ color: currentNotification.data.verificationStatus === 'approved' ? '#52c41a' : '#ff4d4f' }}>
                     {currentNotification.data.verificationStatus === 'approved' ? 'Đã phê duyệt' : 'Đã từ chối'}
                   </Text></div>
@@ -348,7 +349,7 @@ const HighPriorityNotificationPopup = () => {
 
               {currentNotification.type === 'working_hours_request_update' && (
                 <>
-                  <div><Text>Biển số: </Text><Text code>{currentNotification.data.licensePlate}</Text></div>
+                  <div><Text>Biển số: </Text><Text code>{formatLicensePlate(currentNotification.data.licensePlate)}</Text></div>
                   <div><Text>Trạng thái: </Text><Text style={{ color: currentNotification.data.status === 'approved' ? '#52c41a' : '#ff4d4f' }}>
                     {currentNotification.data.status === 'approved' ? 'Đã phê duyệt' : 'Đã từ chối'}
                   </Text></div>

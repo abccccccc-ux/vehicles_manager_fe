@@ -1,5 +1,6 @@
 import { io } from 'socket.io-client';
 import accessLogService from './accessLogService';
+import { formatLicensePlate } from '../utils/licensePlate';
 
 // Notification types matching backend spec
 export const NOTIFICATION_TYPES = {
@@ -186,7 +187,7 @@ class NotificationService {
             notificationId: data.notificationId || data._id,
             type: 'working_hours_request',
             title: 'Yêu cầu giờ làm việc',
-            message: `${data.data?.username || data.data?.requesterName} yêu cầu ra/vào - Biển số: ${data.data?.licensePlate}`,
+            message: `${data.data?.username || data.data?.requesterName} yêu cầu ra/vào - Biển số: ${formatLicensePlate(data.data?.licensePlate)}`,
             data: data.data,
             timestamp: new Date(data.timestamp),
             priority: data.priority || 'medium',
@@ -213,7 +214,7 @@ class NotificationService {
             notificationId: data.notificationId || data._id,
             type: 'vehicle_verification',
             title: data.title || 'Xác minh xe',
-            message: data.message || `Xe ${data.data?.licensePlate} ${data.data?.action === 'entry' ? 'vào' : 'ra'} tại ${data.data?.gateName} cần xác minh`,
+            message: data.message || `Xe ${formatLicensePlate(data.data?.licensePlate)} ${data.data?.action === 'entry' ? 'vào' : 'ra'} tại ${data.data?.gateName} cần xác minh`,
             data: data.data,
             timestamp: new Date(data.timestamp),
             priority: data.priority || 'high',
@@ -227,7 +228,7 @@ class NotificationService {
             notificationId: data.notificationId || data._id,
             type: 'vehicle_verified',
             title: data.title || 'Xe đã xác minh',
-            message: data.message || `Xe ${data.data?.licensePlate} đã được ${data.data?.verificationStatus === 'approved' ? 'phê duyệt' : 'từ chối'}`,
+            message: data.message || `Xe ${formatLicensePlate(data.data?.licensePlate)} đã được ${data.data?.verificationStatus === 'approved' ? 'phê duyệt' : 'từ chối'}`,
             data: data.data,
             timestamp: new Date(data.timestamp),
             priority: data.priority || 'medium'
@@ -240,7 +241,7 @@ class NotificationService {
             notificationId: data.notificationId || data._id,
             type: 'vehicle_access',
             title: data.title || 'Xe ra/vào',
-            message: data.message || `Xe ${data.data?.licensePlate || 'không xác định'} đã ${data.data?.direction === 'in' || data.data?.action === 'entry' ? 'vào' : 'ra'} cổng ${data.data?.gateName || data.data?.gateId}`,
+            message: data.message || `Xe ${formatLicensePlate(data.data?.licensePlate) || 'không xác định'} đã ${data.data?.direction === 'in' || data.data?.action === 'entry' ? 'vào' : 'ra'} cổng ${data.data?.gateName || data.data?.gateId}`,
             data: data.data,
             timestamp: new Date(data.timestamp),
             priority: data.priority || 'low',

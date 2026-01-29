@@ -67,7 +67,7 @@ const vehicleSlice = createSlice({
     pagination: { current: 1, pageSize: 10, total: 0 },
     // filters
     search: '',
-    vehicleType: '', // '' means all, values: 'car'|'motorbike'
+    vehicleType: '', // '' means all, values: 'car'|'motorcycle'
     status: '', // '' means all, 'active'|'inactive'
     departmentId: undefined, // undefined or null means all
     currentRequestId: undefined,

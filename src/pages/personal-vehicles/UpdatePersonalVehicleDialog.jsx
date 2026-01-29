@@ -50,7 +50,7 @@ const UpdatePersonalVehicleDialog = ({ visible, onClose, vehicle, onSuccess }) =
         <Form.Item name="vehicleType" label="Loại xe" rules={[{ required: true, message: 'Chọn loại xe' }]}>
           <Select>
             <Option value="car">Ô tô</Option>
-            <Option value="motorbike">Xe máy</Option>
+            <Option value="motorcycle">Xe máy</Option>
           </Select>
         </Form.Item>
 

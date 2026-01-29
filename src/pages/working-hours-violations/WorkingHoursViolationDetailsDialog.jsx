@@ -28,6 +28,7 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import { updateViolationStatus } from "../../api/workingHoursViolationApi";
+import { formatLicensePlate } from "../../utils/licensePlate";
 
 const WorkingHoursViolationDetailsDialog = ({
   open,
@@ -166,7 +167,7 @@ const WorkingHoursViolationDetailsDialog = ({
                   </Descriptions.Item>
                   <Descriptions.Item label="Biển số xe">
                     <strong style={{ fontSize: "16px", color: "#1890ff" }}>
-                      {violation.licensePlate}
+                      {formatLicensePlate(violation.licensePlate)}
                     </strong>
                   </Descriptions.Item>
                   <Descriptions.Item label="Loại vi phạm">
@@ -226,7 +227,7 @@ const WorkingHoursViolationDetailsDialog = ({
                       <code>{violation.vehicle._id}</code>
                     </Descriptions.Item> */}
                     <Descriptions.Item label="Biển số xe">
-                      <strong>{violation.vehicle.licensePlate}</strong>
+                      <strong>{formatLicensePlate(violation.vehicle.licensePlate)}</strong>
                     </Descriptions.Item>
                     <Descriptions.Item label="Tên xe">
                       {violation.vehicle.name}

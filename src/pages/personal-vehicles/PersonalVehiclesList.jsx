@@ -8,6 +8,7 @@ import RegisterVehicleDialog from './RegisterVehicle';
 import UpdatePersonalVehicleDialog from './UpdatePersonalVehicleDialog';
 import { fetchMyVehicles, setSearch, setPagination, setSelectedVehicle, setDetailLoading } from '../../store/vehicleSlice';
 import vehicleApi from '../../api/vehicleApi';
+import { formatLicensePlate } from '../../utils/licensePlate';
 
 const statusTag = (isActive) => (isActive ? <Tag color="green">Hoạt động</Tag> : <Tag color="red">Ngừng</Tag>);
 
@@ -39,7 +40,7 @@ const PersonalVehiclesList = () => {
         Modal.confirm({
             title: 'Xác nhận xóa phương tiện',
             icon: <ExclamationCircleOutlined />,
-            content: `Bạn có chắc chắn muốn xóa phương tiện "${record.licensePlate}" không? Hành động này không thể hoàn tác.`,
+            content: `Bạn có chắc chắn muốn xóa phương tiện "${formatLicensePlate(record.licensePlate)}" không? Hành động này không thể hoàn tác.`,
             okText: 'Xóa',
             okType: 'danger',
             cancelText: 'Hủy',
