@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Button, Table, Tag } from 'antd';
 import { notification } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, ImportOutlined } from '@ant-design/icons';
+import BulkUserUploadModal from './BulkUserUploadModal';
 import showDeleteConfirm from '../../components/DeleteConfirm';
 import CreateUserDialog from './CreateUserDialog';
 import EditUserDialog from './EditUserDialog';
@@ -135,19 +136,22 @@ const Users = () => {
   const [showUserDetails, setShowUserDetails] = useState(false);
   const [alert, setAlert] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
   const dispatch = useDispatch();
 
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (overrides = {}) => {
     setLoading(true);
     try {
       const params = {
-        page,
-        limit,
-        search: debouncedSearch || undefined,
-        role: role || undefined,
+        page: overrides.page || page,
+        limit: overrides.limit || limit,
+        search: overrides.search !== undefined ? overrides.search : (debouncedSearch || undefined),
+        role: overrides.role !== undefined ? overrides.role : (role || undefined),
         // send isActive only when explicitly true/false
-        isActive: typeof isActive === 'boolean' ? isActive : undefined,
+        isActive: overrides.isActive !== undefined 
+          ? overrides.isActive 
+          : (typeof isActive === 'boolean' ? isActive : undefined),
       };
       const res = await userApi.getUsers(params);
       setUsers(res.data.data.map((u) => ({ ...u, key: u._id })));
@@ -204,6 +208,9 @@ const Users = () => {
           <Button type="primary" onClick={() => setShowDialog(true)}>
             Thêm mới người dùng
           </Button>
+          <Button icon={<ImportOutlined />} onClick={() => setShowBulkUploadModal(true)} style={{ marginLeft: 8 }}>
+            Nhập hàng loạt
+          </Button>
         </div>
       </div>
       <div style={{ margin: 16 }} className="bg-white rounded-xl shadow-sm p-4">
@@ -237,6 +244,15 @@ const Users = () => {
         onSuccess={() => {
           setShowDialog(false);
           fetchUsers();
+        }}
+      />
+      <BulkUserUploadModal
+        open={showBulkUploadModal}
+        onClose={() => setShowBulkUploadModal(false)}
+        onRefresh={() => {
+          setPage(1);
+          // Force fetch page 1 immediately
+          fetchUsers({ page: 1 });
         }}
       />
       <EditUserDialog

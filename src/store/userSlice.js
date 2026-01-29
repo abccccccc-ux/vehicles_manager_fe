@@ -39,6 +39,15 @@ export const editUser = createAsyncThunk('users/editUser', async ({ userId, data
 	}
 });
 
+export const bulkUploadUsers = createAsyncThunk('users/bulkUploadUsers', async (file, { rejectWithValue }) => {
+	try {
+		const response = await userApi.bulkUploadUsers(file);
+		return response;
+	} catch (err) {
+		return rejectWithValue(err.response?.data || err.message);
+	}
+});
+
 const initialState = {
 	users: [],
 	userDetails: null,
@@ -46,6 +55,9 @@ const initialState = {
 	error: null,
 	userDetailsLoading: false,
 	userDetailsError: null,
+	bulkUploading: false,
+	bulkUploadResult: null,
+	bulkUploadError: null,
 };
 
 const userSlice = createSlice({
@@ -56,6 +68,11 @@ const userSlice = createSlice({
 			state.userDetails = null;
 			state.userDetailsError = null;
 			state.userDetailsLoading = false;
+		},
+		clearBulkUploadResult(state) {
+			state.bulkUploadResult = null;
+			state.bulkUploadError = null;
+			state.bulkUploading = false;
 		},
 	},
 	extraReducers: (builder) => {
@@ -130,9 +147,24 @@ const userSlice = createSlice({
 			.addCase(editUser.rejected, (state, action) => {
 				state.loading = false;
 				state.error = action.payload;
+			})
+
+			// Bulk Upload
+			.addCase(bulkUploadUsers.pending, (state) => {
+				state.bulkUploading = true;
+				state.bulkUploadError = null;
+				state.bulkUploadResult = null;
+			})
+			.addCase(bulkUploadUsers.fulfilled, (state, action) => {
+				state.bulkUploading = false;
+				state.bulkUploadResult = action.payload?.data || action.payload;
+			})
+			.addCase(bulkUploadUsers.rejected, (state, action) => {
+				state.bulkUploading = false;
+				state.bulkUploadError = action.payload;
 			});
 	},
 });
 
-export const { clearUserDetails } = userSlice.actions;
+export const { clearUserDetails, clearBulkUploadResult } = userSlice.actions;
 export default userSlice.reducer;

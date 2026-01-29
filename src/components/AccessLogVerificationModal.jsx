@@ -601,9 +601,8 @@ const AccessLogVerificationModal = ({
                 <br />
                 <Image
                   width={200}
-                  src={process.env.REACT_APP_API_BASE_URL + recognitionData.originalImage}
+                  src={process.env.REACT_APP_IMAGE_BASE_URL + recognitionData.originalImage}
                   placeholder="Đang tải..."
-                  fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FmuHkKJAIuxI2xIB2A2w2wI6Ag4CNcAMcBG6AHQFvgJ0BG2BH4AAcgQNwAA7AgXAEjsAB+P0/tU71dM+0pKlp9bT0Pq+BQu/prsJby3rOW6/qipRSSilN7Q/3E="
                 />
               </div>
             </Col>
@@ -616,9 +615,8 @@ const AccessLogVerificationModal = ({
                 <br />
                 <Image
                   width={200}
-                  src={process.env.REACT_APP_API_BASE_URL + recognitionData.processedImage}
+                  src={process.env.REACT_APP_IMAGE_BASE_URL + recognitionData.processedImage}
                   placeholder="Đang tải..."
-                  fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FmuHkKJAIuxI2xIB2A2w2wI6Ag4CNcAMcBG6AHQFvgJ0BG2BH4AAcgQNwAA7AgXAEjsAB+P0/tU71dM+0pKlp9bT0Pq+BQu/prsJby3rOW6/qipRSSilN7Q/3E="
                 />
               </div>
             </Col>
