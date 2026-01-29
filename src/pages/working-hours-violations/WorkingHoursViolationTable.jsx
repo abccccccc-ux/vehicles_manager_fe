@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Table, Input, Select, Row, Col, DatePicker } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { getWorkingHoursViolationDetails } from '../../api/workingHoursViolationApi';
+import departmentApi from '../../api/departmentApi';
 import WorkingHoursViolationDetailsDialog from './WorkingHoursViolationDetailsDialog';
 import useDebounce from '../../hooks/useDebounce';
 import { 
@@ -12,7 +13,8 @@ import {
   setEndDate, 
   setPagination, 
   setSelectedViolation, 
-  setDetailLoading} from '../../store/workingHoursViolationSlice';
+  setDetailLoading,
+  setDepartmentId} from '../../store/workingHoursViolationSlice';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -29,9 +31,10 @@ const WorkingHoursViolationTable = () => {
     search: storeSearch, 
     violationType: storeViolationType,
     severity: storeSeverity,
-    status: storeStatus, 
+    status: storeStatus,
     startDate: storeStartDate,
-    endDate: storeEndDate
+    endDate: storeEndDate,
+    departmentId: storeDepartmentId
   } = useSelector(state => state.workingHoursViolation);
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -42,6 +45,23 @@ const WorkingHoursViolationTable = () => {
   const [violationType, setViolationTypeLocal] = useState(storeViolationType || '');
   const [severity, setSeverityLocal] = useState(storeSeverity || '');
   const [status, setStatusLocal] = useState(storeStatus || '');
+  const [departments, setDepartments] = useState([]);
+  const [departmentId, setDepartmentIdLocal] = useState(storeDepartmentId || undefined);
+
+  // Fetch departments on mount
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await departmentApi.getDepartments();
+        if (res.data?.success) {
+          setDepartments(res.data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch departments', error);
+      }
+    };
+    fetchDepartments();
+  }, []);
   
   // Khởi tạo dateRange với default 30 ngày gần đây nếu chưa có trong store
   const [dateRange, setDateRange] = useState(() => {
@@ -67,6 +87,11 @@ const WorkingHoursViolationTable = () => {
       dataIndex: ['owner', 'name'], 
       key: 'owner',
       render: (text, record) => record.owner?.name || record.driver?.name || 'N/A'
+    },
+    {
+      title: 'Đơn vị',
+      key: 'department',
+      render: (_, record) => record.owner?.department?.name || record.owner?.department || '—',
     },
     { 
       title: 'Loại vi phạm', 
@@ -138,6 +163,7 @@ const WorkingHoursViolationTable = () => {
       status: status || undefined,
       startDate: storeStartDate || thirtyDaysAgo.toISOString().split('T')[0],
       endDate: storeEndDate || today.toISOString().split('T')[0],
+      departmentId: departmentId || undefined,
       page: pagination.current,
       limit: pagination.pageSize,
     };
@@ -150,6 +176,7 @@ const WorkingHoursViolationTable = () => {
     status, 
     storeStartDate, 
     storeEndDate, 
+    departmentId,
     pagination.current, 
     pagination.pageSize
   ]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -203,6 +230,11 @@ const WorkingHoursViolationTable = () => {
     dispatch(setViolationType(val));
   };
 
+  const onDepartmentChange = (val) => {
+    setDepartmentIdLocal(val);
+    dispatch(setDepartmentId(val));
+  };
+
   const onDateRangeChange = (dates) => {
     setDateRange(dates);
     if (dates && dates[0] && dates[1]) {
@@ -240,6 +272,27 @@ const WorkingHoursViolationTable = () => {
           >
             <Option value="late">Vào</Option>
             <Option value="early">Ra</Option>
+          </Select>
+        </Col>
+        <Col xs={24} sm={12} md={6} lg={4}>
+          <Select
+            onChange={onDepartmentChange}
+            style={{ width: '100%' }}
+            allowClear
+            placeholder="Đơn vị"
+            showSearch
+            filterOption={(input, option) => {
+              const searchText = input.toLowerCase();
+              const name = String(option?.children || '').toLowerCase();
+              const code = String(option?.code || '').toLowerCase();
+              return name.includes(searchText) || code.includes(searchText);
+            }}
+          >
+            {departments.map((dep) => (
+              <Option key={dep._id} value={dep._id} code={dep.code}>
+                {dep.name} - {dep.code}
+              </Option>
+            ))}
           </Select>
         </Col>
         <Col xs={24} sm={12} md={8} lg={6}>

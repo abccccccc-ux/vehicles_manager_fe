@@ -34,6 +34,7 @@ const workingHoursViolationSlice = createSlice({
     status: '',
     startDate: '',
     endDate: '',
+    departmentId: undefined,
   },
   reducers: {
     setSelectedViolation: (state, action) => {
@@ -70,6 +71,10 @@ const workingHoursViolationSlice = createSlice({
       state.endDate = action.payload;
       state.pagination.current = 1;
     },
+    setDepartmentId: (state, action) => {
+      state.departmentId = action.payload;
+      state.pagination.current = 1;
+    },
     clearFilters: (state) => {
       state.search = '';
       state.violationType = '';
@@ -77,6 +82,7 @@ const workingHoursViolationSlice = createSlice({
       state.status = '';
       state.startDate = '';
       state.endDate = '';
+      state.departmentId = undefined;
       state.pagination.current = 1;
     },
     clearError: (state) => {
@@ -112,7 +118,7 @@ const workingHoursViolationSlice = createSlice({
               severity: entry.lateMinutes > 60 ? 'high' : entry.lateMinutes > 30 ? 'medium' : 'low',
               verificationStatus: 'pending',
               notes: `${entry.lateMinutes} phút`,
-              allowedTime: responseData.summary?.workingHoursConfig?.startTime || '08:00'
+              allowedTime: entry.workingHour?.startTime || '07:00'
             });
           });
           
@@ -129,7 +135,7 @@ const workingHoursViolationSlice = createSlice({
               severity: exit.earlyMinutes > 60 ? 'high' : exit.earlyMinutes > 30 ? 'medium' : 'low',
               verificationStatus: 'pending',
               notes: `${exit.earlyMinutes} phút`,
-              allowedTime: responseData.summary?.workingHoursConfig?.endTime || '16:30'
+              allowedTime: exit.workingHour?.endTime || '17:00'
             });
           });
         });
@@ -158,6 +164,7 @@ export const {
   setStatus,
   setStartDate,
   setEndDate,
+  setDepartmentId,
   clearFilters,
   clearError,
 } = workingHoursViolationSlice.actions;

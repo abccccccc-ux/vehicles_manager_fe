@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, Button, Select, notification } from 'antd';
 import vehicleApi from '../../api/vehicleApi';
 import userApi from '../../api/userApi';
+import useDebounce from '../../hooks/useDebounce';
 
 const { Option } = Select;
 
@@ -10,18 +11,24 @@ const AdminAddVehicleModal = ({ open, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [users, setUsers] = useState([]);
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 500);
 
-  // Fetch danh sách nhân viên khi modal mở
+  // Fetch danh sách nhân viên khi modal mở hoặc từ khóa tìm kiếm thay đổi
   useEffect(() => {
     if (open) {
       fetchUsers();
     }
-  }, [open]);
+  }, [open, debouncedSearch]);
 
   const fetchUsers = async () => {
     setLoadingUsers(true);
     try {
-      const response = await userApi.getUsers({ isActive: true, limit: 1000 });
+      const params = { isActive: true, limit: 100 };
+      if (debouncedSearch) {
+        params.search = debouncedSearch;
+      }
+      const response = await userApi.getUsers(params);
       
       // response.data.data là mảng users trực tiếp
       if (response.data?.success && Array.isArray(response.data?.data)) {
@@ -108,12 +115,13 @@ const AdminAddVehicleModal = ({ open, onClose, onSuccess }) => {
           rules={[{ required: true, message: 'Vui lòng chọn chủ xe' }]}
         >
           <Select
-            placeholder="Chọn chủ xe"
+            placeholder="Tìm kiếm và chọn chủ xe"
             showSearch
             loading={loadingUsers}
-            filterOption={(input, option) =>
-              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-            }
+            filterOption={false} // Tắt lọc phía client
+            onSearch={setSearch} // Cập nhật từ khóa tìm kiếm
+            defaultActiveFirstOption={false}
+            notFoundContent={null}
             options={users.map(user => ({
               value: user._id,
               label: `${user.name} - ${user.username}`,

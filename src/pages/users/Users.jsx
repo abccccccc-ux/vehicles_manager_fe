@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Table, Tag } from 'antd';
+import { Button, Table, Tag, Select } from 'antd';
 import { notification } from 'antd';
 import { EditOutlined, DeleteOutlined, ImportOutlined } from '@ant-design/icons';
 import BulkUserUploadModal from './BulkUserUploadModal';
@@ -8,6 +8,7 @@ import CreateUserDialog from './CreateUserDialog';
 import EditUserDialog from './EditUserDialog';
 import UserDetailsDialog from './UserDetailsDialog';
 import userApi from '../../api/userApi';
+import departmentApi from '../../api/departmentApi';
 import SearchInput from '../../components/Search/SearchInput';
 import SearchFilter from '../../components/Search/SearchFilter';
 import useDebounce from '../../hooks/useDebounce';
@@ -16,6 +17,8 @@ import { deleteUser } from '../../store/userSlice';
 import MainLayout from '../../layouts/MainLayout';
 import AlertMessage from '../../components/AlertMessage';
 
+
+const { Option } = Select;
 
 const Users = () => {
   const columns = [
@@ -34,6 +37,12 @@ const Users = () => {
       title: 'SĐT',
       dataIndex: 'phone',
       key: 'phone',
+    },
+    {
+      title: 'Đơn vị',
+      dataIndex: 'department',
+      key: 'department',
+      render: (dept) => dept?.name || '—',
     },
     {
       title: 'Quyền',
@@ -128,6 +137,8 @@ const Users = () => {
   const debouncedSearch = useDebounce(search, 450);
   const [role, setRole] = useState(undefined);
   const [isActive, setIsActive] = useState(undefined);
+  const [departmentId, setDepartmentId] = useState(undefined);
+  const [departments, setDepartments] = useState([]);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [showDialog, setShowDialog] = useState(false);
@@ -139,6 +150,21 @@ const Users = () => {
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
   const dispatch = useDispatch();
 
+  // Fetch departments on mount
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await departmentApi.getDepartments();
+        if (res.data?.success) {
+          setDepartments(res.data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch departments', error);
+      }
+    };
+    fetchDepartments();
+  }, []);
+
 
   const fetchUsers = async (overrides = {}) => {
     setLoading(true);
@@ -148,6 +174,7 @@ const Users = () => {
         limit: overrides.limit || limit,
         search: overrides.search !== undefined ? overrides.search : (debouncedSearch || undefined),
         role: overrides.role !== undefined ? overrides.role : (role || undefined),
+        departmentId: overrides.departmentId !== undefined ? overrides.departmentId : (departmentId || undefined),
         // send isActive only when explicitly true/false
         isActive: overrides.isActive !== undefined 
           ? overrides.isActive 
@@ -166,7 +193,7 @@ const Users = () => {
   useEffect(() => {
     fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch, role, isActive, page]);
+  }, [debouncedSearch, role, isActive, departmentId, page]);
 
   return (
     <MainLayout>
@@ -177,13 +204,36 @@ const Users = () => {
             value={search}
             onChange={setSearch}
             placeholder="Tìm kiếm theo username, tên hoặc số điện thoại"
-            style={{ width: 320 }}
+            style={{ width: 250 }}
           />
+          <Select
+            placeholder="Chọn đơn vị"
+            allowClear
+            showSearch
+            style={{ width: 160 }}
+            value={departmentId}
+            onChange={(val) => {
+              setDepartmentId(val);
+              setPage(1); // Reset to page 1 when filter changes
+            }}
+            filterOption={(input, option) => {
+              const searchText = input.toLowerCase();
+              const name = String(option?.children || '').toLowerCase();
+              const code = String(option?.code || '').toLowerCase();
+              return name.includes(searchText) || code.includes(searchText);
+            }}
+          >
+            {departments.map((dep) => (
+              <Option key={dep._id} value={dep._id} code={dep.code}>
+                {dep.name} - {dep.code}
+              </Option>
+            ))}
+          </Select>
           <SearchFilter
             value={role}
             onChange={(v) => setRole(v)}
             placeholder="Chọn quyền"
-            style={{ width: 180 }}
+            style={{ width: 160 }}
             options={[
               { label: 'Nhân viên', value: 'user' },
               { label: 'Trưởng đơn vị', value: 'admin' },
